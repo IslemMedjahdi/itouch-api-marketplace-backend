@@ -66,7 +66,7 @@ class Auth:
                 
                 new_user = User(
                     email=data.get('email'),
-                    password_hash=data.get('password'),
+                    password=data.get('password'),
                     firstname=data.get('firstname'),
                     lastname=data.get('lastname')
                 )
