@@ -25,3 +25,15 @@ class AuthDto:
         'status': fields.String(description='The status of the response'),
         'message': fields.String(description='The message of the response')
     })
+
+    user_info_response = api.model('user_info',{
+    'data': fields.Nested(api.model('user_info_data',{
+        'id': fields.Integer(description='The user ID'),
+        'email': fields.String(description='The email address'),
+        'role': fields.String(description='The user role'),
+        'status': fields.String(description='The user status'),
+        'created_at': fields.DateTime(description='The user creation date'),
+        'updated_at': fields.DateTime(description='The user last update date')
+    })),
+    'status': fields.String(description='The status of the response')
+})

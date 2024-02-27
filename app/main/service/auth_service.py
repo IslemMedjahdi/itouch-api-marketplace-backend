@@ -93,3 +93,47 @@ class Auth:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+        
+    @staticmethod
+    def get_logged_in_user(request) -> Tuple[Dict[str, str], int]:
+        auth_token = request.headers.get('Authorization')
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            
+            if isinstance(resp, str):
+                response_object = {
+                'status': 'fail',
+                'message': resp
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+            user = User.query.filter_by(id=resp).first()
+
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User does not exist'
+                }
+                return response_object, HTTPStatus.NOT_FOUND
+            
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'id': user.id,
+                    'email': user.email,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'role': user.role,
+                    'status': user.status,
+                    'created_at': user.created_at.isoformat(),
+                    'updated_at': user.updated_at.isoformat()
+                }
+            }
+            return response_object, HTTPStatus.OK
+            
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return response_object, HTTPStatus.UNAUTHORIZED
