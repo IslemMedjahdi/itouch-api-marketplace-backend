@@ -2,6 +2,9 @@
 from app.main import db, flask_bcrypt
 
 class User(db.Model):
+
+    __tablename__ = 'user'
+
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     firstname = db.Column(db.String(60))
     lastname = db.Column(db.String(60))
@@ -15,12 +18,12 @@ class User(db.Model):
     status = db.Column(db.String(20), default='pending')
 
     @property
-    def password(self):
+    def password_hash(self):
         raise AttributeError('password: write-only field')
     
-    @password.setter
-    def password(self, password):
+    @password_hash.setter
+    def password_hash(self, password):
         self.password_hash = flask_bcrypt.generate_password_hash(password).decode('utf-8')
 
     def __repr__(self):
-        return "<User '{}'>".format(self.username)
+        return "<User '{}'>".format(self.email)

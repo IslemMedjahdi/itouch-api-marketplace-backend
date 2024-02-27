@@ -33,3 +33,4 @@ def create_app(config_name):
     return app
     
 from app.main.model.user_model import User
+from app.main.model.blacklist_token_model import BlacklistToken
