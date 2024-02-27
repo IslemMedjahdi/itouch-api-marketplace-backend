@@ -21,6 +21,12 @@ class User(db.Model):
     # status can be pending, active, suspended, or deleted
     status = db.Column(db.String(20), default='pending')
 
+    def __init__(self, firstname: str, lastname: str, email: str, password: str):
+        self.firstname = firstname
+        self.lastname = lastname
+        self.email = email
+        self.password_hash = flask_bcrypt.generate_password_hash(password).decode('utf-8')
+
 
     def check_password(self, password: str) -> bool:
         return flask_bcrypt.check_password_hash(self.password_hash, password)
