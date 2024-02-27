@@ -13,6 +13,7 @@ from app.main.config import config_by_name
 load_dotenv()
 
 db = SQLAlchemy()
+
 flask_bcrypt = Bcrypt()
 migrate = Migrate()
 
@@ -20,7 +21,6 @@ def create_app(config_name):
     config = config_by_name[config_name]
     
     app = Flask(__name__)
-    app.env = config_name
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
     app.debug = config.DEBUG
@@ -32,5 +32,3 @@ def create_app(config_name):
 
     return app
     
-from app.main.model.user_model import User
-from app.main.model.blacklist_token_model import BlacklistToken
