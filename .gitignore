@@ -20,4 +20,4 @@ instance/
 *.log
 
 venv/
-*.db
+**/*.db
