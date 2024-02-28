@@ -51,9 +51,6 @@ class ActivateUser(Resource):
     @api.response(200, 'Success', activate_user_response)
     @role_token_required([Role.ADMIN])
     def patch(self,user_id: int) -> Tuple[Dict[str, any], int]:
-        print("###################")
-        print(Role.ADMIN)
-        print("###################")
         return "not implemented yet", 404
 
 new_supplier_request = UserDto.new_supplier_request
