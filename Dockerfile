@@ -9,6 +9,6 @@ RUN python3 -m pip install --upgrade pip && \
 COPY . .
 
 EXPOSE 5000
-ENV FLASK_ENV=development
+ENV FLASK_ENV=dev
 
 CMD ["flask", "run", "--host=0.0.0.0"]
