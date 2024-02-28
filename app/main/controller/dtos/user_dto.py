@@ -31,3 +31,25 @@ class UserDto:
         })),
         'status': fields.String(description='The status of the response')
     })
+
+    suspend_user_response = api.model('suspend_user_response',{
+        'id': fields.Integer(description='The user ID'),
+        'status': fields.String(description='The status of the response'),
+    })
+
+    activate_user_response = api.model('activate_user_response',{
+        'id': fields.Integer(description='The user ID'),
+        'status': fields.String(description='The status of the response'),    
+    })
+
+    new_supplier_request = api.model('new_supplier_request',{
+        'email': fields.String(required=True, description='The email address'),
+        'password': fields.String(required=True, description='The user password'),
+        'firstname': fields.String(required=True, description='The user firstname'),
+        'lastname': fields.String(required=True, description='The user lastname')
+    })
+
+    new_supplier_response = api.model('new_supplier_response',{
+        'status': fields.String(description='The status of the response'),
+        'message': fields.String(description='The message of the response')
+    })
