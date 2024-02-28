@@ -19,7 +19,7 @@ class User(db.Model):
     # role can be user or admin or supplier
     role = db.Column(db.String(20), default='user')
     # status can be pending, active, suspended, or deleted
-    status = db.Column(db.String(20), default='pending')
+    status = db.Column(db.String(20), default='active')
 
     def __init__(self, firstname: str, lastname: str, email: str, password: str):
         self.firstname = firstname
