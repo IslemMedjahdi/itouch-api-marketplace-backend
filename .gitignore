@@ -21,4 +21,4 @@ instance/
 
 venv/
 migrations/
-*.db
+**/*.db
