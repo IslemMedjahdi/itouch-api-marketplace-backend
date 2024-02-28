@@ -5,6 +5,7 @@ from flask_restx  import Api
 from flask import Blueprint
 
 from app.main.controller.auth_controller import api as auth_ns
+from app.main.controller.user_controller import api as users_ns
 
 
 blueprint = Blueprint('api', __name__)
@@ -25,6 +26,7 @@ api = Api(blueprint,
 )
 
 api.add_namespace(auth_ns,path='/auth')
+api.add_namespace(users_ns,path='/users')
 
 app = create_app(os.getenv('FLASK_ENV',"dev"))
 

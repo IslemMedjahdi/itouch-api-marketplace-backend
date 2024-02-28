@@ -38,5 +38,5 @@ user_info_response = AuthDto.user_info_response
 class UserInfo(Resource):
     @api.doc('user info')
     @api.response(200, 'Success', user_info_response)
-    def get(self) -> Tuple[Dict[str, str], int]:
+    def get(self) -> Tuple[Dict[str, any], int]:
         return Auth.get_logged_in_user(request)
