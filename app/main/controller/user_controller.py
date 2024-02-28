@@ -5,16 +5,20 @@ from typing import Dict, Tuple
 
 from app.main.controller.dtos.user_dto import UserDto
 
+from app.main.utils.decorators import role_token_required
 
 api = UserDto.api
 
 
 user_info_response = UserDto.user_info_response
-@api.route('/<string:user_id>')
+@api.route('/<int:user_id>')
 class UserInfo(Resource):
     @api.doc('user info')
     @api.response(200, 'Success', user_info_response)
-    def get(self) -> Tuple[Dict[str, any], int]:
+    @role_token_required(['admin'])
+    def get(self,user_id: int) -> Tuple[Dict[str, any], int]:
+        user_id = request.args.get('user_id')
+        print("user_id", user_id)
         return "not implemented yet", 404
 
 
@@ -29,19 +33,19 @@ class UsersList(Resource):
         return "not implemented yet", 404
     
 suspend_user_response = UserDto.suspend_user_response
-@api.route('/<string:user_id>/suspend')
+@api.route('/<int:user_id>/suspend')
 class SuspendUser(Resource):
     @api.doc('suspend user')
     @api.response(200, 'Success', suspend_user_response)
-    def patch(self) -> Tuple[Dict[str, any], int]:
+    def patch(self,user_id: int) -> Tuple[Dict[str, any], int]:
         return "not implemented yet", 404
     
 activate_user_response = UserDto.activate_user_response
-@api.route('/<string:user_id>/activate')
+@api.route('/<int:user_id>/activate')
 class ActivateUser(Resource):
     @api.doc('activate user')
     @api.response(200, 'Success', activate_user_response)
-    def patch(self) -> Tuple[Dict[str, any], int]:
+    def patch(self,user_id: int) -> Tuple[Dict[str, any], int]:
         return "not implemented yet", 404
 
 new_supplier_request = UserDto.new_supplier_request
