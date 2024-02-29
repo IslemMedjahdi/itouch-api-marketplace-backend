@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from app.main.config import config_by_name
 
 
+
 load_dotenv()
 
 db = SQLAlchemy()

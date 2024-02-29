@@ -19,5 +19,5 @@
   3. Run the container
 
   ```bash
-  docker run -p 5000:5000 itouch-api-marketplace-backend:latest
+  docker run -p 5000:5000 ghcr.io/islemmedjahdi/itouch-api-marketplace-backend:latest
   ```
