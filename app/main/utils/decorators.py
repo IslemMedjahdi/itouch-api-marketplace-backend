@@ -19,6 +19,7 @@ def role_token_required(allowed_roles: List[str]) -> Callable:
 
             if role not in allowed_roles:
                 response = {
+                    #'role':role,
                     'status': 'fail',
                     'message': 'You do not have permission to access this resource'
                 }
