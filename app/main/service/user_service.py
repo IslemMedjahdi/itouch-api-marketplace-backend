@@ -13,7 +13,9 @@ class UserManagement:
         try:
             page = int(request.args.get('page', 1))
             per_page = int(request.args.get('per_page', 10))
-
+            # Enforce minimum and maximum per_page values
+            per_page = max(10, min(per_page, 100))
+            
             users_pagination = User.query.paginate(page=page, per_page=per_page)
 
             user_list = []
