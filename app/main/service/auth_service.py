@@ -24,7 +24,7 @@ class Auth:
                     'status': 'fail',
                     'message': 'email or password does not match.'
                 }
-                return response_object, HTTPStatus.UNAUTHORIZED
+                return response_object, HTTPStatus.BAD_REQUEST
             
             if not user.check_status('active'):
                 response_object = {
@@ -115,6 +115,13 @@ class Auth:
                     'message': 'User does not exist'
                 }
                 return response_object, HTTPStatus.NOT_FOUND
+            
+            if not user.check_status('active'):
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User is not active.'
+                }
+                return response_object, HTTPStatus.FORBIDDEN
             
             response_object = {
                 'status': 'success',
