@@ -4,8 +4,8 @@ class ApiVersionPlan(db.Model):
 
     __tablename__ = "api_version_plan"
 
-    api_id = db.Column(db.Integer, db.ForeignKey('api_version.api_id'), primary_key=True)
-    api_version = db.Column(db.String, db.ForeignKey('api_version.version'), primary_key=True)
+    api_id = db.Column(db.Integer, db.ForeignKey('api_version.api_id'),primary_key=True)
+    api_version = db.Column(db.String, db.ForeignKey('api_version.version'),primary_key=True)
     name = db.Column(db.String, primary_key=True)
     description = db.Column(db.String(255), nullable=False)
     price = db.Column(db.Integer)
