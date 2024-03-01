@@ -177,3 +177,114 @@ class UserManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    
+    @staticmethod
+    def update_logged_in_user_info(request,data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+        auth_token = request.headers.get('Authorization')
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            
+            if isinstance(resp, str):
+                response_object = {
+                'status': 'fail',
+                'message': resp
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+            user = User.query.filter_by(id=resp).first()
+
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User does not exist'
+                }
+                return response_object, HTTPStatus.NOT_FOUND
+            
+
+            new_firstname = data.get('firstname')
+            new_lastname = data.get('lastname')
+            if new_firstname:
+                user.firstname = new_firstname
+            if new_lastname:
+                user.lastname = new_lastname
+            
+            db.session.commit()
+
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'id': user.id,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
+                    'updated_at': user.updated_at.isoformat()
+                }
+            }
+            return response_object, HTTPStatus.OK
+            
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return response_object, HTTPStatus.UNAUTHORIZED
+    
+
+    @staticmethod
+    def update_logged_in_user_password(request) -> Tuple[Dict[str, str], int]:
+        auth_token = request.headers.get('Authorization')
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            
+            if isinstance(resp, str):
+                response_object = {
+                'status': 'fail',
+                'message': resp
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+            user = User.query.filter_by(id=resp).first()
+
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User does not exist'
+                }
+                return response_object, HTTPStatus.NOT_FOUND
+            
+            current_password = request.args.get('current_password')
+            new_password = request.args.get('new_password')
+
+            # Verify current password
+            if not current_password:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Current password is required'
+                }
+                return response_object, HTTPStatus.BAD_REQUEST
+
+            if not user.check_password(current_password):
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Incorrect current password'
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+
+            # Update password
+            password_hash = flask_bcrypt.generate_password_hash(new_password).decode('utf-8')
+            user.password_hash = password_hash
+            db.session.commit()
+            response_object = {
+                'status': 'success',
+                'message': 'Password updated successfully'
+                
+            }
+            return response_object, HTTPStatus.OK
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return response_object, HTTPStatus.UNAUTHORIZED
+
+

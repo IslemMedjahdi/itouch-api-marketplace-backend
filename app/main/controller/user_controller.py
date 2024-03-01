@@ -63,3 +63,27 @@ class NewSupplier(Resource):
     def post(self) -> Tuple[Dict[str, any], int]:
         post_data = request.json
         return UserManagement.create_supplier(data=post_data)
+
+
+update_user_request = UserDto.update_user_request
+update_user_response = UserDto.update_user_response
+@api.route('/update')
+class UpdateMe(Resource):
+    @api.doc("Update the user informations")
+    @api.expect(update_user_request, validate=True)
+    @api.response(200,'success',update_user_response)
+    def patch(self) -> Tuple[Dict[str, any], int]:
+        post_data = request.json
+        return UserManagement.update_logged_in_user_info(request,data=post_data)
+
+
+update_password_response = UserDto.update_password_response
+@api.route('/password')
+class UpdatePassword(Resource):
+    @api.doc("Update the user password")
+    @api.param('current_password', 'The current_password of the user')
+    @api.param('new_password', 'The new_password')
+    @api.response(200,'success',update_password_response)
+    def patch(self) -> Tuple[Dict[str, any], int]:
+        return UserManagement.update_logged_in_user_password(request)
+
