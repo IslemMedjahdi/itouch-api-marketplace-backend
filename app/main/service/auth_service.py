@@ -24,7 +24,7 @@ class Auth:
                     'status': 'fail',
                     'message': 'email or password does not match.'
                 }
-                return response_object, HTTPStatus.UNAUTHORIZED
+                return response_object, HTTPStatus.BAD_REQUEST
             
             if not user.check_status('active'):
                 response_object = {
