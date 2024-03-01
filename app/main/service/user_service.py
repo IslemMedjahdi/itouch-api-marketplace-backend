@@ -5,6 +5,8 @@ from http import HTTPStatus
 from app.main.model.user_model import User
 from app.main import db, flask_bcrypt
 from app.main.utils.validators import isEmailValid
+from app.main.utils.roles import Role
+
 
 
 class UserManagement: 
@@ -64,7 +66,7 @@ class UserManagement:
                 
                 new_user = User(
                     email=email,  
-                    role='supplier',
+                    role=Role.SUPPLIER,
                     password=data.get('password'),
                     firstname=data.get('firstname'),
                     lastname=data.get('lastname')
