@@ -116,6 +116,13 @@ class Auth:
                 }
                 return response_object, HTTPStatus.NOT_FOUND
             
+            if not user.check_status('active'):
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User is not active.'
+                }
+                return response_object, HTTPStatus.FORBIDDEN
+            
             response_object = {
                 'status': 'success',
                 'data': {
