@@ -1,23 +1,23 @@
 import os
 from flask.testing import FlaskClient
-from app.test.fixtures.auth.login_request import login_request
+from app.test.fixtures.auth.login_request import login_request, admin_login
 from app.test.fixtures.auth.register_request import register_request
 
 
 def test_successfull_login(client: FlaskClient):
-    response = client.post('/auth/login', json=login_request())
+    response = client.post('/auth/login', json=admin_login())
 
     assert response.status_code == 200
     assert 'Authorization' in response.json
 
 def test_login_with_not_found_email(client: FlaskClient):
-    response = client.post('/auth/login', json=login_request(email='not_found@itouch.com'))
+    response = client.post('/auth/login', json=login_request())
 
     assert response.status_code == 404
     assert 'Authorization' not in response.json
 
 def test_login_with_invalid_password(client: FlaskClient):
-    response = client.post('/auth/login', json=login_request(password='123'))
+    response = client.post('/auth/login', json=admin_login(password='wrong_password'))
 
     assert response.status_code == 400
     assert 'Authorization' not in response.json
@@ -33,16 +33,18 @@ def test_register_with_invalid_email(client: FlaskClient):
     assert response.status_code == 400
 
 def test_register_with_existing_email(client: FlaskClient):
-    response = client.post('/auth/register', json=register_request(email = 'test1@itouch.com'))
+
+    register_request_data = register_request()
+    response = client.post('/auth/register', json=register_request_data)
 
     assert response.status_code == 201
 
-    response = client.post('/auth/register', json=register_request(email = 'test1@itouch.com'))
+    response = client.post('/auth/register', json=register_request_data)
     
     assert response.status_code == 409
 
 def test_get_logged_in_user(client: FlaskClient):
-    register_request_data = register_request(email = 'test_me@itouch.com')
+    register_request_data = register_request()
     response = client.post('/auth/register', json=register_request_data)
 
     assert response.status_code == 201
