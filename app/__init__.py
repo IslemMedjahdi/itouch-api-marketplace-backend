@@ -39,7 +39,7 @@ with app.app_context():
 
 # import models to let the migrate tool know
 from app.main.model.user_model import User
-from app.main.model.api_model import Api
+from app.main.model.api_model import ApiModel
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_version_key_model import ApiVersionKey
 from app.main.model.api_version_model import ApiVersion

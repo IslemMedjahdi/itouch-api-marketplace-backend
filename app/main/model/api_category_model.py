@@ -10,7 +10,6 @@ class ApiCategory(db.Model):
     created_at = db.Column(db.DateTime(), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(), server_default=db.func.now(), server_onupdate=db.func.now())
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user = db.relationship('User', backref='categories')
 
     def __repr__(self):
         return "<ApiCategory '{}'>".format(self.name)

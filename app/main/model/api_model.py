@@ -1,6 +1,6 @@
 from app.main import db
 
-class Api(db.Model):
+class ApiModel(db.Model):
 
     __tablename__ = "api"
 
@@ -8,9 +8,7 @@ class Api(db.Model):
     name = db.Column(db.String(255), nullable = False)
     description = db.Column(db.String(255), nullable = False)
     category_id = db.Column(db.Integer, db.ForeignKey('api_category.id'), nullable = False)
-    category = db.relationship('api_category', backref='apis')
     supplier_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable = False)
-    supplier = db.relationship('User', backref='supplied_apis')
     created_at = db.Column(db.DateTime(), server_default=db.func.now())
     updated_at = db.Column(db.DateTime(), server_default=db.func.now(), server_onupdate=db.func.now())
     status = db.Column(db.String(255), nullable = False, default = 'pending')

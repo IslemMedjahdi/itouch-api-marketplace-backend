@@ -8,6 +8,8 @@ from app.main import create_app, db
 from app.main.controller.auth_controller import api as auth_ns
 from app.main.controller.user_controller import api as users_ns
 
+from app.main.model.user_model import User
+
 
 blueprint = Blueprint('api', __name__)
 authorizations = {
@@ -48,12 +50,3 @@ def client(app):
     return app.test_client()
 
 
-# import models to let the migrate tool know
-from app.main.model.user_model import User
-from app.main.model.api_model import Api
-from app.main.model.api_category_model import ApiCategory
-from app.main.model.api_version_key_model import ApiVersionKey
-from app.main.model.api_version_model import ApiVersion
-from app.main.model.api_version_request_model import ApiVersionRequest
-from app.main.model.api_version_plan_model import ApiVersionPlan
-from app.main.model.api_header_model import ApiVersionHeader
