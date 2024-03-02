@@ -41,8 +41,7 @@ with app.app_context():
 from app.main.model.user_model import User
 from app.main.model.api_model import ApiModel
 from app.main.model.api_category_model import ApiCategory
-from app.main.model.api_version_key_model import ApiVersionKey
 from app.main.model.api_version_model import ApiVersion
-from app.main.model.api_version_request_model import ApiVersionRequest
-from app.main.model.api_version_plan_model import ApiVersionPlan
+from app.main.model.api_plan_model import ApiPlan
 from app.main.model.api_header_model import ApiVersionHeader
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
