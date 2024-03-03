@@ -9,7 +9,7 @@ from app.main.controller.auth_controller import api as auth_ns
 from app.main.controller.user_controller import api as users_ns
 
 from app.main.model.user_model import User
-from app.main.utils.roles import Role
+
 
 blueprint = Blueprint('api', __name__)
 authorizations = {
@@ -48,4 +48,5 @@ def app():
 @pytest.fixture()
 def client(app):
     return app.test_client()
+
 
