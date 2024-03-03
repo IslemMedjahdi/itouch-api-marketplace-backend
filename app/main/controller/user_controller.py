@@ -22,7 +22,8 @@ class UserInfo(Resource):
         #print("user_id", user_id)
         return UserManagement.get_single_user(user_id) 
 
-
+new_user_request = UserDto.new_user_request
+new_user_response = UserDto.new_user_response
 users_list_response = UserDto.users_list_response
 @api.route("/")
 class UsersList(Resource):
@@ -33,6 +34,13 @@ class UsersList(Resource):
     @role_token_required([Role.ADMIN])
     def get(self) -> Tuple[Dict[str, any], int]:
         return UserManagement.get_all_users(request)
+    @api.doc("Create user")
+    @api.expect(new_user_request, validate=True)
+    @api.response(200,'success',new_user_response)
+    @role_token_required([Role.ADMIN])
+    def post(self) -> Tuple[Dict[str, any], int]:
+        post_data = request.json
+        return UserManagement.create_user(data=post_data)
     
 suspend_user_response = UserDto.suspend_user_response
 @api.route('/<int:user_id>/suspend')
@@ -86,4 +94,6 @@ class UpdatePassword(Resource):
     @api.response(200,'success',update_password_response)
     def patch(self) -> Tuple[Dict[str, any], int]:
         return UserManagement.update_logged_in_user_password(request)
+
+
 

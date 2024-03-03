@@ -1,9 +1,13 @@
+import os
 import datetime
 import jwt
 from typing import Union
 
 from app.main import db, flask_bcrypt
 from app.main.config import key
+
+from app.main.utils.roles import Role
+
 
 class User(db.Model):
 
@@ -47,8 +51,8 @@ class User(db.Model):
         """
         try:
             payload = {
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(days=1, seconds=5),
-                'iat': datetime.datetime.utcnow(),
+                'exp': datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=1, seconds=5),
+                'iat': datetime.datetime.now(datetime.UTC),
                 'sub': user_id
             }
             return jwt.encode(
@@ -74,5 +78,24 @@ class User(db.Model):
         except jwt.InvalidTokenError:
                 return 'Invalid token. Please log in again.'
 
+    @staticmethod
+    def create_default_admin():
+        user = User.query.filter_by(email=os.getenv('DEFAULT_ADMIN_EMAIL','admin@itouch.com')).first()
+
+        if user is not None:
+            return
+
+        default_admin = User(
+            email=os.getenv('DEFAULT_ADMIN_EMAIL','admin@itouch.com'),
+            password=os.getenv('DEFAULT_ADMIN_PASSWORD','admin123'),
+            firstname="Admin",
+            lastname="User",
+            role=Role.ADMIN
+        )
+
+        db.session.add(default_admin)
+        db.session.commit()
+
     def __repr__(self):
         return "<User '{}'>".format(self.email)
+        

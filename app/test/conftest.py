@@ -1,13 +1,15 @@
-import os
-from app.main import create_app
-
 from flask_restx  import Api
 from flask import Blueprint
+
+import pytest
+
+from app.main import create_app, db
 
 from app.main.controller.auth_controller import api as auth_ns
 from app.main.controller.user_controller import api as users_ns
 
 from app.main.model.user_model import User
+from app.main.utils.roles import Role
 
 blueprint = Blueprint('api', __name__)
 authorizations = {
@@ -19,7 +21,7 @@ authorizations = {
 }
 
 api = Api(blueprint,
-        title='ITOUCH API MARKETPLACE API',
+        title='ITOUCH API MARKETPLACE API DOCUMENTATION',
         version='1.0',
         description="ITOUCH API MARKETPLACE IS A PLATFORM THAT ALLOWS USERS TO CREATE, MANAGE AND MONETIZE THEIR API'S.",
         authorizations=authorizations,
@@ -29,13 +31,21 @@ api = Api(blueprint,
 api.add_namespace(auth_ns,path='/auth')
 api.add_namespace(users_ns,path='/users')
 
-app = create_app(os.getenv('FLASK_ENV',"dev"))
+@pytest.fixture()
+def app():
+    app = create_app("test")
+    app.register_blueprint(blueprint)
+    app.app_context().push()
 
-app.register_blueprint(blueprint)
-app.app_context().push()
+    with app.app_context():
+        db.create_all()
 
-with app.app_context():    
-    User.create_default_admin()
+        User.create_default_admin()
+        
+        yield app
+        db.drop_all()
 
-# import models to let the migrate tool know
-from app.main.model.user_model import User
+@pytest.fixture()
+def client(app):
+    return app.test_client()
+

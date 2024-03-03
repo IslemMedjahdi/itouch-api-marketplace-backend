@@ -102,6 +102,8 @@ class UserManagement:
                 user_data = {
                     'id': user.id,
                     'email': user.email,
+                    'firstname': user.firstname,
+                    'lastname': user.lastname,
                     'role': user.role,
                     'status': user.status,
                     'created_at': user.created_at.isoformat(),
@@ -290,3 +292,54 @@ class UserManagement:
             return response_object, HTTPStatus.UNAUTHORIZED
 
 
+
+    @staticmethod
+    def create_user(data: Dict[str, str]) -> Tuple[Dict[str, Any], int]:
+        try:
+            user = User.query.filter_by(email=data.get('email')).first()
+            if not user:
+                email = data.get('email')
+                if not isEmailValid(email):
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'Invalid email format.'
+                    }
+                    return response_object, HTTPStatus.BAD_REQUEST
+                
+                new_user = User(
+                    email=email,  
+                    password=data.get('password'),
+                    firstname=data.get('firstname'),
+                    lastname=data.get('lastname')
+                )
+
+                db.session.add(new_user)
+                db.session.commit()
+
+                response_object = {
+                    'data': {
+                    'id' : new_user.id,
+                    'email': new_user.email,
+                    'firstname': new_user.firstname,
+                    'lastname': new_user.lastname,
+                    'status' : new_user.status,
+                    'created_at': new_user.created_at.isoformat(),
+                    'updated_at': new_user.updated_at.isoformat()
+                    },
+                    'status': 'success',
+                    'message': 'Successfully created a user.',
+                }
+                return response_object, HTTPStatus.CREATED
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User already exists.'
+                }
+                return response_object, HTTPStatus.CONFLICT
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
