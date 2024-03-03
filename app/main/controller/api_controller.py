@@ -172,3 +172,12 @@ class UpdateEndpoint(Resource):
     def patch(self, id, version, endpoint_id):
         return "Not implemented yet"
 
+@api.route('/test/<int:id>/<string:version>/<path:params>')
+class TestEndpoint(Resource):
+    @api.doc('test endpoint')
+    @api.response(200, 'Success')
+    def get(self, id, version, params):
+        print(params)
+        print(id)
+        print(version)
+        return "Not implemented yet"
