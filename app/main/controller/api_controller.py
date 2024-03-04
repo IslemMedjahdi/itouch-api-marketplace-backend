@@ -173,7 +173,7 @@ class UpdateHeader(Resource):
         return "Not implemented yet"
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
-@api.route('<int:id>/versions/<string:version>/endpoints/create')
+@api.route('/<int:id>/versions/<string:version>/endpoints/create')
 class CreateEndpoint(Resource):
     @api.doc('create endpoint')
     @api.response(201, 'Success')
@@ -182,7 +182,7 @@ class CreateEndpoint(Resource):
         return "Not implemented yet"
 
 # this route is for deleting an endpoint from a version of an api
-@api.route('<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete')
+@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete')
 class DeleteEndpoint(Resource):
     @api.doc('delete endpoint')
     @api.response(200, 'Success')
@@ -191,7 +191,7 @@ class DeleteEndpoint(Resource):
         return "Not implemented yet"
 
 # this route is for updating an endpoint from a version of an api
-@api.route('<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update')
+@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update')
 class UpdateEndpoint(Resource):
     @api.doc('update endpoint')
     @api.response(200, 'Success')
