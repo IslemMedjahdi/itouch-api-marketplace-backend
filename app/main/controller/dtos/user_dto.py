@@ -80,6 +80,9 @@ class UserDto:
         'lastname': fields.String(required=True, description='The user lastname')
     })
 
+    
+    
+
     update_user_response = api.model('user_info',{
     'data': fields.Nested(api.model('user_info_data',{
         'id': fields.Integer(description='The user ID'),
@@ -93,6 +96,10 @@ class UserDto:
     })),
     'status': fields.String(description='The status of the response')})
 
+    update_password_request = api.model('update_password_request',{
+        'current_password': fields.String(required=True, description='The user current password'),
+        'new_password': fields.String(required=True, description='The user new password')
+    })
 
     update_password_response = api.model('update_password_response',{
         'status': fields.String(description='The status of the response'),  

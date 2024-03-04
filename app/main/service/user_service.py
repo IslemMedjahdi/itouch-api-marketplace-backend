@@ -235,7 +235,7 @@ class UserManagement:
     
 
     @staticmethod
-    def update_logged_in_user_password(request) -> Tuple[Dict[str, str], int]:
+    def update_logged_in_user_password(request,data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
         auth_token = request.headers.get('Authorization')
         if auth_token:
             resp = User.decode_auth_token(auth_token)
@@ -256,8 +256,8 @@ class UserManagement:
                 }
                 return response_object, HTTPStatus.NOT_FOUND
             
-            current_password = request.args.get('current_password')
-            new_password = request.args.get('new_password')
+            current_password = data.get('current_password')
+            new_password = data.get('new_password')
 
             # Verify current password
             if not current_password:

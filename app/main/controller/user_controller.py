@@ -84,16 +84,16 @@ class UpdateMe(Resource):
         post_data = request.json
         return UserManagement.update_logged_in_user_info(request,data=post_data)
 
-
+update_password_request = UserDto.update_password_request
 update_password_response = UserDto.update_password_response
 @api.route('/password')
 class UpdatePassword(Resource):
-    @api.doc("Update the user password")
-    @api.param('current_password', 'The current_password of the user')
-    @api.param('new_password', 'The new_password')
+    @api.doc("Update the logged in user password")
+    @api.expect(update_password_request, validate=True)
     @api.response(200,'success',update_password_response)
     def patch(self) -> Tuple[Dict[str, any], int]:
-        return UserManagement.update_logged_in_user_password(request)
+        post_data = request.json
+        return UserManagement.update_logged_in_user_password(request,data=post_data)
 
 
 
