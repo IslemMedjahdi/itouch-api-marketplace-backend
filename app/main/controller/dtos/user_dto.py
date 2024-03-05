@@ -101,6 +101,7 @@ class UserDto:
         'new_password': fields.String(required=True, description='The user new password')
     })
 
+
     update_password_response = api.model('update_password_response',{
         'status': fields.String(description='The status of the response'),  
         'message': fields.Integer(description='The response message'),
