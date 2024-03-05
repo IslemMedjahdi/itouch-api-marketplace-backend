@@ -47,3 +47,6 @@ from app.main.model.api_version_model import ApiVersion
 from app.main.model.api_plan_model import ApiPlan
 from app.main.model.api_header_model import ApiVersionHeader
 from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
+from app.main.model.api_key_model import ApiKey
+from app.main.model.api_subscription_model import ApiSubscription
+from app.main.model.api_request_model import ApiRequest
