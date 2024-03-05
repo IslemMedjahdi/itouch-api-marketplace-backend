@@ -9,3 +9,4 @@ def register_request(email: str = None, password: str = None,first_name: str = N
         'firstname': first_name or fake.first_name(),
         'lastname': last_name or fake.last_name()
     } 
+
