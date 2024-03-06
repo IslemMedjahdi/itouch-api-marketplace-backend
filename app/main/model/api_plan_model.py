@@ -4,6 +4,7 @@ class ApiPlan(db.Model):
 
     __tablename__ = "api_plan"
 
+    #id = db.Column(db.Integer,primary_key = True, autoincrement = True)
     api_id = db.Column(db.Integer, db.ForeignKey('api.id'),primary_key=True)
     name = db.Column(db.String, primary_key=True)
     description = db.Column(db.String(255), nullable=False)
