@@ -36,13 +36,17 @@ class GetCategories(Resource):
     
 
 # this route for creating a new api: (name, description, category_id, supplier_id)
+create_api_request = ApiDto.create_api_request
+create_api_response = ApiDto.create_api_response
 @api.route('/create')
 class CreateApi(Resource):
     @api.doc('create api')
-    @api.response(201, 'Success')
+    @api.expect(create_api_request, validate=True)
+    @api.response(201, 'Success', create_api_response)
     @role_token_required([Role.SUPPLIER])
     def post(self):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_api(request,data=post_data)
 
 
 # this route is for getting all apis
