@@ -12,7 +12,6 @@ from app.main.utils.roles import Role
 api = ApiDto.api
 
 
-# this route is for creating a new category
 create_category_request = ApiDto.create_category_request
 create_category_response = ApiDto.create_category_response
 @api.route('/categories/create')
@@ -25,7 +24,6 @@ class CreateCategory(Resource):
         post_data = request.json
         return ApiManagement.create_category(request,data=post_data)
 
-# this route is for getting all categories   
 categories_list_response = ApiDto.categories_list_response
 @api.route('/categories')
 class GetCategories(Resource):
@@ -35,7 +33,6 @@ class GetCategories(Resource):
         return ApiManagement.get_all_categories()
     
 
-# this route for creating a new api: (name, description, category_id, supplier_id)
 create_api_request = ApiDto.create_api_request
 create_api_response = ApiDto.create_api_response
 @api.route('/create')
@@ -49,7 +46,6 @@ class CreateApi(Resource):
         return ApiManagement.create_api(request,data=post_data)
 
 
-# this route is for getting all apis
 apis_list_response = ApiDto.apis_list_response
 @api.route('/')
 class GetApis(Resource):
@@ -61,8 +57,7 @@ class GetApis(Resource):
     def get(self) ->Tuple[Dict[str, any], int]:
         return ApiManagement.get_all_apis(request)
 
-# this route is for deleting an api
-@api.route('/<int:id>/delete')
+@api.route('/<int:id>/delete',doc=False)
 class DeleteApi(Resource):
     @api.doc('delete api')
     @api.response(200, 'Success')
@@ -70,8 +65,7 @@ class DeleteApi(Resource):
     def delete(self, id):
         return "Not implemented yet"
 
-# this route is for updating an api (name,description,category,plans)
-@api.route('/<int:id>/update')
+@api.route('/<int:id>/update',doc=False)
 class UpdateApi(Resource):
     @api.doc('update api')
     @api.response(200, 'Success')
@@ -90,7 +84,7 @@ class GetApiById(Resource):
 
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
-@api.route('/<int:id>/activate')
+@api.route('/<int:id>/activate',doc=False)
 class ActivateApi(Resource):
     @api.doc('activate api')
     @api.response(200, 'Success')
@@ -100,7 +94,7 @@ class ActivateApi(Resource):
 
 # this route is for deactivating an active api 
 # supplier can only deactivate his own api
-@api.route('/<int:id>/deactivate')
+@api.route('/<int:id>/deactivate',doc=False)
 class DeactivateApi(Resource):
     @api.doc('deactivate api')
     @api.response(200, 'Success')
@@ -109,7 +103,7 @@ class DeactivateApi(Resource):
         return "Not implemented yet"
 
 # this route is for creating a new version of an api (version_name,base_url,headers,endpoints)
-@api.route('/<int:id>/versions/create')
+@api.route('/<int:id>/versions/create',doc=False)
 class CreateVersion(Resource):
     @api.doc('create version')
     @api.response(201, 'Success')
@@ -118,7 +112,7 @@ class CreateVersion(Resource):
         return "Not implemented yet"
 
 # this route is for getting all versions of an api
-@api.route('/<int:id>/versions')
+@api.route('/<int:id>/versions',doc=False)
 class GetVersions(Resource):
     @api.doc('get versions')
     @api.response(200, 'Success')
@@ -126,7 +120,7 @@ class GetVersions(Resource):
         return "Not implemented yet"
 
 # this route is for getting a version of an api by id
-@api.route('/<int:id>/versions/<string:version>')
+@api.route('/<int:id>/versions/<string:version>',doc=False)
 class GetVersion(Resource):
     @api.doc('get version')
     @api.response(200, 'Success')
@@ -135,7 +129,7 @@ class GetVersion(Resource):
 
 # this route is for activating a version of an api, supplier can only activate his own version
 # supplier cant activate a version that is disabled by an admin
-@api.route('/<int:id>/versions/<string:version>/activate')
+@api.route('/<int:id>/versions/<string:version>/activate',doc=False)
 class ActivateVersion(Resource):
     @api.doc('activate version')
     @api.response(200, 'Success')
@@ -144,7 +138,7 @@ class ActivateVersion(Resource):
         return "Not implemented yet"
     
 # this route is for deactivating a version of an api, supplier can only deactivate his own version
-@api.route('/<int:id>/versions/<string:version>/deactivate')
+@api.route('/<int:id>/versions/<string:version>/deactivate',doc=False)
 class DeactivateVersion(Resource):
     @api.doc('deactivate version')
     @api.response(200, 'Success')
@@ -153,7 +147,7 @@ class DeactivateVersion(Resource):
         return "Not implemented yet"
 
 # this route is for deleting a version of an api, supplier can only delete his own version
-@api.route('/<int:id>/versions/<string:version>/delete')
+@api.route('/<int:id>/versions/<string:version>/delete',doc=False)
 class DeleteVersion(Resource):
     @api.doc('delete version')
     @api.response(200, 'Success')
@@ -162,7 +156,7 @@ class DeleteVersion(Resource):
         return "Not implemented yet"
 
 # this route is for adding a new header to a version of an api
-@api.route('/<int:id>/versions/<string:version>/headers/create')
+@api.route('/<int:id>/versions/<string:version>/headers/create',doc=False)
 class CreateHeader(Resource):
     @api.doc('create header')
     @api.response(201, 'Success')
@@ -171,7 +165,7 @@ class CreateHeader(Resource):
         return "Not implemented yet"
 
 # this route is for deleting a header from a version of an api
-@api.route('/<int:id>/versions/<string:version>/headers/<int:header_id>/delete')
+@api.route('/<int:id>/versions/<string:version>/headers/<int:header_id>/delete',doc=False)
 class DeleteHeader(Resource):
     @api.doc('delete header')
     @api.response(200, 'Success')
@@ -180,7 +174,7 @@ class DeleteHeader(Resource):
         return "Not implemented yet"
 
 # this route is for updating a header from a version of an api
-@api.route('/<int:id>/versions/<string:version>/headers/<int:header_id>/update')
+@api.route('/<int:id>/versions/<string:version>/headers/<int:header_id>/update',doc=False)
 class UpdateHeader(Resource):
     @api.doc('update header')
     @api.response(200, 'Success')
@@ -189,7 +183,7 @@ class UpdateHeader(Resource):
         return "Not implemented yet"
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
-@api.route('/<int:id>/versions/<string:version>/endpoints/create')
+@api.route('/<int:id>/versions/<string:version>/endpoints/create',doc=False)
 class CreateEndpoint(Resource):
     @api.doc('create endpoint')
     @api.response(201, 'Success')
@@ -198,7 +192,7 @@ class CreateEndpoint(Resource):
         return "Not implemented yet"
 
 # this route is for deleting an endpoint from a version of an api
-@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete')
+@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete',doc=False)
 class DeleteEndpoint(Resource):
     @api.doc('delete endpoint')
     @api.response(200, 'Success')
@@ -207,7 +201,7 @@ class DeleteEndpoint(Resource):
         return "Not implemented yet"
 
 # this route is for updating an endpoint from a version of an api
-@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update')
+@api.route('/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update',doc=False)
 class UpdateEndpoint(Resource):
     @api.doc('update endpoint')
     @api.response(200, 'Success')
@@ -222,7 +216,7 @@ class UpdateEndpoint(Resource):
 # Then we send a request to base_url/params with the headers and method specified in the version
 # We return the response
 # TODO: The request must be from a whitelist domains
-@api.route('/test/<int:id>/<string:version>/<path:params>')
+@api.route('/test/<int:id>/<string:version>/<path:params>',doc=False)
 class TestEndpoint(Resource):
     @api.doc('test endpoint')
     @api.response(200, 'Success')
@@ -234,7 +228,7 @@ class TestEndpoint(Resource):
 
 # this route is for subscribing to a plan of an api
 # this will be without payment for now
-@api.route('/<int:id>/plans/<string:plan>/subscribe')
+@api.route('/<int:id>/plans/<string:plan>/subscribe',doc=False)
 class SubscribePlan(Resource):
     @api.doc('subscribe plan')
     @api.response(200, 'Success')
@@ -244,7 +238,7 @@ class SubscribePlan(Resource):
 
 # this route if for creating an api key that will be used to access the api
 # before generating the api key we must check if the user has an active subscription to the api
-@api.route('/<int:id>/api_key/create')
+@api.route('/<int:id>/api_key/create',doc=False)
 class CreateApiKey(Resource):
     @api.doc('create api key')
     @api.response(201, 'Success')
@@ -253,7 +247,7 @@ class CreateApiKey(Resource):
         return "Not implemented yet"
 
 # this route is for deleting an api key
-@api.route('/<int:id>/api_key/delete')
+@api.route('/<int:id>/api_key/delete',doc=False)
 class DeleteApiKey(Resource):
     @api.doc('delete api key')
     @api.response(200, 'Success')
@@ -262,7 +256,7 @@ class DeleteApiKey(Resource):
         return "Not implemented yet"
     
 # this route is for getting all api keys of an api
-@api.route('/<int:id>/api_keys')
+@api.route('/<int:id>/api_keys',doc=False)
 class GetApiKeys(Resource):
     @api.doc('get api keys')
     @api.response(200, 'Success')
@@ -270,7 +264,7 @@ class GetApiKeys(Resource):
     def get(self, id):
         return "Not implemented yet"
     
-@api.route('/call/<int:id>/<string:version>/<path:params>')
+@api.route('/call/<int:id>/<string:version>/<path:params>',doc=False)
 class CallApi(Resource):
     @api.doc('call api')
     @api.response(200, 'Success')
