@@ -41,17 +41,32 @@ class ApiDto:
         'name': fields.String(required=True, description='The name of the api'),
         'description': fields.String(required=True, description='The api description'),
         'category_id': fields.Integer(required=True,description='The api category id'),
+        'plans': fields.List(fields.Nested(api.model('api_plan', {
+        'name': fields.String(required=True, description='The name of the plan'),
+        'description': fields.String(required=True, description='The plan description'),
+        'price': fields.Integer(required=True, description='The plan price'),
+        'max_requests': fields.Integer(required=True, description='The maximum number of requests allowed'),
+        'duration': fields.Integer(required=True, description='The duration of the plan in days')
+    })), required=True, description='List of plans associated with the API')
+
     })
 
     create_api_response = api.model('create_api_response',{
         'data': fields.Nested(api.model('api_info_data',{
-        'id': fields.Integer(description='The api ID'),
-        'name': fields.String(description='The name of the api'),
-        'description': fields.String(description='The api description'),
-        'category_id': fields.Integer(description='The api category id'),
-        'created_at': fields.DateTime(description='The api creation date'),
-        'updated_at': fields.DateTime(description='The api last update date')
-    })),
+            'id': fields.Integer(description='The api ID'),
+            'name': fields.String(description='The name of the api'),
+            'description': fields.String(description='The api description'),
+            'category_id': fields.Integer(description='The api category id'),
+            'created_at': fields.DateTime(description='The api creation date'),
+            'updated_at': fields.DateTime(description='The api last update date'),
+        })),
+        'plans': fields.List(fields.Nested(api.model('api_plan', {
+        'name': fields.String(description='The name of the plan'),
+        'description': fields.String(description='The plan description'),
+        'price': fields.Integer(description='The plan price'),
+        'max_requests': fields.Integer(description='The maximum number of requests allowed'),
+        'duration': fields.Integer(description='The duration of the plan in days')
+    })), description='List of plans associated with the API'),
         'status': fields.String(description='The status of the response'),
         'message': fields.String(description='The message of the response')
     })
@@ -69,6 +84,23 @@ class ApiDto:
         'updated_at': fields.DateTime(description='The api last update date')
     })),
     'status': fields.String(description='The status of the response')})
+
+    apis_list_response = api.model('apis_list_response',{
+        'data': fields.List(fields.Nested(api.model('apis_list_data',{
+        'id': fields.Integer(description='The api ID'),
+        'name': fields.String(description='The name of the api'),
+        'description': fields.String(description='The api description'),
+        'category_id': fields.Integer(description='The api category id'),
+        'supplier_id': fields.Integer(description='The api supplier id'),
+        'status': fields.String(description='The status of the api'),
+        'created_at': fields.DateTime(description='The api creation date'),
+        'updated_at': fields.DateTime(description='The api last update date')
+        }))),
+        'status': fields.String(description='The status of the response')
+    })
+
+
+
 
     create_api_key_request = api.model('create_api_key_request',{
         'user_id': fields.Integer(required=True,description='The user id'),

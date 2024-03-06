@@ -50,12 +50,16 @@ class CreateApi(Resource):
 
 
 # this route is for getting all apis
+apis_list_response = ApiDto.apis_list_response
 @api.route('/')
 class GetApis(Resource):
     @api.doc('get apis')
-    @api.response(200, 'Success')
-    def get(self):
-        return "Not implemented yet"
+    @api.param('page', 'The page number')
+    @api.param('per_page', 'The number of items per page')
+    @api.param('category_ids', 'The category ID', type='array')
+    @api.response(200, 'Success', apis_list_response)
+    def get(self) ->Tuple[Dict[str, any], int]:
+        return ApiManagement.get_all_apis(request)
 
 # this route is for deleting an api
 @api.route('/<int:id>/delete')
@@ -76,12 +80,13 @@ class UpdateApi(Resource):
         return "Not implemented yet"
 
 # this route is for getting an api by id
+api_info_response = ApiDto.api_info_response
 @api.route('/<int:id>')
 class GetApiById(Resource):
     @api.doc('get api by id')
-    @api.response(200, 'Success')
+    @api.response(200, 'Success', api_info_response)
     def get(self, id):
-        return "Not implemented yet"
+        return ApiManagement.get_single_api(api_id=id)
 
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
