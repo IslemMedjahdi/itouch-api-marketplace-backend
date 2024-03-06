@@ -1,9 +1,11 @@
 from flask import request
 from flask_restx import Resource
+from typing import Dict, Tuple
 
 from app.main.controller.dtos.api_dto import ApiDto
 
 from app.main.utils.decorators import role_token_required
+from app.main.service.api_service import ApiManagement
 
 from app.main.utils.roles import Role
 
@@ -11,21 +13,26 @@ api = ApiDto.api
 
 
 # this route is for creating a new category
+create_category_request = ApiDto.create_category_request
+create_category_response = ApiDto.create_category_response
 @api.route('/categories/create')
 class CreateCategory(Resource):
     @api.doc('create category')
-    @api.response(201, 'Success')
+    @api.expect(create_category_request, validate=True)
+    @api.response(201,'success',create_category_response)
     @role_token_required([Role.ADMIN])
     def post(self):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_category(request,data=post_data)
 
-# this route is for getting all categories    
+# this route is for getting all categories   
+categories_list_response = ApiDto.categories_list_response
 @api.route('/categories')
 class GetCategories(Resource):
     @api.doc('get categories')
-    @api.response(200, 'Success')
-    def get(self):
-        return "Not implemented yet"
+    @api.response(200, 'Success',categories_list_response)
+    def get(self) -> Tuple[Dict[str, any], int]:
+        return ApiManagement.get_all_categories()
     
 
 # this route for creating a new api: (name, description, category_id, supplier_id)

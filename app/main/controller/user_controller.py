@@ -66,7 +66,7 @@ new_supplier_response = UserDto.new_supplier_response
 class NewSupplier(Resource):
     @api.doc("Create supplier")
     @api.expect(new_supplier_request, validate=True)
-    @api.response(200,'success',new_supplier_response)
+    @api.response(201,'success',new_supplier_response)
     @role_token_required([Role.ADMIN])
     def post(self) -> Tuple[Dict[str, any], int]:
         post_data = request.json

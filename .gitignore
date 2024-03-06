@@ -21,3 +21,4 @@ instance/
 
 venv/
 **/*.db
+*.db
