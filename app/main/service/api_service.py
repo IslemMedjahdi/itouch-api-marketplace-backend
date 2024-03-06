@@ -209,19 +209,39 @@ class ApiManagement:
         try:
             api = ApiModel.query.filter_by(id=api_id).first()
             if api:
+                plans_data = []
+                category_name = ApiCategory.query.filter_by(id=api.category_id).first().name
+                supplier_firstname = User.query.filter_by(id=api.supplier_id).first().firstname
+                supplier_lastname = User.query.filter_by(id=api.supplier_id).first().lastname 
+                plans =ApiPlan.query.filter_by(api_id=api.id).all()
+
+                for plan in plans:
+                    plan_data = {
+                        'name': plan.name,
+                        'description': plan.description,
+                        'price': plan.price,
+                        'max_requests': plan.max_requests,
+                        'duration': plan.duration
+                    }
+                    plans_data.append(plan_data)
+
                 api_data = {
                     'id': api.id,
                     'name': api.name,
                     'description': api.description,
                     'category_id': api.category_id,
+                    'category_name': category_name,
                     'supplier_id': api.supplier_id,
+                    'supplier_firstname': supplier_firstname,
+                    'supplier_lastname': supplier_lastname,
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
                     'updated_at': api.updated_at.isoformat()
                 }
                 response_object = {
                     'status': 'success',
-                    'data': api_data
+                    'data': api_data,
+                    'plans':plans_data
                 }
                 return response_object, HTTPStatus.OK
             else:
@@ -263,12 +283,18 @@ class ApiManagement:
 
             api_list = []
             for api in apis_pagination.items:
+                category_name = ApiCategory.query.filter_by(id=api.category_id).first().name
+                supplier_firstname = User.query.filter_by(id=api.supplier_id).first().firstname
+                supplier_lastname = User.query.filter_by(id=api.supplier_id).first().lastname  
                 api_data = {
                     'id': api.id,
                     'name': api.name,
                     'description': api.description,
                     'category_id': api.category_id,
+                    'category_name': category_name,
                     'supplier_id': api.supplier_id,
+                    'supplier_firstname': supplier_firstname,
+                    'supplier_lastname': supplier_lastname,
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
                     'updated_at': api.updated_at.isoformat()
