@@ -3,8 +3,8 @@ from flask_restx import Namespace, fields
 class UserDto:
     api = Namespace('User', description='user related operations')
 
-    user_info_response = api.model('user_info',{
-    'data': fields.Nested(api.model('user_info_data',{
+    user_info_response = api.model('single_user_info',{
+    'data': fields.Nested(api.model('single_user_info_data',{
         'id': fields.Integer(description='The user ID'),
         'email': fields.String(description='The email address'),
         'role': fields.String(description='The user role'),
@@ -61,7 +61,7 @@ class UserDto:
     })
 
     new_user_response = api.model('new_user_response',{
-        'data': fields.Nested(api.model('user_info_data',{
+        'data': fields.Nested(api.model('new_user_info_data',{
         'id': fields.Integer(description='The user ID'),
         'email': fields.String(description='The email address'),
         'firstname': fields.String(description='The user firstname'),
@@ -83,8 +83,8 @@ class UserDto:
     
     
 
-    update_user_response = api.model('user_info',{
-    'data': fields.Nested(api.model('user_info_data',{
+    update_user_response = api.model('updated_user_info',{
+    'data': fields.Nested(api.model('updated_user_info_data',{
         'id': fields.Integer(description='The user ID'),
         #'email': fields.String(description='The email address'),
         'firstname': fields.String(description='The user firstname'),
