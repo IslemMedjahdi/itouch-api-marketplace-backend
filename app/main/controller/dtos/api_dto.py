@@ -78,10 +78,16 @@ class ApiDto:
         'name': fields.String(description='The name of the api'),
         'description': fields.String(description='The api description'),
         'category_id': fields.Integer(description='The api category id'),
-        'category_name': fields.String(description='The api category name'),
+        'category': fields.Nested(api.model('api_category_info_data',{
+            'id':fields.Integer(description='The api category id'),
+            'name': fields.String(description='The api category name'),
+        })),
         'supplier_id': fields.Integer(description='The api supplier id'),
-        'supplier_firstname': fields.String(description='The api supplier firstname'),
-        'supplier_lastname': fields.String(description='The api supplier lastname'),
+        'supplier': fields.Nested(api.model('api_supplier_info_data',{
+            'id':fields.Integer(description='The api supplier id'),
+            'firstname': fields.String(description='The api supplier firstname'),
+            'lastname': fields.String(description='The api supplier lastname'),
+        })),
         'status': fields.String(description='The status of the api'),
         'created_at': fields.DateTime(description='The api creation date'),
         'updated_at': fields.DateTime(description='The api last update date')
@@ -101,10 +107,16 @@ class ApiDto:
         'name': fields.String(description='The name of the api'),
         'description': fields.String(description='The api description'),
         'category_id': fields.Integer(description='The api category id'),
-        'category_name': fields.String(description='The api category name'),
+        'category': fields.Nested(api.model('api_category_info_data',{
+            'id':fields.Integer(description='The api category id'),
+            'name': fields.String(description='The api category name'),
+        })),
         'supplier_id': fields.Integer(description='The api supplier id'),
-        'supplier_firstname': fields.String(description='The api supplier firstname'),
-        'supplier_lastname': fields.String(description='The api supplier lastname'),
+        'supplier': fields.Nested(api.model('api_supplier_info_data',{
+            'id':fields.Integer(description='The api supplier id'),
+            'firstname': fields.String(description='The api supplier firstname'),
+            'lastname': fields.String(description='The api supplier lastname'),
+        })),
         'status': fields.String(description='The status of the api'),
         'created_at': fields.DateTime(description='The api creation date'),
         'updated_at': fields.DateTime(description='The api last update date')

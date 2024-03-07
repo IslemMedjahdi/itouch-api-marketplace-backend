@@ -230,10 +230,16 @@ class ApiManagement:
                     'name': api.name,
                     'description': api.description,
                     'category_id': api.category_id,
-                    'category_name': category_name,
+                    'category':{
+                        'id': api.category_id,
+                        'name':category_name
+                    },
                     'supplier_id': api.supplier_id,
-                    'supplier_firstname': supplier_firstname,
-                    'supplier_lastname': supplier_lastname,
+                    'supplier':{
+                        'id':api.supplier_id,
+                        'firstname':supplier_firstname,
+                        'lastname': supplier_lastname
+                    },
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
                     'updated_at': api.updated_at.isoformat()
@@ -291,10 +297,16 @@ class ApiManagement:
                     'name': api.name,
                     'description': api.description,
                     'category_id': api.category_id,
-                    'category_name': category_name,
+                    'category':{
+                        'id': api.category_id,
+                        'name':category_name
+                    },
                     'supplier_id': api.supplier_id,
-                    'supplier_firstname': supplier_firstname,
-                    'supplier_lastname': supplier_lastname,
+                    'supplier':{
+                        'id':api.supplier_id,
+                        'firstname':supplier_firstname,
+                        'lastname': supplier_lastname
+                    },
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
                     'updated_at': api.updated_at.isoformat()
