@@ -6,6 +6,8 @@ from app.main import db, flask_bcrypt
 from app.main.utils.validators import isEmailValid
 from http import HTTPStatus
 
+from app.main.service.media_service import MediaService
+
 class Auth:
 
     @staticmethod
@@ -132,6 +134,7 @@ class Auth:
                     'lastname': user.lastname,
                     'role': user.role,
                     'status': user.status,
+                    'avatar:': MediaService.generate_avatar_url(user.id),
                     'created_at': user.created_at.isoformat(),
                     'updated_at': user.updated_at.isoformat()
                 }

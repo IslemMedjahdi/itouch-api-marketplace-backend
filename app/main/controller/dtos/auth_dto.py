@@ -33,7 +33,8 @@ class AuthDto:
         'role': fields.String(description='The user role'),
         'status': fields.String(description='The user status'),
         'created_at': fields.DateTime(description='The user creation date'),
-        'updated_at': fields.DateTime(description='The user last update date')
+        'updated_at': fields.DateTime(description='The user last update date'),
+        'avatar': fields.String(description='The user avatar',nullable=True)
     })),
     'status': fields.String(description='The status of the response')
 })
