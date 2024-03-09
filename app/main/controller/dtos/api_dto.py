@@ -90,7 +90,8 @@ class ApiDto:
         })),
         'status': fields.String(description='The status of the api'),
         'created_at': fields.DateTime(description='The api creation date'),
-        'updated_at': fields.DateTime(description='The api last update date')
+        'updated_at': fields.DateTime(description='The api last update date'),
+        'image' : fields.String(description='The picture of the api')
     })),
     'plans': fields.List(fields.Nested(api.model('api_plan', {
         'name': fields.String(description='The name of the plan'),
@@ -119,7 +120,8 @@ class ApiDto:
         })),
         'status': fields.String(description='The status of the api'),
         'created_at': fields.DateTime(description='The api creation date'),
-        'updated_at': fields.DateTime(description='The api last update date')
+        'updated_at': fields.DateTime(description='The api last update date'),
+        'image' : fields.String(description='The picture of the api')
         }))),
         'status': fields.String(description='The status of the response')
     })

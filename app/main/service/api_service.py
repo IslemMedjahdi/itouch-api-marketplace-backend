@@ -10,6 +10,7 @@ from app.main import db, flask_bcrypt
 from app.main.utils.validators import isEmailValid
 from app.main.utils.roles import Role
 
+from app.main.service.media_service import MediaService
 
 
 class ApiManagement: 
@@ -242,7 +243,8 @@ class ApiManagement:
                     },
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
-                    'updated_at': api.updated_at.isoformat()
+                    'updated_at': api.updated_at.isoformat(),
+                    'image' : MediaService.generate_cover_url(api.id)
                 }
                 response_object = {
                     'status': 'success',
@@ -309,7 +311,8 @@ class ApiManagement:
                     },
                     'status': api.status,
                     'created_at': api.created_at.isoformat(),
-                    'updated_at': api.updated_at.isoformat()
+                    'updated_at': api.updated_at.isoformat(),
+                    'image': MediaService.generate_cover_url(api.id)
                 }
                 api_list.append(api_data)
 
