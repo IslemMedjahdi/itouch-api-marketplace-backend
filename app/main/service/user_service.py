@@ -137,6 +137,7 @@ class UserManagement:
             if user:
                 if user.status =='active':
                     response_object = {
+                        'id':user.id,
                         'user_status':user.status,
                         'status': 'success',
                         'message': 'The User is already active.'
@@ -146,6 +147,7 @@ class UserManagement:
                     user.status = 'active'
                     db.session.commit()
                     response_object = {
+                        'id':user.id,
                         'user_status':user.status,
                         'status': 'success',
                         'message': 'User status updated to active'
@@ -172,15 +174,17 @@ class UserManagement:
             if user:
                 if user.status == 'suspended':
                     response_object = {
-                    'user_status':user.status,
-                    'status': 'success',
-                    'message': 'The User is already suspended.'
+                        'id': user.id,
+                        'user_status':user.status,
+                        'status': 'success',
+                        'message': 'The User is already suspended.'
                     }
                     return response_object, HTTPStatus.OK
                 elif user.status == 'active':
                     user.status = 'suspended'
                     db.session.commit()
                     response_object = {
+                        'id':user.id,
                         'user_status':user.status,
                         'status': 'success',
                         'message': 'User status updated to suspended'

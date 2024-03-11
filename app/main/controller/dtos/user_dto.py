@@ -36,12 +36,16 @@ class UserDto:
 
     suspend_user_response = api.model('suspend_user_response',{
         'id': fields.Integer(description='The user ID'),
+        'user_status': fields.String(description='The user new status'),
         'status': fields.String(description='The status of the response'),
+        'message': fields.String(description='The message of the response') 
     })
 
     activate_user_response = api.model('activate_user_response',{
         'id': fields.Integer(description='The user ID'),
-        'status': fields.String(description='The status of the response'),    
+        'user_status': fields.String(description='The user new status'),
+        'status': fields.String(description='The status of the response'),
+        'message': fields.String(description='The message of the response')  
     })
 
     new_supplier_request = api.model('new_supplier_request',{
