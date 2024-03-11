@@ -488,3 +488,116 @@ class ApiManagement:
                   'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+    @staticmethod
+    def get_logged_in_supplier_apis(request) -> Tuple[Dict[str, Any], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    response_object = {
+                    'status': 'fail',
+                    'message': resp
+                    }
+                    return response_object, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'User does not exist'
+                    }
+                    return response_object, HTTPStatus.NOT_FOUND
+                
+                if not user.role == Role.SUPPLIER:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'You are not authorized to access this resource '
+                    }
+                    return response_object, HTTPStatus.FORBIDDEN
+                
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 10))
+                # Enforce minimum and maximum per_page values
+                per_page = max(10, min(per_page, 100))
+                # Get the list of category ids
+                category_ids = request.args.get('category_ids')
+                # get the status
+                status = request.args.get('status')
+
+
+                # Start building the query
+                query = ApiModel.query
+
+                # Filter APIs based on these supplier id
+                query = query.filter(ApiModel.supplier_id == resp)
+
+                # If category_ids are provided, filter APIs based on these IDs
+                if category_ids:
+                    category_ids = category_ids.split(',')
+                    query = query.filter(ApiModel.category_id.in_(category_ids))
+
+                # If status is provided, filter APIs based on this status
+                if status:
+                    query = query.filter(ApiModel.status == status)
+                # Perform pagination on the filtered query
+                apis_pagination = query.paginate(page=page, per_page=per_page)
+
+                
+
+                api_list = []
+                for api in apis_pagination.items:
+                    category_name = ApiCategory.query.filter_by(id=api.category_id).first().name
+                    supplier_firstname = User.query.filter_by(id=api.supplier_id).first().firstname
+                    supplier_lastname = User.query.filter_by(id=api.supplier_id).first().lastname  
+                    api_data = {
+                        'id': api.id,
+                        'name': api.name,
+                        'description': api.description,
+                        'category_id': api.category_id,
+                        'category':{
+                            'id': api.category_id,
+                            'name':category_name
+                        },
+                        'supplier_id': api.supplier_id,
+                        'supplier':{
+                            'id':api.supplier_id,
+                            'firstname':supplier_firstname,
+                            'lastname': supplier_lastname
+                        },
+                        'status': api.status,
+                        'created_at': api.created_at.isoformat(),
+                        'updated_at': api.updated_at.isoformat(),
+                        'image': MediaService.generate_cover_url(api.id)
+                    }
+                    api_list.append(api_data)
+
+                response_object = {
+                    'status': 'success',
+                    'data': api_list,
+                    'pagination': {
+                        'page': apis_pagination.page,
+                        'per_page': apis_pagination.per_page,
+                        'pages': apis_pagination.pages,
+                        'total': apis_pagination.total
+                    }
+                }
+                return response_object, HTTPStatus.OK
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Provide a valid auth token.'
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+  

@@ -58,6 +58,18 @@ class GetApis(Resource):
     def get(self) ->Tuple[Dict[str, any], int]:
         return ApiManagement.get_all_apis(request)
 
+
+@api.route('/mine')
+class GetApis(Resource):
+    @api.doc('get the logged in supplier apis')
+    @api.param('page', 'The page number')
+    @api.param('per_page', 'The number of items per page')
+    @api.param('category_ids', 'The category ID', type='array')
+    @api.param('status', 'The status of the apis')
+    @api.response(200, 'Success', apis_list_response)
+    def get(self) ->Tuple[Dict[str, any], int]:
+        return ApiManagement.get_logged_in_supplier_apis(request)
+
 # @api.route('/<int:id>/delete',doc=False)
 # class DeleteApi(Resource):
 #     @api.doc('delete api')
