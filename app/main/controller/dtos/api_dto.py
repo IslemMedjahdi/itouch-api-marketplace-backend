@@ -128,6 +128,7 @@ class ApiDto:
 
     activate_api_response = api.model('activate_api_response',{
         'id': fields.Integer(description='The api ID'),
+        'api_status':fields.String(description='The new status of the api'),
         'status': fields.String(description='The status of the response'),  
         'message': fields.String(description='The message of the response')  
     })

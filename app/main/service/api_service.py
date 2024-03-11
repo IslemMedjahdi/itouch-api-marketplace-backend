@@ -364,6 +364,7 @@ class ApiManagement:
                             if api.status == 'active':
                                 response_object = {
                                 'api_id':api.id,
+                                'api_status':api.status,
                                 'status': 'success',
                                 'message': 'The API is already active.'
                                 }
@@ -373,6 +374,7 @@ class ApiManagement:
                                 db.session.commit()
                                 response_object = {
                                     'api_id':api.id,
+                                    'api_status':api.status,
                                     'status': 'success',
                                     'message': 'Api status updated to active'
                                 }
@@ -433,6 +435,7 @@ class ApiManagement:
                             if api.status == 'disabled':
                                 response_object = {
                                     'api_id': api.id,
+                                    'api_status':api.status,
                                     'status': 'success',
                                     'message': 'The API is already disabled.'
                                 }
@@ -442,6 +445,7 @@ class ApiManagement:
                                 db.session.commit()
                                 response_object = {
                                     'api_id': api.id,
+                                    'api_status':api.status,
                                     'status': 'success',
                                     'message': 'API successfully disabled.'
                                 }
