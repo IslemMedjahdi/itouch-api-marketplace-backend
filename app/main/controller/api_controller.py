@@ -96,13 +96,14 @@ class ActivateApi(Resource):
 
 # this route is for deactivating an active api 
 # supplier can only deactivate his own api
-@api.route('/<int:id>/deactivate',doc=False)
+activate_api_response = ApiDto.activate_api_response
+@api.route('/<int:id>/deactivate')
 class DeactivateApi(Resource):
     @api.doc('deactivate api')
-    @api.response(200, 'Success')
+    @api.response(200, 'Success', activate_api_response)
     @role_token_required([Role.SUPPLIER,Role.ADMIN])
     def patch(self, id):
-        return "Not implemented yet"
+        return ApiManagement.disable_api(request,api_id=id)
 
 # this route is for creating a new version of an api (version_name,base_url,headers,endpoints)
 @api.route('/<int:id>/versions/create',doc=False)

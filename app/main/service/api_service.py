@@ -409,3 +409,78 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def disable_api(request, api_id: int) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    response_object = {
+                        'status': 'fail',
+                         'message': resp
+                    }
+                    return response_object, HTTPStatus.UNAUTHORIZED
+                
+                api = ApiModel.query.filter_by(id=api_id).first()
+                user = User.query.filter_by(id=resp).first()
+
+                if user:
+                    if api:
+                        if api.supplier_id == resp or user.role == Role.ADMIN:
+                            if api.status == 'disabled':
+                                response_object = {
+                                    'api_id': api.id,
+                                    'status': 'success',
+                                    'message': 'The API is already disabled.'
+                                }
+                                return response_object, HTTPStatus.OK
+                            elif api.status == 'active':
+                                api.status = 'disabled'
+                                db.session.commit()
+                                response_object = {
+                                    'api_id': api.id,
+                                    'status': 'success',
+                                    'message': 'API successfully disabled.'
+                                }
+                                return response_object, HTTPStatus.OK
+                            elif api.status == 'pending':
+                                response_object = {
+                                    'status': 'fail',
+                                    'message': 'Cannot disable a pending API. It must be approved first.'
+                                }
+                                return response_object, HTTPStatus.FORBIDDEN
+                        else:
+                            response_object = {
+                                'status': 'fail',
+                                'message': 'You are not authorized to disable this API.'
+                            }
+                            return response_object, HTTPStatus.FORBIDDEN
+                    else:
+                        response_object = {
+                            'status': 'fail',
+                             'message': 'API not found'
+                        }
+                        return response_object, HTTPStatus.NOT_FOUND
+                else:
+                    response_object = {
+                        'status': 'fail',
+                         'message': 'User does not exist'
+                    }
+                    return response_object, HTTPStatus.NOT_FOUND
+            else:
+                response_object = {
+                    'status': 'fail',
+                     'message': 'Provide a valid auth token.'
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                 'message': 'Try again',
+                  'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
