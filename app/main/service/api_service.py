@@ -340,3 +340,72 @@ class ApiManagement:
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
     
+
+    @staticmethod
+    def activate_api(request,api_id: int) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+            
+                if isinstance(resp, str):
+                    response_object = {
+                    'status': 'fail',
+                    'message': resp
+                    }
+                    return response_object, HTTPStatus.UNAUTHORIZED
+            
+                api = ApiModel.query.filter_by(id=api_id).first()
+                user = User.query.filter_by(id=resp).first()
+
+                if user:
+                    if api:
+                        if api.supplier_id == resp or user.role == Role.ADMIN :
+                            if api.status == 'active':
+                                response_object = {
+                                'api_id':api.id,
+                                'status': 'success',
+                                'message': 'The API is already active.'
+                                }
+                                return response_object, HTTPStatus.OK
+                            else:
+                                api.status = 'active'
+                                db.session.commit()
+                                response_object = {
+                                    'api_id':api.id,
+                                    'status': 'success',
+                                    'message': 'Api status updated to active'
+                                }
+                                return response_object, HTTPStatus.OK
+                        else:
+                            response_object = {
+                                'status':'fail',
+                                'message':'You are not authorized to activate this API because it does not belong to you.'
+                            }
+                            return response_object, HTTPStatus.FORBIDDEN
+                    else:
+                        response_object = {
+                            'status': 'fail',
+                            'message': 'Api not found'
+                        }
+                        return response_object, HTTPStatus.NOT_FOUND
+                else:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'User does not exist'
+                    }
+                    return response_object, HTTPStatus.NOT_FOUND
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Provide a valid auth token.'
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR

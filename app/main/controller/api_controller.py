@@ -58,13 +58,13 @@ class GetApis(Resource):
     def get(self) ->Tuple[Dict[str, any], int]:
         return ApiManagement.get_all_apis(request)
 
-@api.route('/<int:id>/delete',doc=False)
-class DeleteApi(Resource):
-    @api.doc('delete api')
-    @api.response(200, 'Success')
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id):
-        return "Not implemented yet"
+# @api.route('/<int:id>/delete',doc=False)
+# class DeleteApi(Resource):
+#     @api.doc('delete api')
+#     @api.response(200, 'Success')
+#     @role_token_required([Role.SUPPLIER])
+#     def delete(self, id):
+#         return "Not implemented yet"
 
 @api.route('/<int:id>/update',doc=False)
 class UpdateApi(Resource):
@@ -85,13 +85,14 @@ class GetApiById(Resource):
 
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
-@api.route('/<int:id>/activate',doc=False)
+activate_api_response = ApiDto.activate_api_response
+@api.route('/<int:id>/activate')
 class ActivateApi(Resource):
     @api.doc('activate api')
-    @api.response(200, 'Success')
+    @api.response(200, 'Success', activate_api_response)
     @role_token_required([Role.SUPPLIER,Role.ADMIN])
     def patch(self, id):
-        return "Not implemented yet"
+        return ApiManagement.activate_api(request,api_id=id)
 
 # this route is for deactivating an active api 
 # supplier can only deactivate his own api
