@@ -274,6 +274,7 @@ class ApiManagement:
             # Enforce minimum and maximum per_page values
             per_page = max(10, min(per_page, 100))
             category_ids = request.args.get('category_ids')
+            status = request.args.get('status')
 
 
             # Start building the query
@@ -283,6 +284,10 @@ class ApiManagement:
             if category_ids:
                 category_ids = category_ids.split(',')
                 query = query.filter(ApiModel.category_id.in_(category_ids))
+
+            # If status is provided, filter APIs based on this status
+            if status:
+                query = query.filter(ApiModel.status == status)
             # Perform pagination on the filtered query
             apis_pagination = query.paginate(page=page, per_page=per_page)
 

@@ -53,6 +53,7 @@ class GetApis(Resource):
     @api.param('page', 'The page number')
     @api.param('per_page', 'The number of items per page')
     @api.param('category_ids', 'The category ID', type='array')
+    @api.param('status', 'The status of the apis')
     @api.response(200, 'Success', apis_list_response)
     def get(self) ->Tuple[Dict[str, any], int]:
         return ApiManagement.get_all_apis(request)
