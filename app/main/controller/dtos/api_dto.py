@@ -134,7 +134,19 @@ class ApiDto:
     })
 
 
+    update_api_request = api.model('update_api_request',{
+        'name': fields.String(required=True, description='The api name'),
+        'description': fields.String(required=True, description='The api description')
+    })
 
+    update_api_response = api.model('updated_api_info',{
+    'data': fields.Nested(api.model('updated_api_info_data',{
+        'id': fields.Integer(description='The api ID'),
+        'name': fields.String(description='The api name'),
+        'description': fields.String(description='The api description'),
+        'updated_at': fields.DateTime(description='The api last update date')
+    })),
+    'status': fields.String(description='The status of the response')})
 
     create_api_key_request = api.model('create_api_key_request',{
         'user_id': fields.Integer(required=True,description='The user id'),

@@ -78,13 +78,17 @@ class GetApis(Resource):
 #     def delete(self, id):
 #         return "Not implemented yet"
 
-@api.route('/<int:id>/update',doc=False)
+update_api_request = ApiDto.update_api_request
+update_api_response = ApiDto.update_api_response
+@api.route('/<int:id>/update')
 class UpdateApi(Resource):
     @api.doc('update api')
-    @api.response(200, 'Success')
+    @api.expect(update_api_request, validate=True)
+    @api.response(200, 'Success', update_api_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_api_info(request,api_id=id,data=post_data)
 
 # this route is for getting an api by id
 api_info_response = ApiDto.api_info_response

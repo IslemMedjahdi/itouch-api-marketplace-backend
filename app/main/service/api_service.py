@@ -600,4 +600,71 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def update_api_info(request,api_id,data: Dict[str, str]) -> Tuple[Dict[str, str], int]:
+        auth_token = request.headers.get('Authorization')
+        if auth_token:
+            resp = User.decode_auth_token(auth_token)
+            
+            if isinstance(resp, str):
+                response_object = {
+                'status': 'fail',
+                'message': resp
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+            user = User.query.filter_by(id=resp).first()
+
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User does not exist'
+                }
+                return response_object, HTTPStatus.NOT_FOUND
+            
+            api = ApiModel.query.filter_by(id=api_id).first()
+            
+            if not api:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Api does not exist'
+                }
+                return response_object, HTTPStatus.NOT_FOUND
+            
+
+            if not api.supplier_id == resp:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'You are not authorized to access this resource '
+                }
+                return response_object, HTTPStatus.FORBIDDEN
+            
+            new_name = data.get('name')
+            new_description = data.get('description')
+            if new_name:
+                api.name = new_name
+            if new_description:
+                api.description = new_description
+            
+            db.session.commit()
+
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'id': api.id,
+                    'name': api.name,
+                    'description': api.description,
+                    'updated_at': api.updated_at.isoformat()
+                }
+            }
+            return response_object, HTTPStatus.OK
+            
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': 'Provide a valid auth token.'
+            }
+            return response_object, HTTPStatus.UNAUTHORIZED
+    
   
