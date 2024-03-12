@@ -53,25 +53,42 @@ class GetApis(Resource):
     @api.param('page', 'The page number')
     @api.param('per_page', 'The number of items per page')
     @api.param('category_ids', 'The category ID', type='array')
+    @api.param('status', 'The status of the apis')
     @api.response(200, 'Success', apis_list_response)
     def get(self) ->Tuple[Dict[str, any], int]:
         return ApiManagement.get_all_apis(request)
 
-@api.route('/<int:id>/delete',doc=False)
-class DeleteApi(Resource):
-    @api.doc('delete api')
-    @api.response(200, 'Success')
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id):
-        return "Not implemented yet"
 
-@api.route('/<int:id>/update',doc=False)
+@api.route('/mine')
+class GetApis(Resource):
+    @api.doc('get the logged in supplier apis')
+    @api.param('page', 'The page number')
+    @api.param('per_page', 'The number of items per page')
+    @api.param('category_ids', 'The category ID', type='array')
+    @api.param('status', 'The status of the apis')
+    @api.response(200, 'Success', apis_list_response)
+    def get(self) ->Tuple[Dict[str, any], int]:
+        return ApiManagement.get_logged_in_supplier_apis(request)
+
+# @api.route('/<int:id>/delete',doc=False)
+# class DeleteApi(Resource):
+#     @api.doc('delete api')
+#     @api.response(200, 'Success')
+#     @role_token_required([Role.SUPPLIER])
+#     def delete(self, id):
+#         return "Not implemented yet"
+
+update_api_request = ApiDto.update_api_request
+update_api_response = ApiDto.update_api_response
+@api.route('/<int:id>/update')
 class UpdateApi(Resource):
     @api.doc('update api')
-    @api.response(200, 'Success')
+    @api.expect(update_api_request, validate=True)
+    @api.response(200, 'Success', update_api_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_api_info(request,api_id=id,data=post_data)
 
 # this route is for getting an api by id
 api_info_response = ApiDto.api_info_response
@@ -84,23 +101,25 @@ class GetApiById(Resource):
 
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
-@api.route('/<int:id>/activate',doc=False)
+activate_api_response = ApiDto.activate_api_response
+@api.route('/<int:id>/activate')
 class ActivateApi(Resource):
     @api.doc('activate api')
-    @api.response(200, 'Success')
+    @api.response(200, 'Success', activate_api_response)
     @role_token_required([Role.SUPPLIER,Role.ADMIN])
     def patch(self, id):
-        return "Not implemented yet"
+        return ApiManagement.activate_api(request,api_id=id)
 
 # this route is for deactivating an active api 
 # supplier can only deactivate his own api
-@api.route('/<int:id>/deactivate',doc=False)
+activate_api_response = ApiDto.activate_api_response
+@api.route('/<int:id>/deactivate')
 class DeactivateApi(Resource):
     @api.doc('deactivate api')
-    @api.response(200, 'Success')
+    @api.response(200, 'Success', activate_api_response)
     @role_token_required([Role.SUPPLIER,Role.ADMIN])
     def patch(self, id):
-        return "Not implemented yet"
+        return ApiManagement.disable_api(request,api_id=id)
 
 # this route is for creating a new version of an api (version_name,base_url,headers,endpoints)
 @api.route('/<int:id>/versions/create',doc=False)

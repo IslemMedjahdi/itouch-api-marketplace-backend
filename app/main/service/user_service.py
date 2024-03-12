@@ -135,14 +135,24 @@ class UserManagement:
         try:
             user = User.query.get(user_id)
             if user:
-                user.status = 'active'
-                db.session.commit()
-                response_object = {
-                    'user_status':user.status,
-                    'status': 'success',
-                    'message': 'User status updated to active'
-                }
-                return response_object, HTTPStatus.OK
+                if user.status =='active':
+                    response_object = {
+                        'id':user.id,
+                        'user_status':user.status,
+                        'status': 'success',
+                        'message': 'The User is already active.'
+                    }
+                    return response_object, HTTPStatus.OK
+                elif user.status == 'suspended':
+                    user.status = 'active'
+                    db.session.commit()
+                    response_object = {
+                        'id':user.id,
+                        'user_status':user.status,
+                        'status': 'success',
+                        'message': 'User status updated to active'
+                    }
+                    return response_object, HTTPStatus.OK
             else:
                 response_object = {
                     'status': 'fail',
@@ -162,14 +172,24 @@ class UserManagement:
         try:
             user = User.query.get(user_id)
             if user:
-                user.status = 'suspended'
-                db.session.commit()
-                response_object = {
-                    'user_status':user.status,
-                    'status': 'success',
-                    'message': 'User status updated to suspended'
-                }
-                return response_object, HTTPStatus.OK
+                if user.status == 'suspended':
+                    response_object = {
+                        'id': user.id,
+                        'user_status':user.status,
+                        'status': 'success',
+                        'message': 'The User is already suspended.'
+                    }
+                    return response_object, HTTPStatus.OK
+                elif user.status == 'active':
+                    user.status = 'suspended'
+                    db.session.commit()
+                    response_object = {
+                        'id':user.id,
+                        'user_status':user.status,
+                        'status': 'success',
+                        'message': 'User status updated to suspended'
+                    }
+                    return response_object, HTTPStatus.OK
             else:
                 response_object = {
                     'status': 'fail',
