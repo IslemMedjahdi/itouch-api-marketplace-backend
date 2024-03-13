@@ -108,11 +108,17 @@ def test_successfull_suspend_user(client: FlaskClient):
     user_status = new_user_response.json['data']['status']
     user_id = new_user_response.json['data']['id']
 
-
-    #the request to get the user
+    #the request to suspend the user
     response = client.patch(f'/users/{user_id}/suspend', headers={'Authorization': token})
     assert response.status_code == 200
-    assert response.json['user_status'] == 'suspended'
+
+    #the request to get the user and then check that the status changed to suspended
+    response = client.get(f'/users/{user_id}', headers={'Authorization': token})
+    assert response.status_code == 200
+    assert response.json['data']['id'] == user_id
+    assert response.json['data']['status'] == 'suspended'
+    
+
 
 
 def test_suspend_user_with_non_existent_id(client: FlaskClient):
@@ -143,16 +149,19 @@ def test_successfull_activate_user(client: FlaskClient):
     user_status = new_user_response.json['data']['status']
     user_id = new_user_response.json['data']['id']
 
-
     #suspend the user
     suspend_response = client.patch(f'/users/{user_id}/suspend', headers={'Authorization': token})
     assert suspend_response.status_code == 200
 
-
     #activate the user
     response = client.patch(f'/users/{user_id}/activate', headers={'Authorization': token})
     assert response.status_code == 200
-    assert response.json['user_status'] == 'active'
+
+    #the request to get the user and then check that the status changed to active
+    response = client.get(f'/users/{user_id}', headers={'Authorization': token})
+    assert response.status_code == 200
+    assert response.json['data']['id'] == user_id
+    assert response.json['data']['status'] == 'active'
 
 
 
@@ -224,6 +233,12 @@ def test_update(client: FlaskClient):
 
     response = client.patch('/users/update', headers={'Authorization': token}, json=update_request_data)
     assert response.status_code == 200
+    user_id = response.json['data']['id']
+
+    #the request to get the user and then check that the user info has been changed
+    response = client.get('auth/me', headers={'Authorization': token})
+    assert response.status_code == 200
+    assert response.json['data']['id'] == user_id
     assert response.json['data']['firstname'] == update_request_data['firstname']
     assert response.json['data']['lastname'] == update_request_data['lastname']
 
