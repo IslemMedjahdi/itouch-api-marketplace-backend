@@ -17,9 +17,24 @@ class UserManagement:
             per_page = int(request.args.get('per_page', 10))
             # Enforce minimum and maximum per_page values
             per_page = max(10, min(per_page, 100))
-            
-            users_pagination = User.query.paginate(page=page, per_page=per_page)
+            roles = request.args.get('roles')
+            status = request.args.get('status')
 
+            # Start building the query
+            query = User.query
+
+            # If roles are provided, filter Users based on these roles
+            if roles:
+                roles = roles.split(',')
+                query = query.filter(User.role.in_(roles))
+
+            # If status is provided, filter Users based on this status
+            if status:
+                query = query.filter(User.status == status)
+            
+            # Perform pagination on the filtered query
+            users_pagination = query.paginate(page=page, per_page=per_page)
+            
             user_list = []
             for user in users_pagination.items:
                 user_data = {

@@ -30,6 +30,8 @@ class UsersList(Resource):
     @api.doc('list of registered users')
     @api.param('page', 'The page number')
     @api.param('per_page', 'The number of items per page')
+    @api.param('roles', 'The roles', type='array')
+    @api.param('status', 'The status of the apis')
     @api.response(200, 'Success', UserDto.users_list_response)
     @role_token_required([Role.ADMIN])
     def get(self) -> Tuple[Dict[str, any], int]:
