@@ -1,4 +1,5 @@
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Tuple
+import requests
 
 from http import HTTPStatus
 
@@ -6,8 +7,9 @@ from app.main.model.user_model import User
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
 from app.main.model.api_plan_model import ApiPlan
-from app.main import db, flask_bcrypt
-from app.main.utils.validators import isEmailValid
+from app.main.model.api_version_model import ApiVersion
+from app.main.model.api_header_model import ApiVersionHeader
+from app.main import db
 from app.main.utils.roles import Role
 
 from app.main.service.media_service import MediaService
@@ -668,3 +670,33 @@ class ApiManagement:
             return response_object, HTTPStatus.UNAUTHORIZED
     
   
+    @staticmethod
+    def test_api(request,api_id,version,params):
+        api = ApiModel.query.filter_by(id=api_id).first()
+        if not api:
+            return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+        
+        if api.status != 'active':
+            return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+        
+        api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
+
+        if not api_version:
+            return {'status': 'fail', 'message': 'Version not found'}, HTTPStatus.NOT_FOUND
+        
+        if api_version.status != 'active':
+            return {'status': 'fail', 'message': 'Version is not active'}, HTTPStatus.FORBIDDEN
+        
+        base_url = api_version.base_url
+
+        headers = ApiVersionHeader.query.filter_by(api_id=api_id, api_version=version).all()
+
+        headers = {header.key: header.value for header in headers}
+
+        url = f'{base_url}/{params}'
+        
+        method = request.method
+
+        response = requests.request(method, url, headers=headers, data=request.data)
+        
+        return {'status': 'success', 'data': response.json()}, response.status_code
