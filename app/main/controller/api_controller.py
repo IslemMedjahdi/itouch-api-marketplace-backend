@@ -228,25 +228,29 @@ class UpdateEndpoint(Resource):
     def patch(self, id, version, endpoint_id):
         return "Not implemented yet"
 
-# this route is for testing a version of API
-# the id is the of the api, version is the version of the api, and params are the request parameters
-# First We check if the api id exists and is not disabled
-# Then we check if the version exists and is not disabled
-# Then we send a request to base_url/params with the headers and method specified in the version
-# We return the response
 # TODO: The request must be from a whitelist domains
-@api.route('/test/<int:id>/<string:version>/<path:params>',doc=False)
+@api.route('/test/<int:id>/<string:version>/<path:params>')
 class TestEndpoint(Resource):
     @api.doc('test endpoint')
     @api.response(200, 'Success')
-    def get(self, id, version, params): # the method will be get for now
-        print(params)
-        print(id)
-        print(version)
-        return "Not implemented yet"
+    def get(self, id, version, params):
+        return ApiManagement.test_api(request,id,version,params)
 
-# this route is for subscribing to a plan of an api
-# this will be without payment for now
+    @api.doc('test endpoint')
+    @api.response(200, 'Success')
+    def post(self, id, version, params):
+        return ApiManagement.test_api(request,id,version,params)
+
+    @api.doc('test endpoint')
+    @api.response(200, 'Success')
+    def patch(self, id, version, params):
+        return ApiManagement.test_api(request,id,version,params)
+
+    @api.doc('test endpoint')
+    @api.response(200, 'Success')
+    def delete(self, id, version, params):
+        return ApiManagement.test_api(request,id,version,params)
+
 @api.route('/<int:id>/plans/<string:plan>/subscribe',doc=False)
 class SubscribePlan(Resource):
     @api.doc('subscribe plan')
@@ -255,8 +259,6 @@ class SubscribePlan(Resource):
     def post(self, id, plan):
         return "Not implemented yet"
 
-# this route if for creating an api key that will be used to access the api
-# before generating the api key we must check if the user has an active subscription to the api
 @api.route('/<int:id>/api_key/create',doc=False)
 class CreateApiKey(Resource):
     @api.doc('create api key')
