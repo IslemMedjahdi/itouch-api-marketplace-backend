@@ -6,6 +6,10 @@ from app.main.model.user_model import User
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
 from app.main.model.api_plan_model import ApiPlan
+from app.main.model.api_version_model import ApiVersion
+from app.main.model.api_header_model import ApiVersionHeader
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
+
 from app.main import db, flask_bcrypt
 from app.main.utils.validators import isEmailValid
 from app.main.utils.roles import Role
@@ -667,4 +671,151 @@ class ApiManagement:
             }
             return response_object, HTTPStatus.UNAUTHORIZED
     
+
+
+    @staticmethod
+    def create_version(request,api_id, data: Dict[str, str]) -> Tuple[Dict[str, Any], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    return {'status': 'fail', 'message': resp}, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {'status': 'fail', 'message': 'User does not exist'}, HTTPStatus.NOT_FOUND
+                
+                if not user.check_status('active'):
+                    return {'status': 'fail', 'message': 'User is not active.'}, HTTPStatus.FORBIDDEN
+
+            
+                api = ApiModel.query.filter_by(id=api_id).first()
+                if not api:
+                    return {'status': 'fail', 'message': 'Api does not exist'}, HTTPStatus.NOT_FOUND
+   
+                if not api.supplier_id == resp:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'You are not authorized to access this resource '
+                    }
+                    return response_object, HTTPStatus.FORBIDDEN
+
+                headers = data.get('headers')
+                endpoints = data.get('endpoints')
+                methods = ['POST', 'GET', 'PUT', 'DELETE']
+                
+
+                # Initialize a dictionary to store endpoints by URL
+                endpoints_dict = {}
+
+                # Iterate over each endpoint
+                for endpoint in endpoints:
+                    url = endpoint.get('url')
+                    method = endpoint.get('method')
+
+                    # If the URL is not in the dictionary, add it with an empty set for methods
+                    if url not in endpoints_dict:
+                        endpoints_dict[url] = set()
+
+                    # Check if the method is valide methode 
+                    if not method in methods:
+                        return {'status': 'fail', 'message': 'Invalide Methode'}, HTTPStatus.BAD_REQUEST
+                    # Check if the method is already in the set for this URL
+                    if method in endpoints_dict[url]:
+                        # If the method is already present, return a failure response
+                        return {'status': 'fail', 'message': f'Duplicate method "{method}" for URL: {url}'}, HTTPStatus.BAD_REQUEST
+
+                    # If the method is unique, add it to the set for this URL
+                    endpoints_dict[url].add(method)
+
+                version_name = data.get('version')
+                version = ApiVersion.query.filter_by(version=version_name).first()
+
+                if version :
+                    return {'status': 'fail', 'message': 'Version already existe'}, HTTPStatus.BAD_REQUEST
+ 
+
+                
+                new_version = ApiVersion(
+                    version=version_name,
+                    base_url=data.get('base_url'),
+                    api_id = api_id,
+                    status = 'active'
+                )
+                db.session.add(new_version)
+                db.session.commit()
+
+                endpoints_data = []
+                for endpoint in endpoints:
+                    new_endpoint = ApiVersionEndpoint(
+                        api_id=api_id,
+                        version=version_name,
+                        endpoint=endpoint.get('url'),
+                        method=endpoint.get('method'),
+                        description=endpoint.get('description'),
+                        request_body=endpoint.get('request_body'),
+                        response_body=endpoint.get('response_body'),
+                    )
+                    db.session.add(new_endpoint)
+                    
+                    endpoints_data.append({
+                        'api_id': new_endpoint.api_id,
+                        'version': new_endpoint.version,
+                        'endpoint': new_endpoint.endpoint,
+                        'method': new_endpoint.method,
+                        'description': new_endpoint.description,
+                        'request_body': new_endpoint.request_body,
+                        'request_body': new_endpoint.request_body,
+                    })
+                headers_data = []
+                for header in headers:
+                    new_header = ApiVersionHeader(
+                        api_id=api_id,
+                        version=version_name,
+                        key=header.get('key'),
+                        value=header.get('value'),
+                    )
+                    db.session.add(new_header)
+                    
+                    headers_data.append({
+                        'api_id': new_header.api_id,
+                        'aversion': new_header.version,
+                        'key': new_header.key,
+                        'value': new_header.value
+                    })
+
+                db.session.commit()
+
+                response_object = {
+                    'data': {
+                        'version': new_version.version,
+                        'base_url': new_version.base_url,
+                        'api_id': new_version.api_id,
+                        'status': new_version.status,
+                        'created_at': new_version.created_at.isoformat(),
+                        'updated_at': new_version.updated_at.isoformat()
+                    },
+                    'headers': headers_data,
+                    'endpoints': endpoints_data,
+                    'status': 'success',
+                    'message': 'Successfully created a version.'
+                }
+                return response_object, HTTPStatus.CREATED
+            else:
+                return {'status': 'fail', 'message': 'Provide a valid auth token.'}, HTTPStatus.UNAUTHORIZED
+        
+        except Exception as e:
+            db.session.rollback()
+
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+
   

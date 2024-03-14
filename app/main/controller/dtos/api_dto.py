@@ -148,7 +148,7 @@ class ApiDto:
     })),
     'status': fields.String(description='The status of the response')})
 
-    create_api_version = api.model('create_api_version',{
+    create_api_version_request = api.model('create_api_version',{
         'version': fields.String(required=True, description='The api version'),
         'base_url': fields.String(required=True, description='The api base url'),
         'headers': fields.List(fields.Nested(api.model('api_header', {
@@ -162,4 +162,9 @@ class ApiDto:
             'request_body' : fields.String(required=True, description='The endpoint request body'),
             'response_body' : fields.String(required=True, description='The endpoint response body')
         })), required=True, description='List of endpoints associated with the API version')
+    })
+
+    create_api_version_response = api.model('create_api_version_response',{
+        'status': fields.String(description='The status of the response'),
+        'message': fields.String(description='The message of the response')
     })
