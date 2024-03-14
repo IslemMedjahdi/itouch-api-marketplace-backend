@@ -816,6 +816,38 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+     @staticmethod
+    def test_api(request,api_id,version,params):
+        api = ApiModel.query.filter_by(id=api_id).first()
+        if not api:
+            return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+        
+        if api.status != 'active':
+            return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+        
+        api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
+
+        if not api_version:
+            return {'status': 'fail', 'message': 'Version not found'}, HTTPStatus.NOT_FOUND
+        
+        if api_version.status != 'active':
+            return {'status': 'fail', 'message': 'Version is not active'}, HTTPStatus.FORBIDDEN
+        
+        base_url = api_version.base_url
+
+        headers = ApiVersionHeader.query.filter_by(api_id=api_id, api_version=version).all()
+
+        headers = {header.key: header.value for header in headers}
+
+        url = f'{base_url}/{params}'
+        
+        method = request.method
+
+        response = requests.request(method, url, headers=headers, data=request.data)
+        
+        return {'status': 'success', 'data': response.json()}, response.status_code
 
 
   
