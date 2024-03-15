@@ -384,13 +384,14 @@ class Discussions(Resource):
 class DiscussionDetails(Resource):
     @api.doc("get a specific discussion")
     @api.marshal_with(ApiDto.discussion_details_response, envelope="data")
-    def get(self, discussion_id):
+    def get(self, discussion_id, **_):
         return DiscussionService.get_by_id(discussion_id), HTTPStatus.OK
 
     @api.doc("delete a specific discussion")
     @api.response(HTTPStatus.OK, "Success")
-    def delete(self, discussion_id):
-        return DiscussionService.delete_discussion(discussion_id), HTTPStatus.OK
+    def delete(self, discussion_id, **_):
+        DiscussionService.delete_discussion(discussion_id)
+        return HTTPStatus.OK
 
 
 @api.route("/<int:api_id>/discussions/<int:discussion_id>/answers")
@@ -400,22 +401,22 @@ class DiscussionAnswers(Resource):
     @api.marshal_with(
         ApiDto.discussion_answer_response, envelope="data", code=HTTPStatus.CREATED
     )
-    def post(self, discussion_id):
+    def post(self, discussion_id, **_):
         return (
             DiscussionService.create_new_answer(discussion_id, api.payload),
             HTTPStatus.CREATED,
         )
 
 
-@api.route("/discussions/answers/<int:answer_id>")
+@api.route("/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>")
 class AnswerDetails(Resource):
     @api.doc("get a specific answer")
     @api.marshal_with(ApiDto.discussion_answer_response, envelope="data")
-    def get(self, answer_id):
+    def get(self, answer_id, **_):
         return (DiscussionService.get_answer_by_id(answer_id), HTTPStatus.OK)
 
     @api.doc("delete a specific answer")
     @api.response(HTTPStatus.OK, "Success")
-    def delete(self, answer_id):
+    def delete(self, answer_id, **_):
         DiscussionService.delete_answer(answer_id)
         return HTTPStatus.OK
