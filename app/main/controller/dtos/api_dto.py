@@ -168,3 +168,14 @@ class ApiDto:
         'status': fields.String(description='The status of the response'),
         'message': fields.String(description='The message of the response')
     })
+
+    api_versions_list_response = api.model('api_versions_list_response',{
+        'data': fields.List(fields.Nested(api.model('api_versions_list_data',{
+        'version': fields.Integer(description='The api version'),
+        'base_url': fields.String(description='The base_url of the api version'),
+        'status': fields.String(description='The status of the api version'),
+        'created_at': fields.DateTime(description='The api version creation date'),
+        'updated_at': fields.DateTime(description='The api version last update date'),
+        }))),
+        'status': fields.String(description='The status of the response')
+    })

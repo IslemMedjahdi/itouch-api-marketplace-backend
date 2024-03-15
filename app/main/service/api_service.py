@@ -817,6 +817,64 @@ class ApiManagement:
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
     
+    @staticmethod
+    def get_all_api_versions(request, api_id) -> Tuple[Dict[str, Any], int]:
+        try:
+            page = int(request.args.get('page', 1))
+            per_page = int(request.args.get('per_page', 10))
+            # Enforce minimum and maximum per_page values
+            per_page = max(10, min(per_page, 100))
+            status = request.args.get('status')
+
+            api = ApiModel.query.filter_by(id=api_id).first()
+            if not api:
+                return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+        
+            if api.status != 'active':
+                return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+        
+            # Start building the query
+            query = ApiVersion.query.filter(ApiVersion.api_id == api_id)
+
+            # If status is provided, filter API versions based on this status
+            if status:
+                query = query.filter(ApiVersion.status == status)
+            # Perform pagination on the filtered query
+            versions_pagination = query.paginate(page=page, per_page=per_page)
+
+        
+            version_list = []
+            for version in versions_pagination.items:
+                version_data = {
+                    'version': version.version,
+                    'base_url': version.base_url,
+                    'status': version.status,
+                    'created_at': version.created_at.isoformat(),
+                    'updated_at': version.updated_at.isoformat(),
+                }
+                version_list.append(version_data)
+
+            response_object = {
+                'status': 'success',
+                'data': version_list,
+                'pagination': {
+                    'page': versions_pagination.page,
+                    'per_page': versions_pagination.per_page,
+                    'pages': versions_pagination.pages,
+                    'total': versions_pagination.total
+                }
+            }
+            return response_object, HTTPStatus.OK
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+    
 
     @staticmethod
     def test_api(request,api_id,version,params):
@@ -849,5 +907,7 @@ class ApiManagement:
         
         return {'status': 'success', 'data': response.json()}, response.status_code
 
+
+  
 
   

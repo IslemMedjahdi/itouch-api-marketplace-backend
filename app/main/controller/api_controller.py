@@ -131,12 +131,16 @@ class CreateVersion(Resource):
         return ApiManagement.create_version(request,api_id=id,data=post_data)
 
 # this route is for getting all versions of an api
-@api.route('/<int:id>/versions',doc=False)
+api_versions_list_response = ApiDto.api_versions_list_response
+@api.route('/<int:id>/versions')
 class GetVersions(Resource):
     @api.doc('get versions')
-    @api.response(200, 'Success')
+    @api.param('page', 'The page number')
+    @api.param('per_page', 'The number of items per page')
+    @api.param('status', 'The status of the api versions')
+    @api.response(200, 'Success', api_versions_list_response)
     def get(self, id):
-        return "Not implemented yet"
+        return ApiManagement.get_all_api_versions(request, api_id=id)
 
 # this route is for getting a version of an api by id
 @api.route('/<int:id>/versions/<string:version>',doc=False)
