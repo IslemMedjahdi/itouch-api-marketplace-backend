@@ -420,3 +420,6 @@ class AnswerDetails(Resource):
     def delete(self, answer_id, **_):
         DiscussionService.delete_answer(answer_id)
         return HTTPStatus.OK
+
+
+# TODO: add votes
