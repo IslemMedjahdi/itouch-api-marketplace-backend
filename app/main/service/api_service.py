@@ -847,7 +847,6 @@ class ApiManagement:
             for version in versions_pagination.items:
                 version_data = {
                     'version': version.version,
-                    'base_url': version.base_url,
                     'status': version.status,
                     'created_at': version.created_at.isoformat(),
                     'updated_at': version.updated_at.isoformat(),
@@ -892,16 +891,6 @@ class ApiManagement:
             if api_version.status != 'active':
                 return {'status': 'fail', 'message': 'Version is not active'}, HTTPStatus.FORBIDDEN
             
-            
-            headers_data = []
-            headers =ApiVersionHeader.query.filter_by(api_id=api.id, api_version= version).all()
-
-            for header in headers:
-                header_data = {
-                    'key': header.key,
-                    'value': header.value,
-                }
-                headers_data.append(header_data)
 
             endpoints_data = []
             endpoints =ApiVersionEndpoint.query.filter_by(api_id=api.id, version= version).all()
@@ -918,7 +907,6 @@ class ApiManagement:
 
             api_version_data = {
                 'version': api_version.version,
-                'base_url': api_version.base_url,
                 'api':{
                     'id': api.id,
                     'name':api.name
@@ -930,7 +918,6 @@ class ApiManagement:
             response_object = {
                 'status': 'success',
                 'data': api_version_data,
-                'headers':headers_data,
                 'endpoints':endpoints_data
             }
             return response_object, HTTPStatus.OK
