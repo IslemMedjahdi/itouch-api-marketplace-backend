@@ -4,8 +4,8 @@ from app.test.fixtures.auth.login_request import login_request, admin_login
 from app.test.fixtures.auth.register_request import register_request
 from app.test.fixtures.api.categories_request import create_category_request
 from app.test.fixtures.user.suppliers_request import create_supplier_request
-from app.test.fixtures.api.apis_request import create_api_request
-from app.test.fixtures.api.apis_request import create_plan_request
+# from app.test.fixtures.api.apis_request import create_api_request
+# from app.test.fixtures.api.apis_request import create_plan_request
 
 
 
