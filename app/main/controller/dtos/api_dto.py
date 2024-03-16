@@ -173,7 +173,6 @@ class ApiDto:
     api_version_info_response = api.model('api_version_info',{
         'data': fields.Nested(api.model('api_version_info_data',{
             'version': fields.String(description='The api version'),
-            'base_url': fields.String(description='The base_url of the api'),
             'api': fields.Nested(api.model('api_info_data',{
                 'id':fields.Integer(description='The api id'),
                 'name': fields.String(description='The api name'),
@@ -182,10 +181,6 @@ class ApiDto:
             'created_at': fields.DateTime(description='The api creation date'),
             'updated_at': fields.DateTime(description='The api last update date'),
         })),
-        'headers': fields.List(fields.Nested(api.model('api_version_headers', {
-            'key': fields.String(description='The key of the header'),
-            'value': fields.String(description='The header value'),
-        })), description='List of headers associated with the API version'),
         'endpoints': fields.List(fields.Nested(api.model('api_version_endpoints', {
             'endpoint': fields.String(description='The endpoint of the version'),
             'method': fields.String(description='The endpoint method'),
@@ -198,7 +193,6 @@ class ApiDto:
     api_versions_list_response = api.model('api_versions_list_response',{
         'data': fields.List(fields.Nested(api.model('api_versions_list_data',{
         'version': fields.Integer(description='The api version'),
-        'base_url': fields.String(description='The base_url of the api version'),
         'status': fields.String(description='The status of the api version'),
         'created_at': fields.DateTime(description='The api version creation date'),
         'updated_at': fields.DateTime(description='The api version last update date'),
