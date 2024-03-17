@@ -929,6 +929,100 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    
+    @staticmethod
+    def get_logged_in_supplier_single_api_version(request,api_id, version) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    return {'status': 'fail', 'message': resp}, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {'status': 'fail', 'message': 'User does not exist'}, HTTPStatus.NOT_FOUND
+                
+                if not user.check_status('active'):
+                    return {'status': 'fail', 'message': 'User is not active.'}, HTTPStatus.FORBIDDEN
+                
+
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+                
+                if not api.supplier_id == resp:
+                    return {'status': 'fail', 'message': 'You are not authorized to access this resource.'}, HTTPStatus.FORBIDDEN
+                    
+            
+                if api.status != 'active':
+                    return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+            
+                api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
+
+                if not api_version:
+                    return {'status': 'fail', 'message': 'Version not found'}, HTTPStatus.NOT_FOUND
+                
+                if api_version.status != 'active':
+                    return {'status': 'fail', 'message': 'Version is not active'}, HTTPStatus.FORBIDDEN
+                
+
+                endpoints_data = []
+                endpoints =ApiVersionEndpoint.query.filter_by(api_id=api.id, version= version).all()
+
+                for endpoint in endpoints:
+                    endpoint_data = {
+                        'endpoint': endpoint.endpoint,
+                        'method': endpoint.method,
+                        'description': endpoint.description,
+                        'request_body': endpoint.request_body,
+                        'response_body': endpoint.response_body,
+                    }
+                    endpoints_data.append(endpoint_data)
+                
+                headers_data = []
+                headers =ApiVersionHeader.query.filter_by(api_id=api.id, api_version= version).all()
+                for header in headers:
+                    header_data = {
+                        'key': key.header,
+                        'value': header.value,
+                    }
+                    headers_data.append(header_data)
+
+                api_version_data = {
+                    'version': api_version.version,
+                    'base_url': api_version.base_url,
+                    'api':{
+                        'id': api.id,
+                        'name':api.name
+                    },
+                    'status': api_version.status,
+                    'created_at': api_version.created_at.isoformat(),
+                    'updated_at': api_version.updated_at.isoformat(),
+                }
+                response_object = {
+                    'status': 'success',
+                    'data': api_version_data,
+                    'endpoints': endpoints_data,
+                    'headers': headers_data
+                }
+                return response_object, HTTPStatus.OK
+            
+            else:
+                return {'status': 'fail', 'message': 'Provide a valid auth token.'}, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
     
 
     

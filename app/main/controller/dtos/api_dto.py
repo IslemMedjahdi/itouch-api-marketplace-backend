@@ -189,6 +189,31 @@ class ApiDto:
             'response_body': fields.String(description='The endpoint response_body'),
         })), description='List of endpoints associated with the API version'),
         'status': fields.String(description='The status of the response')})
+    
+    supplier_api_version_info_response = api.model('supplier_api_version_info',{
+        'data': fields.Nested(api.model('supplier_api_version_info_data',{
+            'version': fields.String(description='The api version'),
+            'base_url': fields.String(description='The api version base_url'),
+            'api': fields.Nested(api.model('api_info_data',{
+                'id':fields.Integer(description='The api id'),
+                'name': fields.String(description='The api name'),
+            })),
+            'status': fields.String(description='The status of the api'),
+            'created_at': fields.DateTime(description='The api creation date'),
+            'updated_at': fields.DateTime(description='The api last update date'),
+        })),
+        'headers': fields.List(fields.Nested(api.model('api_version_headers', {
+            'key': fields.String(description='The key of the header'),
+            'value': fields.String(description='The header value'),
+        })), description='List of headers associated with the API version'),
+        'endpoints': fields.List(fields.Nested(api.model('api_version_endpoints', {
+            'endpoint': fields.String(description='The endpoint of the version'),
+            'method': fields.String(description='The endpoint method'),
+            'description': fields.String(description='The endpoint description'),
+            'request_body': fields.String(description='The endpoint request_body'),
+            'response_body': fields.String(description='The endpoint response_body'),
+        })), description='List of endpoints associated with the API version'),
+        'status': fields.String(description='The status of the response')})
 
     api_versions_list_response = api.model('api_versions_list_response',{
         'data': fields.List(fields.Nested(api.model('api_versions_list_data',{

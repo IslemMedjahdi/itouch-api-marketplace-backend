@@ -151,6 +151,15 @@ class GetVersion(Resource):
     def get(self, id, version):
         return ApiManagement.get_single_api_version(api_id = id, version= version)
 
+supplier_api_version_info_response = ApiDto.supplier_api_version_info_response
+@api.route('/mine/<int:id>/versions/<string:version>')
+class GetVersion(Resource):
+    @api.doc('get version')
+    @api.response(200, 'Success', supplier_api_version_info_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id, version):
+        return ApiManagement.get_logged_in_supplier_single_api_version(request,api_id=id, version=version)
+
 # this route is for activating a version of an api, supplier can only activate his own version
 # supplier cant activate a version that is disabled by an admin
 @api.route('/<int:id>/versions/<string:version>/activate',doc=False)
