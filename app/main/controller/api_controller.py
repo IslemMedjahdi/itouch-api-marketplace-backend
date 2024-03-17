@@ -1,10 +1,14 @@
-from flask import request
+from flask import request, g as top_g
 from flask_restx import Resource
 from typing import Dict, Tuple
 
 from app.main.controller.dtos.api_dto import ApiDto
 
-from app.main.utils.decorators import role_token_required
+from app.main.utils.decorators.auth import role_token_required, require_authentication
+from app.main.utils.decorators.discussion import (
+    check_delete_discussion_permission,
+    check_delete_answer_permission,
+)
 from app.main.service.api_service import ApiManagement
 
 from app.main.utils.roles import Role
@@ -381,10 +385,12 @@ class Discussions(Resource):
     @api.marshal_with(
         ApiDto.discussions_response, envelope="data", code=HTTPStatus.CREATED
     )
-    @role_token_required([Role.User, Role.SUPPLIER, Role.ADMIN])
+    @require_authentication
     def post(self, api_id):
         return (
-            DiscussionService.create_new_discussion(api_id, api.payload),
+            DiscussionService.create_new_discussion(
+                api_id, api.payload, top_g.user.get("id")
+            ),
             HTTPStatus.CREATED,
         )
 
@@ -398,6 +404,8 @@ class DiscussionDetails(Resource):
 
     @api.doc("delete a specific discussion")
     @api.response(HTTPStatus.OK, "Success")
+    @require_authentication
+    @check_delete_discussion_permission
     def delete(self, discussion_id, **_):
         DiscussionService.delete_discussion(discussion_id)
         return HTTPStatus.OK
@@ -410,9 +418,12 @@ class DiscussionAnswers(Resource):
     @api.marshal_with(
         ApiDto.discussion_answer_response, envelope="data", code=HTTPStatus.CREATED
     )
+    @require_authentication
     def post(self, discussion_id, **_):
         return (
-            DiscussionService.create_new_answer(discussion_id, api.payload),
+            DiscussionService.create_new_answer(
+                discussion_id, api.payload, top_g.user.get("id")
+            ),
             HTTPStatus.CREATED,
         )
 
@@ -426,6 +437,8 @@ class AnswerDetails(Resource):
 
     @api.doc("delete a specific answer")
     @api.response(HTTPStatus.OK, "Success")
+    @require_authentication
+    @check_delete_answer_permission
     def delete(self, answer_id, **_):
         DiscussionService.delete_answer(answer_id)
         return HTTPStatus.OK
