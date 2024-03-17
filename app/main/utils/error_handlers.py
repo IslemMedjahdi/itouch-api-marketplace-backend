@@ -5,12 +5,12 @@ from .exceptions import NotFoundException, BadRequestException
 
 def register_error_handlers(api: Api):
     @api.errorhandler(NotFoundException)
-    def handle_not_found_exception(error):
-        return {"message": "Resource not found"}, HTTPStatus.NOT_FOUND
+    def handle_not_found_exception(error: NotFoundException):
+        return {"message": error.message}, HTTPStatus.NOT_FOUND
 
     @api.errorhandler(BadRequestException)
-    def handle_bad_request_exception(error):
-        return {"message": "Bad request"}, HTTPStatus.BAD_REQUEST
+    def handle_bad_request_exception(error: BadRequestException):
+        return {"message": error.message}, HTTPStatus.BAD_REQUEST
 
     @api.errorhandler(Exception)
     def handle_generic_exception(error):
