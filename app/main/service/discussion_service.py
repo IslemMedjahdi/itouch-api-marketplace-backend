@@ -2,6 +2,7 @@ from typing import Dict, List
 from app.main.model.discussion_model import Discussion
 from app.main.model.discussion_answer_model import DiscussionAnswer
 from app.main import db
+from app.main.utils.exceptions import NotFoundException
 
 
 class DiscussionService:
@@ -12,7 +13,10 @@ class DiscussionService:
 
     @staticmethod
     def get_by_id(discussion_id: int) -> Discussion:
-        return Discussion.query.filter_by(id=discussion_id).first()
+        discussion = Discussion.query.filter_by(id=discussion_id).first()
+        if not discussion:
+            raise NotFoundException()
+        return discussion
 
     @staticmethod
     def create_new_discussion(api_id: int, data: Dict) -> Discussion:

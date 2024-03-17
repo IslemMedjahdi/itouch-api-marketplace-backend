@@ -1,4 +1,3 @@
-from flask import jsonify
 from flask_restx import Api
 from http import HTTPStatus
 from .exceptions import NotFoundException, BadRequestException
