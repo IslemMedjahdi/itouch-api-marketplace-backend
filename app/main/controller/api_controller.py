@@ -84,14 +84,6 @@ class GetApis(Resource):
         return ApiManagement.get_logged_in_supplier_apis(request)
 
 
-# @api.route('/<int:id>/delete',doc=False)
-# class DeleteApi(Resource):
-#     @api.doc('delete api')
-#     @api.response(200, 'Success')
-#     @role_token_required([Role.SUPPLIER])
-#     def delete(self, id):
-#         return "Not implemented yet"
-
 update_api_request = ApiDto.update_api_request
 update_api_response = ApiDto.update_api_response
 
@@ -148,31 +140,47 @@ class DeactivateApi(Resource):
 
 
 # this route is for creating a new version of an api (version_name,base_url,headers,endpoints)
-@api.route("/<int:id>/versions/create", doc=False)
+
+create_api_version_request = ApiDto.create_api_version_request
+create_api_version_response = ApiDto.create_api_version_response
+
+
+@api.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api.doc("create version")
-    @api.response(201, "Success")
+    @api.expect(create_api_version_request, validate=True)
+    @api.response(201, "Success", create_api_version_response)
     @role_token_required([Role.SUPPLIER])
     def post(self, id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_version(request, api_id=id, data=post_data)
 
 
 # this route is for getting all versions of an api
-@api.route("/<int:id>/versions", doc=False)
+api_versions_list_response = ApiDto.api_versions_list_response
+
+
+@api.route("/<int:id>/versions")
 class GetVersions(Resource):
     @api.doc("get versions")
-    @api.response(200, "Success")
+    @api.param("page", "The page number")
+    @api.param("per_page", "The number of items per page")
+    @api.param("status", "The status of the api versions")
+    @api.response(200, "Success", api_versions_list_response)
     def get(self, id):
-        return "Not implemented yet"
+        return ApiManagement.get_all_api_versions(request, api_id=id)
 
 
 # this route is for getting a version of an api by id
-@api.route("/<int:id>/versions/<string:version>", doc=False)
+api_version_info_response = ApiDto.api_version_info_response
+
+
+@api.route("/<int:id>/versions/<string:version>")
 class GetVersion(Resource):
     @api.doc("get version")
-    @api.response(200, "Success")
+    @api.response(200, "Success", api_version_info_response)
     def get(self, id, version):
-        return "Not implemented yet"
+        return ApiManagement.get_single_api_version(api_id=id, version=version)
 
 
 # this route is for activating a version of an api, supplier can only activate his own version
