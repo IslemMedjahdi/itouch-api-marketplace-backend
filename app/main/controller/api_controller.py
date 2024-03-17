@@ -94,6 +94,15 @@ class GetApiById(Resource):
     def get(self, id):
         return ApiManagement.get_single_api(api_id=id)
 
+supplier_api_info_response = ApiDto.supplier_api_info_response
+@api.route('/mine/<int:id>')
+class GetApiById(Resource):
+    @api.doc('get api by id')
+    @api.response(200, 'Success', supplier_api_info_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        return ApiManagement.get_logged_in_supplier_single_api(request, api_id=id)
+
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
 activate_api_response = ApiDto.activate_api_response

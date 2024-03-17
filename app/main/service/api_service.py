@@ -269,6 +269,100 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    @staticmethod
+    def get_logged_in_supplier_single_api(request, api_id: int) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    return {'status': 'fail', 'message': resp}, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {'status': 'fail', 'message': 'User does not exist'}, HTTPStatus.NOT_FOUND
+                
+                if not user.check_status('active'):
+                    return {'status': 'fail', 'message': 'User is not active.'}, HTTPStatus.FORBIDDEN
+                
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'Api not found'
+                    }
+                    return response_object, HTTPStatus.NOT_FOUND
+
+                if not api.supplier_id == resp:
+                    response_object = {
+                        'status': 'fail',
+                        'message': 'You are not authorized to access this resource '
+                    }
+                    return response_object, HTTPStatus.FORBIDDEN
+
+
+                plans_data = []
+                category_name = ApiCategory.query.filter_by(id=api.category_id).first().name
+                supplier_firstname = User.query.filter_by(id=api.supplier_id).first().firstname
+                supplier_lastname = User.query.filter_by(id=api.supplier_id).first().lastname 
+                plans =ApiPlan.query.filter_by(api_id=api.id).all()
+
+                for plan in plans:
+                    plan_data = {
+                        'name': plan.name,
+                        'description': plan.description,
+                        'price': plan.price,
+                        'max_requests': plan.max_requests,
+                        'duration': plan.duration
+                    }
+                    plans_data.append(plan_data)
+
+                api_data = {
+                    'id': api.id,
+                    'name': api.name,
+                    'description': api.description,
+                    'category_id': api.category_id,
+                    'category':{
+                        'id': api.category_id,
+                        'name':category_name
+                    },
+                    'supplier_id': api.supplier_id,
+                    'supplier':{
+                        'id':api.supplier_id,
+                        'firstname':supplier_firstname,
+                        'lastname': supplier_lastname
+                    },
+                    'status': api.status,
+                    'created_at': api.created_at.isoformat(),
+                    'updated_at': api.updated_at.isoformat(),
+                    'image' : MediaService.generate_cover_url(api.id)
+                }
+                response_object = {
+                    'status': 'success',
+                    'data': api_data,
+                    'plans':plans_data
+                }
+                return response_object, HTTPStatus.OK
+                
+            
+            else:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Provide a valid auth token.'
+                }
+                return response_object, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
 
     @staticmethod
     def get_all_apis(request) -> Tuple[Dict[str, Any], int]:
