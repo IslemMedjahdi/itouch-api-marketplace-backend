@@ -9,9 +9,7 @@ class Discussion(db.Model):
     question = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-    api_id = db.Column(
-        db.Integer, db.ForeignKey("api.id"), primary_key=True, nullable=False
-    )
+    api_id = db.Column(db.Integer, db.ForeignKey("api.id"), nullable=False)
     answers = db.relationship("DiscussionAnswer")
     user = db.relationship("User", backref="discussions")
 

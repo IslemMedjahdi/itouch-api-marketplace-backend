@@ -373,6 +373,7 @@ class Discussions(Resource):
     @api.marshal_with(
         ApiDto.discussions_response, envelope="data", code=HTTPStatus.CREATED
     )
+    @role_token_required([Role.User, Role.SUPPLIER, Role.ADMIN])
     def post(self, api_id):
         return (
             DiscussionService.create_new_discussion(api_id, api.payload),
