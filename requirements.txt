@@ -10,6 +10,11 @@ click==8.1.7
 colorama==0.4.6
 Faker==23.3.0
 flake8==7.0.0
+flake8-bandit==4.1.1
+flake8-bugbear==24.2.6
+flake8-builtins==2.2.0
+flake8-comprehensions==3.14.0
+flake8_implicit_str_concat==0.4.0
 Flask==3.0.2
 Flask-Bcrypt==1.0.1
 Flask-Migrate==4.0.5
@@ -29,10 +34,13 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 mccabe==0.7.0
 mdurl==0.1.2
+mypy==1.9.0
+mypy-extensions==1.0.0
 mysqlclient==2.2.4
 packaging==23.2
 pathlib==1.0.1
 pbr==6.0.0
+pep8-naming==0.13.3
 pluggy==1.4.0
 pycodestyle==2.11.1
 pyflakes==3.2.0
