@@ -850,3 +850,32 @@ class ApiDto:
             ),
         },
     )
+
+    create_endpoint_request = api.model(
+        "create_endpoint_request",
+        {
+            "url": fields.String(
+                required=True, description="The url of the endpoint"
+            ),
+            "method": fields.String(
+                required=True, description="The endpoint method"
+            ),
+            "description": fields.String(
+                required=True, description="The endpoint description"
+            ),
+            "request_body": fields.String(
+                required=True, description="The endpoint request_body"
+            ),
+            "response_body": fields.String(
+                required=True, description="The endpoint response_body"
+            ),
+        },
+    )
+
+    create_endpoint_response = api.model(
+        "create_endpoint_response",
+        {
+            "status": fields.String(description="The status of the response"),
+            "message": fields.String(description="The message of the response"),
+        },
+    )

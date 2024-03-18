@@ -274,13 +274,17 @@ class UpdateHeader(Resource):
 
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
-@api.route("/<int:id>/versions/<string:version>/endpoints/create", doc=False)
+create_endpoint_request = ApiDto.create_endpoint_request
+create_endpoint_response = ApiDto.create_endpoint_response
+@api.route("/<int:id>/versions/<string:version>/endpoints/create")
 class CreateEndpoint(Resource):
     @api.doc("create endpoint")
-    @api.response(201, "Success")
+    @api.expect(create_endpoint_request, validate=True)
+    @api.response(201, "Success", create_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_endpoint(request,api_id=id, version=version, data=post_data)
 
 
 # this route is for deleting an endpoint from a version of an api

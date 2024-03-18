@@ -1514,6 +1514,113 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+    @staticmethod
+    def create_endpoint(request,data: Dict[str, str], api_id, version) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get("Authorization")
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+
+                if isinstance(resp, str):
+                    return {"status": "fail", "message": resp}, HTTPStatus.UNAUTHORIZED
+
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {
+                        "status": "fail",
+                        "message": "User does not exist",
+                    }, HTTPStatus.NOT_FOUND
+
+                if not user.check_status("active"):
+                    return {
+                        "status": "fail",
+                        "message": "User is not active.",
+                    }, HTTPStatus.FORBIDDEN
+
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    return {
+                        "status": "fail",
+                        "message": "Api not found",
+                    }, HTTPStatus.NOT_FOUND
+
+                if not api.supplier_id == resp:
+                    return {
+                        "status": "fail",
+                        "message": "You are not authorized to access this resource.",
+                    }, HTTPStatus.FORBIDDEN
+
+                if api.status != "active":
+                    return {
+                        "status": "fail",
+                        "message": "Api is not active",
+                    }, HTTPStatus.FORBIDDEN
+
+                api_version = ApiVersion.query.filter_by(
+                    api_id=api_id, version=version
+                ).first()
+
+                if not api_version:
+                    return {
+                        "status": "fail",
+                        "message": "Version not found",
+                    }, HTTPStatus.NOT_FOUND
+                
+                valide_methods = ["POST", "GET", "PUT", "DELETE"]
+                endpoint_url = data.get('url')
+                endpoint_method = data.get("method")
+                if not endpoint_method in valide_methods:
+                    return {
+                            "status": "fail",
+                            "message": "Invalide methode",
+                        }, HTTPStatus.BAD_REQUEST
+
+                methods = ApiVersionEndpoint.query \
+                    .with_entities(ApiVersionEndpoint.method) \
+                    .filter_by(api_id=api_id, version=version, endpoint=endpoint_url) \
+                    .all()
+                
+                if endpoint_method in methods:
+                    return {
+                            "status": "fail",
+                            "message": f'Duplicate method "{endpoint_method}" for URL: {endpoint_url}',
+                        }, HTTPStatus.BAD_REQUEST
+
+
+                new_endpoint = ApiVersionEndpoint(
+                    api_id = api_id,
+                    version = version,
+                    endpoint=data.get("url"),
+                    method=data.get("method"),
+                    description = data.get("description"),
+                    request_body = data.get("request_body"),
+                    response_body = data.get("response_body")
+                )
+                db.session.add(new_endpoint)
+                db.session.commit()
+                response_object = {
+                    "status": "success",
+                    "message": "Successfully created an endpoint.",
+                }
+                return response_object, HTTPStatus.OK
+
+            else:
+                return {
+                    "status": "fail",
+                    "message": "Provide a valid auth token.",
+                }, HTTPStatus.UNAUTHORIZED
+
+        except Exception as e:
+            response_object = {
+                "status": "fail",
+                "message": "Try again",
+                "error": str(e),
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
 
     @staticmethod
     def test_api(request, api_id, version, params):
