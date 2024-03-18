@@ -300,15 +300,23 @@ class DeleteEndpoint(Resource):
 
 
 # this route is for updating an endpoint from a version of an api
+update_endpoint_request = ApiDto.update_endpoint_request
 @api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update", doc=False
+    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update"
 )
 class UpdateEndpoint(Resource):
     @api.doc("update endpoint")
-    @api.response(200, "Success")
+    @api.expect(update_endpoint_request, validate=True)
+    @api.response(200, "Success",create_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, endpoint_id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_endpoint(
+            request,
+            api_id=id,
+            version=version,
+            endpoint_id=endpoint_id,
+            data=post_data)
 
 
 # TODO: The request must be from a whitelist domains

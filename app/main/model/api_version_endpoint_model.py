@@ -4,10 +4,11 @@ class ApiVersionEndpoint(db.Model):
 
     __tablename__ = "api_version_endpoint"
 
-    api_id = db.Column(db.Integer, db.ForeignKey('api_version.api_id'),primary_key=True)
-    version = db.Column(db.String,db.ForeignKey('api_version.version'),primary_key=True)
-    endpoint = db.Column(db.String, primary_key=True)
-    method = db.Column(db.String, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    api_id = db.Column(db.Integer, db.ForeignKey('api_version.api_id'))
+    version = db.Column(db.String,db.ForeignKey('api_version.version'))
+    endpoint = db.Column(db.String, nullable=False)
+    method = db.Column(db.String, nullable=False)
     description = db.Column(db.String(255), nullable=False)
     request_body = db.Column(db.String(2048), nullable=False)
     response_body = db.Column(db.String(2048), nullable=False)

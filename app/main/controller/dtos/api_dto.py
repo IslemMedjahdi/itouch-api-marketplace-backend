@@ -864,10 +864,10 @@ class ApiDto:
                 required=True, description="The endpoint description"
             ),
             "request_body": fields.String(
-                required=True, description="The endpoint request_body"
+                required=True, description="The endpoint request body"
             ),
             "response_body": fields.String(
-                required=True, description="The endpoint response_body"
+                required=True, description="The endpoint response body"
             ),
         },
     )
@@ -877,5 +877,20 @@ class ApiDto:
         {
             "status": fields.String(description="The status of the response"),
             "message": fields.String(description="The message of the response"),
+        },
+    )
+
+    update_endpoint_request = api.model(
+        "update_endpoint_request",
+        {
+            "description": fields.String(
+                description="The endpoint description"
+            ),
+            "request_body": fields.String(
+                description="The endpoint request body"
+            ),
+            "response_body": fields.String(
+                description="The endpoint response body"
+            ),
         },
     )

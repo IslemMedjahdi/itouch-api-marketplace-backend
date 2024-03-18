@@ -1621,6 +1621,108 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+
+    @staticmethod
+    def update_endpoint(request,data: Dict[str, str], api_id, version,endpoint_id) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get("Authorization")
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+
+                if isinstance(resp, str):
+                    return {"status": "fail", "message": resp}, HTTPStatus.UNAUTHORIZED
+
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {
+                        "status": "fail",
+                        "message": "User does not exist",
+                    }, HTTPStatus.NOT_FOUND
+
+                if not user.check_status("active"):
+                    return {
+                        "status": "fail",
+                        "message": "User is not active.",
+                    }, HTTPStatus.FORBIDDEN
+
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    return {
+                        "status": "fail",
+                        "message": "Api not found",
+                    }, HTTPStatus.NOT_FOUND
+
+                if not api.supplier_id == resp:
+                    return {
+                        "status": "fail",
+                        "message": "You are not authorized to access this resource.",
+                    }, HTTPStatus.FORBIDDEN
+
+                if api.status != "active":
+                    return {
+                        "status": "fail",
+                        "message": "Api is not active",
+                    }, HTTPStatus.FORBIDDEN
+
+                api_version = ApiVersion.query.filter_by(
+                    api_id=api_id, version=version
+                ).first()
+
+                if not api_version:
+                    return {
+                        "status": "fail",
+                        "message": "Version not found",
+                    }, HTTPStatus.NOT_FOUND
+                
+
+                endpoint = ApiVersionEndpoint.query .filter_by(
+                    api_id=api_id, version=version, id=endpoint_id
+                    ).first()
+                
+                if not endpoint:
+                    return {
+                        "status": "fail",
+                        "message": "Endpoint not found",
+                    }, HTTPStatus.NOT_FOUND
+                
+
+
+
+                new_description = data.get("description")
+                new_request_body = data.get("value")
+                new_response_body = data.get("response_body")
+                if new_description:
+                    endpoint.description = new_description
+                
+                if new_request_body:
+                    endpoint.request_body = new_request_body
+                
+                if new_response_body:
+                    endpoint.response_body = new_response_body
+                
+                db.session.commit()
+                response_object = {
+                    "status": "success",
+                    "message": "Successfully updated the endpoint.",
+                }
+                return response_object, HTTPStatus.OK
+
+            else:
+                return {
+                    "status": "fail",
+                    "message": "Provide a valid auth token.",
+                }, HTTPStatus.UNAUTHORIZED
+
+        except Exception as e:
+            response_object = {
+                "status": "fail",
+                "message": "Try again",
+                "error": str(e),
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
 
     @staticmethod
     def test_api(request, api_id, version, params):
