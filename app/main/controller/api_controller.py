@@ -224,24 +224,27 @@ class DeactivateVersion(Resource):
 
 
 # this route is for deleting a version of an api, supplier can only delete his own version
-@api.route("/<int:id>/versions/<string:version>/delete", doc=False)
-class DeleteVersion(Resource):
-    @api.doc("delete version")
-    @api.response(200, "Success")
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id, version):
-        return "Not implemented yet"
+# @api.route("/<int:id>/versions/<string:version>/delete", doc=False)
+# class DeleteVersion(Resource):
+#     @api.doc("delete version")
+#     @api.response(200, "Success")
+#     @role_token_required([Role.SUPPLIER])
+#     def delete(self, id, version):
+#         return "Not implemented yet"
 
 
 # this route is for adding a new header to a version of an api
-@api.route("/<int:id>/versions/<string:version>/headers/create", doc=False)
+create_header_request = ApiDto.create_header_request
+create_header_response = ApiDto.create_header_response
+@api.route("/<int:id>/versions/<string:version>/headers/create")
 class CreateHeader(Resource):
     @api.doc("create header")
-    @api.response(201, "Success")
+    @api.expect(create_header_request, validate=True)
+    @api.response(201, "Success", create_header_response)
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
-        return "Not implemented yet"
-
+        post_data = request.json
+        return ApiManagement.create_header(request,data=post_data,api_id=id,version=version)
 
 # this route is for deleting a header from a version of an api
 @api.route(
