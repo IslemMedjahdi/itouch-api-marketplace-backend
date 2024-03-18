@@ -247,27 +247,30 @@ class CreateHeader(Resource):
         return ApiManagement.create_header(request,data=post_data,api_id=id,version=version)
 
 # this route is for deleting a header from a version of an api
-@api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete", doc=False
-)
-class DeleteHeader(Resource):
-    @api.doc("delete header")
-    @api.response(200, "Success")
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id, version, header_id):
-        return "Not implemented yet"
+# @api.route(
+#     "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete", doc=False
+# )
+# class DeleteHeader(Resource):
+#     @api.doc("delete header")
+#     @api.response(200, "Success")
+#     @role_token_required([Role.SUPPLIER])
+#     def delete(self, id, version, header_id):
+#         return "Not implemented yet"
 
 
 # this route is for updating a header from a version of an api
+update_header_request = ApiDto.update_header_request
 @api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/update", doc=False
-)
+    "/<int:id>/versions/<string:version>/headers/<int:header_id>/update"
+    )
 class UpdateHeader(Resource):
     @api.doc("update header")
-    @api.response(200, "Success")
+    @api.expect(create_header_request, validate=True)
+    @api.response(200, "Success", create_header_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, header_id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_header(request, data=post_data, api_id=id, version=version, header_id=header_id)
 
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)

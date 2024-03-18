@@ -838,3 +838,15 @@ class ApiDto:
             "message": fields.String(description="The message of the response"),
         },
     )
+
+    update_header_request = api.model(
+        "update_header_request",
+        {
+            "key": fields.String(
+                description="The key of the header"
+            ),
+            "value": fields.String(
+                description="The header value"
+            ),
+        },
+    )
