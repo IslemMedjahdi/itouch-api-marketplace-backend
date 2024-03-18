@@ -166,86 +166,65 @@ class ApiDto:
         },
     )
 
-    api_info_response = api.model(
-        "api_info",
-        {
-            "data": fields.Nested(
-                api.model(
-                    "api_info_data",
-                    {
-                        "id": fields.Integer(description="The api ID"),
-                        "name": fields.String(description="The name of the api"),
-                        "description": fields.String(description="The api description"),
-                        "category_id": fields.Integer(
-                            description="The api category id"
-                        ),
-                        "category": fields.Nested(
-                            api.model(
-                                "api_category_info_data",
-                                {
-                                    "id": fields.Integer(
-                                        description="The api category id"
-                                    ),
-                                    "name": fields.String(
-                                        description="The api category name"
-                                    ),
-                                },
-                            )
-                        ),
-                        "supplier_id": fields.Integer(
-                            description="The api supplier id"
-                        ),
-                        "supplier": fields.Nested(
-                            api.model(
-                                "api_supplier_info_data",
-                                {
-                                    "id": fields.Integer(
-                                        description="The api supplier id"
-                                    ),
-                                    "firstname": fields.String(
-                                        description="The api supplier firstname"
-                                    ),
-                                    "lastname": fields.String(
-                                        description="The api supplier lastname"
-                                    ),
-                                },
-                            )
-                        ),
-                        "status": fields.String(description="The status of the api"),
-                        "created_at": fields.DateTime(
-                            description="The api creation date"
-                        ),
-                        "updated_at": fields.DateTime(
-                            description="The api last update date"
-                        ),
-                        "image": fields.String(description="The picture of the api"),
-                    },
-                )
-            ),
-            "plans": fields.List(
-                fields.Nested(
-                    api.model(
-                        "api_plan",
-                        {
-                            "name": fields.String(description="The name of the plan"),
-                            "description": fields.String(
-                                description="The plan description"
-                            ),
-                            "price": fields.Integer(description="The plan price"),
-                            "max_requests": fields.Integer(
-                                description="The maximum number of requests allowed"
-                            ),
-                            "duration": fields.Integer(
-                                description="The duration of the plan in days"
-                            ),
-                        },
-                    )
-                ),
-                description="List of plans associated with the API",
-            ),
-            "status": fields.String(description="The status of the response"),
-        },
-    )
+    api_info_response = api.model('api_info',{
+    'data': fields.Nested(api.model('api_info_data',{
+        'id': fields.Integer(description='The api ID'),
+        'name': fields.String(description='The name of the api'),
+        'description': fields.String(description='The api description'),
+        'category_id': fields.Integer(description='The api category id'),
+        'category': fields.Nested(api.model('api_category_info_data',{
+            'id':fields.Integer(description='The api category id'),
+            'name': fields.String(description='The api category name'),
+        })),
+        'supplier_id': fields.Integer(description='The api supplier id'),
+        'supplier': fields.Nested(api.model('api_supplier_info_data',{
+            'id':fields.Integer(description='The api supplier id'),
+            'firstname': fields.String(description='The api supplier firstname'),
+            'lastname': fields.String(description='The api supplier lastname'),
+        })),
+        'status': fields.String(description='The status of the api'),
+        'created_at': fields.DateTime(description='The api creation date'),
+        'updated_at': fields.DateTime(description='The api last update date'),
+        'image' : fields.String(description='The picture of the api')
+    })),
+    'plans': fields.List(fields.Nested(api.model('api_plan', {
+        'name': fields.String(description='The name of the plan'),
+        'description': fields.String(description='The plan description'),
+        'price': fields.Integer(description='The plan price'),
+        'max_requests': fields.Integer(description='The maximum number of requests allowed'),
+        'duration': fields.Integer(description='The duration of the plan in days')
+    })), description='List of plans associated with the API'),
+    'status': fields.String(description='The status of the response')})
+
+    supplier_api_info_response = api.model('supplier_api_info',{
+    'data': fields.Nested(api.model('supplier_api_info_data',{
+        'id': fields.Integer(description='The api ID'),
+        'name': fields.String(description='The name of the api'),
+        'description': fields.String(description='The api description'),
+        'category_id': fields.Integer(description='The api category id'),
+        'category': fields.Nested(api.model('api_category_info_data',{
+            'id':fields.Integer(description='The api category id'),
+            'name': fields.String(description='The api category name'),
+        })),
+        'supplier_id': fields.Integer(description='The api supplier id'),
+        'supplier': fields.Nested(api.model('api_supplier_info_data',{
+            'id':fields.Integer(description='The api supplier id'),
+            'firstname': fields.String(description='The api supplier firstname'),
+            'lastname': fields.String(description='The api supplier lastname'),
+        })),
+        'status': fields.String(description='The status of the api'),
+        'created_at': fields.DateTime(description='The api creation date'),
+        'updated_at': fields.DateTime(description='The api last update date'),
+        'image' : fields.String(description='The picture of the api')
+    })),
+    'plans': fields.List(fields.Nested(api.model('api_plan', {
+        'name': fields.String(description='The name of the plan'),
+        'description': fields.String(description='The plan description'),
+        'price': fields.Integer(description='The plan price'),
+        'max_requests': fields.Integer(description='The maximum number of requests allowed'),
+        'duration': fields.Integer(description='The duration of the plan in days')
+    })), description='List of plans associated with the API'),
+    'status': fields.String(description='The status of the response')})
 
     apis_list_response = api.model(
         "apis_list_response",
@@ -318,7 +297,7 @@ class ApiDto:
     activate_api_response = api.model(
         "activate_api_response",
         {
-            "id": fields.Integer(description="The api ID"),
+            "api_id": fields.Integer(description="The api ID"),
             "api_status": fields.String(description="The new status of the api"),
             "status": fields.String(description="The status of the response"),
             "message": fields.String(description="The message of the response"),
@@ -577,59 +556,50 @@ class ApiDto:
         },
     )
 
-    api_version_info_response = api.model(
-        "api_version_info",
-        {
-            "data": fields.Nested(
-                api.model(
-                    "api_version_info_data",
-                    {
-                        "version": fields.String(description="The api version"),
-                        "api": fields.Nested(
-                            api.model(
-                                "api_info_data",
-                                {
-                                    "id": fields.Integer(description="The api id"),
-                                    "name": fields.String(description="The api name"),
-                                },
-                            )
-                        ),
-                        "status": fields.String(description="The status of the api"),
-                        "created_at": fields.DateTime(
-                            description="The api creation date"
-                        ),
-                        "updated_at": fields.DateTime(
-                            description="The api last update date"
-                        ),
-                    },
-                )
-            ),
-            "endpoints": fields.List(
-                fields.Nested(
-                    api.model(
-                        "api_version_endpoints",
-                        {
-                            "endpoint": fields.String(
-                                description="The endpoint of the version"
-                            ),
-                            "method": fields.String(description="The endpoint method"),
-                            "description": fields.String(
-                                description="The endpoint description"
-                            ),
-                            "request_body": fields.String(
-                                description="The endpoint request_body"
-                            ),
-                            "response_body": fields.String(
-                                description="The endpoint response_body"
-                            ),
-                        },
-                    )
-                ),
-                description="List of endpoints associated with the API version",
-            ),
-            "status": fields.String(description="The status of the response"),
-        },
-    )
+    api_version_info_response = api.model('api_version_info',{
+        'data': fields.Nested(api.model('api_version_info_data',{
+            'version': fields.String(description='The api version'),
+            'api': fields.Nested(api.model('api_info_data',{
+                'id':fields.Integer(description='The api id'),
+                'name': fields.String(description='The api name'),
+            })),
+            'status': fields.String(description='The status of the api'),
+            'created_at': fields.DateTime(description='The api creation date'),
+            'updated_at': fields.DateTime(description='The api last update date'),
+        })),
+        'endpoints': fields.List(fields.Nested(api.model('api_version_endpoints', {
+            'endpoint': fields.String(description='The endpoint of the version'),
+            'method': fields.String(description='The endpoint method'),
+            'description': fields.String(description='The endpoint description'),
+            'request_body': fields.String(description='The endpoint request_body'),
+            'response_body': fields.String(description='The endpoint response_body'),
+        })), description='List of endpoints associated with the API version'),
+        'status': fields.String(description='The status of the response')})
+    
+    supplier_api_version_info_response = api.model('supplier_api_version_info',{
+        'data': fields.Nested(api.model('supplier_api_version_info_data',{
+            'version': fields.String(description='The api version'),
+            'base_url': fields.String(description='The api version base_url'),
+            'api': fields.Nested(api.model('api_info_data',{
+                'id':fields.Integer(description='The api id'),
+                'name': fields.String(description='The api name'),
+            })),
+            'status': fields.String(description='The status of the api'),
+            'created_at': fields.DateTime(description='The api creation date'),
+            'updated_at': fields.DateTime(description='The api last update date'),
+        })),
+        'headers': fields.List(fields.Nested(api.model('api_version_headers', {
+            'key': fields.String(description='The key of the header'),
+            'value': fields.String(description='The header value'),
+        })), description='List of headers associated with the API version'),
+        'endpoints': fields.List(fields.Nested(api.model('api_version_endpoints', {
+            'endpoint': fields.String(description='The endpoint of the version'),
+            'method': fields.String(description='The endpoint method'),
+            'description': fields.String(description='The endpoint description'),
+            'request_body': fields.String(description='The endpoint request_body'),
+            'response_body': fields.String(description='The endpoint response_body'),
+        })), description='List of endpoints associated with the API version'),
+        'status': fields.String(description='The status of the response')})
 
     api_versions_list_response = api.model(
         "api_versions_list_response",
@@ -656,3 +626,15 @@ class ApiDto:
             "status": fields.String(description="The status of the response"),
         },
     )
+
+    activate_api_version_response = api.model(
+        "activate_api_version_response",
+        {
+            "version": fields.String(description="The version"),
+            "version_status": fields.String(description="The new status of the version"),
+            "status": fields.String(description="The status of the response"),
+            "message": fields.String(description="The message of the response"),
+        },
+    )
+
+    
