@@ -888,6 +888,14 @@ class ApiDto:
         },
     )
 
+    delete_endpoint_response = api.model(
+        "delete_endpoint_response",
+        {
+            "status": fields.String(description="The status of the response"),
+            "message": fields.String(description="The message of the response"),
+        },
+    )
+
     update_endpoint_request = api.model(
         "update_endpoint_request",
         {

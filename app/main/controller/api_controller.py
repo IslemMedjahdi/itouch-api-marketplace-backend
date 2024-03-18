@@ -289,15 +289,16 @@ class CreateEndpoint(Resource):
 
 
 # this route is for deleting an endpoint from a version of an api
+delete_endpoint_response = ApiDto.delete_endpoint_response
 @api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete", doc=False
+    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete"
 )
 class DeleteEndpoint(Resource):
     @api.doc("delete endpoint")
-    @api.response(200, "Success")
+    @api.response(200, "Success", delete_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def delete(self, id, version, endpoint_id):
-        return "Not implemented yet"
+        return ApiManagement.delete_endpoint(request, api_id=id, version=version, endpoint_id=endpoint_id)
 
 
 # this route is for updating an endpoint from a version of an api
