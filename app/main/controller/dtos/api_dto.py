@@ -839,6 +839,14 @@ class ApiDto:
         },
     )
 
+    delete_header_response = api.model(
+        "delete_header_response",
+        {
+            "status": fields.String(description="The status of the response"),
+            "message": fields.String(description="The message of the response"),
+        },
+    )
+
     update_header_request = api.model(
         "update_header_request",
         {

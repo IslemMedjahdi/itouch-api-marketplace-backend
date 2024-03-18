@@ -246,16 +246,17 @@ class CreateHeader(Resource):
         post_data = request.json
         return ApiManagement.create_header(request,data=post_data,api_id=id,version=version)
 
-# this route is for deleting a header from a version of an api
-# @api.route(
-#     "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete", doc=False
-# )
-# class DeleteHeader(Resource):
-#     @api.doc("delete header")
-#     @api.response(200, "Success")
-#     @role_token_required([Role.SUPPLIER])
-#     def delete(self, id, version, header_id):
-#         return "Not implemented yet"
+#this route is for deleting a header from a version of an api
+delete_header_response = ApiDto.delete_header_response
+@api.route(
+    "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete"
+)
+class DeleteHeader(Resource):
+    @api.doc("delete header")
+    @api.response(200, "Success", delete_header_response)
+    @role_token_required([Role.SUPPLIER])
+    def delete(self, id, version, header_id):
+        return ApiManagement.delete_header(request, api_id=id, version=version, header_id=header_id)
 
 
 # this route is for updating a header from a version of an api
