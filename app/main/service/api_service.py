@@ -1116,6 +1116,126 @@ class ApiManagement:
                 'error': str(e)
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def activate_api_version(request,api_id, version) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    return {'status': 'fail', 'message': resp}, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {'status': 'fail', 'message': 'User does not exist'}, HTTPStatus.NOT_FOUND
+                
+                if not user.check_status('active'):
+                    return {'status': 'fail', 'message': 'User is not active.'}, HTTPStatus.FORBIDDEN
+                
+
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+                
+                if not user.role == Role.ADMIN or api.supplier_id == resp:
+                    return {'status': 'fail', 'message': 'You are not authorized to access this resource.'}, HTTPStatus.FORBIDDEN
+                    
+            
+                if api.status != 'active':
+                    return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+            
+                api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
+
+                if not api_version:
+                    return {'status': 'fail', 'message': 'Version not found'}, HTTPStatus.NOT_FOUND
+                
+                if api_version.status == 'active':
+                    return {'status': 'fail', 'message': 'The version is already active.'}, HTTPStatus.OK
+                
+                api_version.status = 'active'
+                db.session.commit()
+                response_object = {
+                    'version':api_version.version,
+                    'version_status':api_version.status,
+                    'status': 'success',
+                    'message': 'Verion status updated to active'
+                }
+                return response_object, HTTPStatus.OK
+            
+            else:
+                return {'status': 'fail', 'message': 'Provide a valid auth token.'}, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
+
+    @staticmethod
+    def disable_api_version(request,api_id, version) -> Tuple[Dict[str, str], int]:
+        try:
+            auth_token = request.headers.get('Authorization')
+            if auth_token:
+                resp = User.decode_auth_token(auth_token)
+                
+                if isinstance(resp, str):
+                    return {'status': 'fail', 'message': resp}, HTTPStatus.UNAUTHORIZED
+                
+                user = User.query.filter_by(id=resp).first()
+
+                if not user:
+                    return {'status': 'fail', 'message': 'User does not exist'}, HTTPStatus.NOT_FOUND
+                
+                if not user.check_status('active'):
+                    return {'status': 'fail', 'message': 'User is not active.'}, HTTPStatus.FORBIDDEN
+                
+
+                api = ApiModel.query.filter_by(id=api_id).first()
+
+                if not api:
+                    return {'status': 'fail', 'message': 'Api not found'}, HTTPStatus.NOT_FOUND
+                
+                if not user.role == Role.ADMIN or api.supplier_id == resp:
+                    return {'status': 'fail', 'message': 'You are not authorized to access this resource.'}, HTTPStatus.FORBIDDEN
+                    
+            
+                if api.status != 'active':
+                    return {'status': 'fail', 'message': 'Api is not active'}, HTTPStatus.FORBIDDEN
+            
+                api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
+
+                if not api_version:
+                    return {'status': 'fail', 'message': 'Version not found'}, HTTPStatus.NOT_FOUND
+                
+                if api_version.status == 'disabled':
+                    return {'status': 'fail', 'message': 'The version is already disabled.'}, HTTPStatus.OK
+                
+                api_version.status = 'disabled'
+                db.session.commit()
+                response_object = {
+                    'version':api_version.version,
+                    'version_status':api_version.status,
+                    'status': 'success',
+                    'message': 'Verion status updated to disabled'
+                }
+                return response_object, HTTPStatus.OK
+            
+            else:
+                return {'status': 'fail', 'message': 'Provide a valid auth token.'}, HTTPStatus.UNAUTHORIZED
+            
+        except Exception as e:
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again',
+                'error': str(e)
+            }
+            return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
     
     
 

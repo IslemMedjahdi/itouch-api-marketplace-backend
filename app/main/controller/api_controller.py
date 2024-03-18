@@ -203,23 +203,24 @@ class GetVersion(Resource):
 
 # this route is for activating a version of an api, supplier can only activate his own version
 # supplier cant activate a version that is disabled by an admin
-@api.route("/<int:id>/versions/<string:version>/activate", doc=False)
+activate_api_version_response = ApiDto.activate_api_version_response
+@api.route("/<int:id>/versions/<string:version>/activate")
 class ActivateVersion(Resource):
     @api.doc("activate version")
-    @api.response(200, "Success")
+    @api.response(200, "Success", activate_api_version_response)
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
-        return "Not implemented yet"
+        return ApiManagement.activate_api_version(request, api_id= id, version=version)
 
 
 # this route is for deactivating a version of an api, supplier can only deactivate his own version
-@api.route("/<int:id>/versions/<string:version>/deactivate", doc=False)
+@api.route("/<int:id>/versions/<string:version>/deactivate")
 class DeactivateVersion(Resource):
     @api.doc("deactivate version")
-    @api.response(200, "Success")
+    @api.response(200, "Success", activate_api_version_response)
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
-        return "Not implemented yet"
+        return ApiManagement.disable_api_version(request, api_id=id, version=version)
 
 
 # this route is for deleting a version of an api, supplier can only delete his own version
