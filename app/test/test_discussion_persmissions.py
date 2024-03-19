@@ -10,26 +10,26 @@ from .fixtures.discussion.add_discussion import add_discussion
 @pytest.fixture
 def setup_discussion_user(test_db):
 
-    userId = 1
+    user_id = 1
     discussion = add_discussion(
         test_db,
         api_id=1,
         title="Test Discussion",
         question="Test Question",
-        user_id=userId,
+        user_id=user_id,
     )
 
-    return userId, discussion
+    return user_id, discussion
 
 
 # Test the decorator with an unauthorized user
 def test_check_delete_discussion_permission_unauthorized(
     test_db, setup_discussion_user, app
 ):
-    userId, discussion = setup_discussion_user
+    user_id, discussion = setup_discussion_user
 
     with app.test_request_context():
-        g.user = {"id": userId + 1, "role": Role.USER}
+        g.user = {"id": user_id + 1, "role": Role.USER}
         response, status_code = check_delete_discussion_permission(
             lambda *args, **kwargs: ("OK", HTTPStatus.OK)
         )(discussion_id=discussion.id)
@@ -40,10 +40,10 @@ def test_check_delete_discussion_permission_unauthorized(
 def test_check_delete_discussion_permission_admin_authorized(
     test_db, setup_discussion_user, app
 ):
-    userId, discussion = setup_discussion_user
+    user_id, discussion = setup_discussion_user
 
     with app.test_request_context():
-        g.user = {"id": userId + 1, "role": Role.ADMIN}
+        g.user = {"id": user_id + 1, "role": Role.ADMIN}
         response, status_code = check_delete_discussion_permission(
             lambda *args, **kwargs: ("OK", HTTPStatus.OK)
         )(discussion_id=discussion.id)
@@ -54,10 +54,10 @@ def test_check_delete_discussion_permission_admin_authorized(
 def test_check_delete_discussion_permission_user_authorized(
     test_db, setup_discussion_user, app
 ):
-    userId, discussion = setup_discussion_user
+    user_id, discussion = setup_discussion_user
 
     with app.test_request_context():
-        g.user = {"id": userId, "role": Role.USER}
+        g.user = {"id": user_id, "role": Role.USER}
         response, status_code = check_delete_discussion_permission(
             lambda *args, **kwargs: ("OK", HTTPStatus.OK)
         )(discussion_id=discussion.id)
