@@ -875,7 +875,7 @@ class ApiManagement:
                 for header in headers:
                     new_header = ApiVersionHeader(
                         api_id=api_id,
-                        version=version_name,
+                        api_version=version_name,
                         key=header.get("key"),
                         value=header.get("value"),
                     )
@@ -1338,10 +1338,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-    
 
     @staticmethod
-    def create_header(request,data: Dict[str, str], api_id, version) -> Tuple[Dict[str, str], int]:
+    def create_header(
+        request, data: Dict[str, str], api_id, version
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1393,12 +1394,12 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
+
                 new_header = ApiVersionHeader(
-                    api_id = api_id,
-                    api_version = version,
+                    api_id=api_id,
+                    api_version=version,
                     key=data.get("key"),
-                    value=data.get("value")
+                    value=data.get("value"),
                 )
                 db.session.add(new_header)
                 db.session.commit()
@@ -1421,9 +1422,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-    
+
     @staticmethod
-    def update_header(request,data: Dict[str, str], api_id, version, header_id) -> Tuple[Dict[str, str], int]:
+    def update_header(
+        request, data: Dict[str, str], api_id, version, header_id
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1475,10 +1478,10 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
+
                 header = ApiVersionHeader.query.filter_by(
                     id=header_id, api_id=api_id, api_version=version
-                    ).first()
+                ).first()
 
                 if not header:
                     return {
@@ -1486,7 +1489,6 @@ class ApiManagement:
                         "message": "Header not found",
                     }, HTTPStatus.NOT_FOUND
 
-                
                 new_key = data.get("key")
                 new_value = data.get("value")
                 if new_key:
@@ -1514,9 +1516,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-        
+
     @staticmethod
-    def delete_header(request, api_id, version, header_id) -> Tuple[Dict[str, str], int]:
+    def delete_header(
+        request, api_id, version, header_id
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1568,10 +1572,10 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
+
                 header = ApiVersionHeader.query.filter_by(
                     id=header_id, api_id=api_id, api_version=version
-                    ).first()
+                ).first()
 
                 if not header:
                     return {
@@ -1579,7 +1583,6 @@ class ApiManagement:
                         "message": "Header not found",
                     }, HTTPStatus.NOT_FOUND
 
-                
                 db.session.delete(header)
 
                 db.session.commit()
@@ -1602,10 +1605,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-    
 
     @staticmethod
-    def create_endpoint(request,data: Dict[str, str], api_id, version) -> Tuple[Dict[str, str], int]:
+    def create_endpoint(
+        request, data: Dict[str, str], api_id, version
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1657,36 +1661,36 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
+
                 valide_methods = ["POST", "GET", "PUT", "DELETE"]
-                endpoint_url = data.get('url')
+                endpoint_url = data.get("url")
                 endpoint_method = data.get("method")
                 if not endpoint_method in valide_methods:
                     return {
-                            "status": "fail",
-                            "message": "Invalide methode",
-                        }, HTTPStatus.BAD_REQUEST
+                        "status": "fail",
+                        "message": "Invalide methode",
+                    }, HTTPStatus.BAD_REQUEST
 
-                methods = ApiVersionEndpoint.query \
-                    .with_entities(ApiVersionEndpoint.method) \
-                    .filter_by(api_id=api_id, version=version, endpoint=endpoint_url) \
+                methods = (
+                    ApiVersionEndpoint.query.with_entities(ApiVersionEndpoint.method)
+                    .filter_by(api_id=api_id, version=version, endpoint=endpoint_url)
                     .all()
-                
+                )
+
                 if endpoint_method in methods:
                     return {
-                            "status": "fail",
-                            "message": f'Duplicate method "{endpoint_method}" for URL: {endpoint_url}',
-                        }, HTTPStatus.BAD_REQUEST
-
+                        "status": "fail",
+                        "message": f'Duplicate method "{endpoint_method}" for URL: {endpoint_url}',
+                    }, HTTPStatus.BAD_REQUEST
 
                 new_endpoint = ApiVersionEndpoint(
-                    api_id = api_id,
-                    version = version,
+                    api_id=api_id,
+                    version=version,
                     endpoint=data.get("url"),
                     method=data.get("method"),
-                    description = data.get("description"),
-                    request_body = data.get("request_body"),
-                    response_body = data.get("response_body")
+                    description=data.get("description"),
+                    request_body=data.get("request_body"),
+                    response_body=data.get("response_body"),
                 )
                 db.session.add(new_endpoint)
                 db.session.commit()
@@ -1709,10 +1713,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-    
 
     @staticmethod
-    def update_endpoint(request,data: Dict[str, str], api_id, version,endpoint_id) -> Tuple[Dict[str, str], int]:
+    def update_endpoint(
+        request, data: Dict[str, str], api_id, version, endpoint_id
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1764,33 +1769,29 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
 
-                endpoint = ApiVersionEndpoint.query .filter_by(
+                endpoint = ApiVersionEndpoint.query.filter_by(
                     api_id=api_id, version=version, id=endpoint_id
-                    ).first()
-                
+                ).first()
+
                 if not endpoint:
                     return {
                         "status": "fail",
                         "message": "Endpoint not found",
                     }, HTTPStatus.NOT_FOUND
-                
-
-
 
                 new_description = data.get("description")
                 new_request_body = data.get("value")
                 new_response_body = data.get("response_body")
                 if new_description:
                     endpoint.description = new_description
-                
+
                 if new_request_body:
                     endpoint.request_body = new_request_body
-                
+
                 if new_response_body:
                     endpoint.response_body = new_response_body
-                
+
                 db.session.commit()
                 response_object = {
                     "status": "success",
@@ -1811,10 +1812,11 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-    
 
     @staticmethod
-    def delete_endpoint(request, api_id, version,endpoint_id) -> Tuple[Dict[str, str], int]:
+    def delete_endpoint(
+        request, api_id, version, endpoint_id
+    ) -> Tuple[Dict[str, str], int]:
         try:
             auth_token = request.headers.get("Authorization")
             if auth_token:
@@ -1866,18 +1868,17 @@ class ApiManagement:
                         "status": "fail",
                         "message": "Version not found",
                     }, HTTPStatus.NOT_FOUND
-                
 
-                endpoint = ApiVersionEndpoint.query .filter_by(
+                endpoint = ApiVersionEndpoint.query.filter_by(
                     api_id=api_id, version=version, id=endpoint_id
-                    ).first()
-                
+                ).first()
+
                 if not endpoint:
                     return {
                         "status": "fail",
                         "message": "Endpoint not found",
                     }, HTTPStatus.NOT_FOUND
-                
+
                 db.session.delete(endpoint)
                 db.session.commit()
                 response_object = {
@@ -1899,7 +1900,6 @@ class ApiManagement:
                 "error": str(e),
             }
             return response_object, HTTPStatus.INTERNAL_SERVER_ERROR
-
 
     @staticmethod
     def test_api(request, api_id, version, params):
