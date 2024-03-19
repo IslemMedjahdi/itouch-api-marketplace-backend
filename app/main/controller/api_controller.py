@@ -224,81 +224,101 @@ class DeactivateVersion(Resource):
 
 
 # this route is for deleting a version of an api, supplier can only delete his own version
-@api.route("/<int:id>/versions/<string:version>/delete", doc=False)
-class DeleteVersion(Resource):
-    @api.doc("delete version")
-    @api.response(200, "Success")
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id, version):
-        return "Not implemented yet"
+# @api.route("/<int:id>/versions/<string:version>/delete", doc=False)
+# class DeleteVersion(Resource):
+#     @api.doc("delete version")
+#     @api.response(200, "Success")
+#     @role_token_required([Role.SUPPLIER])
+#     def delete(self, id, version):
+#         return "Not implemented yet"
 
 
 # this route is for adding a new header to a version of an api
-@api.route("/<int:id>/versions/<string:version>/headers/create", doc=False)
+create_header_request = ApiDto.create_header_request
+create_header_response = ApiDto.create_header_response
+@api.route("/<int:id>/versions/<string:version>/headers/create")
 class CreateHeader(Resource):
     @api.doc("create header")
-    @api.response(201, "Success")
+    @api.expect(create_header_request, validate=True)
+    @api.response(201, "Success", create_header_response)
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_header(request,data=post_data,api_id=id,version=version)
 
-
-# this route is for deleting a header from a version of an api
+#this route is for deleting a header from a version of an api
+delete_header_response = ApiDto.delete_header_response
 @api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete", doc=False
+    "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete"
 )
 class DeleteHeader(Resource):
     @api.doc("delete header")
-    @api.response(200, "Success")
+    @api.response(200, "Success", delete_header_response)
     @role_token_required([Role.SUPPLIER])
     def delete(self, id, version, header_id):
-        return "Not implemented yet"
+        return ApiManagement.delete_header(request, api_id=id, version=version, header_id=header_id)
 
 
 # this route is for updating a header from a version of an api
+update_header_request = ApiDto.update_header_request
 @api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/update", doc=False
-)
+    "/<int:id>/versions/<string:version>/headers/<int:header_id>/update"
+    )
 class UpdateHeader(Resource):
     @api.doc("update header")
-    @api.response(200, "Success")
+    @api.expect(create_header_request, validate=True)
+    @api.response(200, "Success", create_header_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, header_id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_header(request, data=post_data, api_id=id, version=version, header_id=header_id)
 
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
-@api.route("/<int:id>/versions/<string:version>/endpoints/create", doc=False)
+create_endpoint_request = ApiDto.create_endpoint_request
+create_endpoint_response = ApiDto.create_endpoint_response
+@api.route("/<int:id>/versions/<string:version>/endpoints/create")
 class CreateEndpoint(Resource):
     @api.doc("create endpoint")
-    @api.response(201, "Success")
+    @api.expect(create_endpoint_request, validate=True)
+    @api.response(201, "Success", create_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.create_endpoint(request,api_id=id, version=version, data=post_data)
 
 
 # this route is for deleting an endpoint from a version of an api
+delete_endpoint_response = ApiDto.delete_endpoint_response
 @api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete", doc=False
+    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete"
 )
 class DeleteEndpoint(Resource):
     @api.doc("delete endpoint")
-    @api.response(200, "Success")
+    @api.response(200, "Success", delete_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def delete(self, id, version, endpoint_id):
-        return "Not implemented yet"
+        return ApiManagement.delete_endpoint(request, api_id=id, version=version, endpoint_id=endpoint_id)
 
 
 # this route is for updating an endpoint from a version of an api
+update_endpoint_request = ApiDto.update_endpoint_request
 @api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update", doc=False
+    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update"
 )
 class UpdateEndpoint(Resource):
     @api.doc("update endpoint")
-    @api.response(200, "Success")
+    @api.expect(update_endpoint_request, validate=True)
+    @api.response(200, "Success",create_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, endpoint_id):
-        return "Not implemented yet"
+        post_data = request.json
+        return ApiManagement.update_endpoint(
+            request,
+            api_id=id,
+            version=version,
+            endpoint_id=endpoint_id,
+            data=post_data)
 
 
 # TODO: The request must be from a whitelist domains
