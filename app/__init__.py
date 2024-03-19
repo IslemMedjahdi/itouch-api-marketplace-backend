@@ -8,7 +8,18 @@ from app.main.controller.auth_controller import api as auth_ns
 from app.main.controller.user_controller import api as users_ns
 from app.main.controller.api_controller import api as api_ns
 from app.main.utils.error_handlers import register_error_handlers
+
+# import models to let the migrate tool know
 from app.main.model.user_model import User
+from app.main.model.api_model import ApiModel  # noqa: F401
+from app.main.model.api_category_model import ApiCategory  # noqa: F401
+from app.main.model.api_version_model import ApiVersion  # noqa: F401
+from app.main.model.api_plan_model import ApiPlan  # noqa: F401
+from app.main.model.api_header_model import ApiVersionHeader  # noqa: F401
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint  # noqa: F401
+from app.main.model.api_key_model import ApiKey  # noqa: F401
+from app.main.model.api_subscription_model import ApiSubscription  # noqa: F401
+from app.main.model.api_request_model import ApiRequest  # noqa: F401
 
 blueprint = Blueprint("api", __name__)
 authorizations = {"apikey": {"type": "apiKey", "in": "header", "name": "Authorization"}}
@@ -34,15 +45,3 @@ app.app_context().push()
 register_error_handlers(api)
 with app.app_context():
     User.create_default_admin()
-
-# import models to let the migrate tool know
-from app.main.model.user_model import User
-from app.main.model.api_model import ApiModel
-from app.main.model.api_category_model import ApiCategory
-from app.main.model.api_version_model import ApiVersion
-from app.main.model.api_plan_model import ApiPlan
-from app.main.model.api_header_model import ApiVersionHeader
-from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
-from app.main.model.api_key_model import ApiKey
-from app.main.model.api_subscription_model import ApiSubscription
-from app.main.model.api_request_model import ApiRequest

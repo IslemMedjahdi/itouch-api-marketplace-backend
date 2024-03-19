@@ -14,7 +14,7 @@ class ApiDto:
             "description": fields.String(
                 required=True, description="The category description"
             ),
-            #'created_by': fields.String(required=True, description='The user  who create the category'),
+            # 'created_by': fields.String(required=True, description='The user  who create the category'),
         },
     )
 
@@ -822,12 +822,8 @@ class ApiDto:
     create_header_request = api.model(
         "create_header_request",
         {
-            "key": fields.String(
-                required=True, description="The key of the header"
-            ),
-            "value": fields.String(
-                required=True, description="The header value"
-            ),
+            "key": fields.String(required=True, description="The key of the header"),
+            "value": fields.String(required=True, description="The header value"),
         },
     )
 
@@ -850,24 +846,16 @@ class ApiDto:
     update_header_request = api.model(
         "update_header_request",
         {
-            "key": fields.String(
-                description="The key of the header"
-            ),
-            "value": fields.String(
-                description="The header value"
-            ),
+            "key": fields.String(description="The key of the header"),
+            "value": fields.String(description="The header value"),
         },
     )
 
     create_endpoint_request = api.model(
         "create_endpoint_request",
         {
-            "url": fields.String(
-                required=True, description="The url of the endpoint"
-            ),
-            "method": fields.String(
-                required=True, description="The endpoint method"
-            ),
+            "url": fields.String(required=True, description="The url of the endpoint"),
+            "method": fields.String(required=True, description="The endpoint method"),
             "description": fields.String(
                 required=True, description="The endpoint description"
             ),
@@ -899,14 +887,8 @@ class ApiDto:
     update_endpoint_request = api.model(
         "update_endpoint_request",
         {
-            "description": fields.String(
-                description="The endpoint description"
-            ),
-            "request_body": fields.String(
-                description="The endpoint request body"
-            ),
-            "response_body": fields.String(
-                description="The endpoint response body"
-            ),
+            "description": fields.String(description="The endpoint description"),
+            "request_body": fields.String(description="The endpoint request body"),
+            "response_body": fields.String(description="The endpoint response body"),
         },
     )
