@@ -494,9 +494,9 @@ class ApiDto:
             "title": fields.String(
                 required=True, description="The title of the discussion"
             ),
-            "user_id": fields.Integer(
-                required=True,
-                description="The ID of the user who created the discussion",
+            "user": fields.Nested(
+                description="The user who created the discussion",
+                model=UserDto.user_details,
             ),
             "created_at": fields.DateTime(
                 description="The date and time when the discussion was created"
@@ -534,7 +534,9 @@ class ApiDto:
             "created_at": fields.DateTime(
                 description="The date and time when the answer was created"
             ),
-            "votes": fields.Integer(description="The number of votes of the answer"),
+            "votes": fields.Integer(
+                description="The number of votes of the answer", attribute="votes_count"
+            ),
         },
     )
     discussion_details_response = api.model(
@@ -566,6 +568,15 @@ class ApiDto:
         {
             "answer": fields.String(
                 required=True, description="The answer of the discussion"
+            ),
+        },
+    )
+
+    create_vote_request = api.model(
+        "create_vote_request",
+        {
+            "vote": fields.String(
+                required=True, description="The vote of the answer", enum=["up", "down"]
             ),
         },
     )

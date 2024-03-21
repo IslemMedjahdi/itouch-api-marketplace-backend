@@ -114,14 +114,18 @@ class GetApiById(Resource):
     def get(self, id):
         return ApiManagement.get_single_api(api_id=id)
 
+
 supplier_api_info_response = ApiDto.supplier_api_info_response
-@api.route('/mine/<int:id>')
+
+
+@api.route("/mine/<int:id>")
 class GetApiById(Resource):
-    @api.doc('get api by id')
-    @api.response(200, 'Success', supplier_api_info_response)
+    @api.doc("get api by id")
+    @api.response(200, "Success", supplier_api_info_response)
     @role_token_required([Role.SUPPLIER])
     def get(self, id):
         return ApiManagement.get_logged_in_supplier_single_api(request, api_id=id)
+
 
 # this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
 # supplier can only activate his own api
@@ -185,32 +189,42 @@ class GetVersions(Resource):
 
 # this route is for getting a version of an api by id
 api_version_info_response = ApiDto.api_version_info_response
-@api.route('/<int:id>/versions/<string:version>')
+
+
+@api.route("/<int:id>/versions/<string:version>")
 class GetVersion(Resource):
-    @api.doc('get version')
-    @api.response(200, 'Success',api_version_info_response)
+    @api.doc("get version")
+    @api.response(200, "Success", api_version_info_response)
     def get(self, id, version):
-        return ApiManagement.get_single_api_version(api_id = id, version= version)
+        return ApiManagement.get_single_api_version(api_id=id, version=version)
+
 
 supplier_api_version_info_response = ApiDto.supplier_api_version_info_response
-@api.route('/mine/<int:id>/versions/<string:version>')
+
+
+@api.route("/mine/<int:id>/versions/<string:version>")
 class GetVersion(Resource):
-    @api.doc('get version')
-    @api.response(200, 'Success', supplier_api_version_info_response)
+    @api.doc("get version")
+    @api.response(200, "Success", supplier_api_version_info_response)
     @role_token_required([Role.SUPPLIER])
     def get(self, id, version):
-        return ApiManagement.get_logged_in_supplier_single_api_version(request,api_id=id, version=version)
+        return ApiManagement.get_logged_in_supplier_single_api_version(
+            request, api_id=id, version=version
+        )
+
 
 # this route is for activating a version of an api, supplier can only activate his own version
 # supplier cant activate a version that is disabled by an admin
 activate_api_version_response = ApiDto.activate_api_version_response
+
+
 @api.route("/<int:id>/versions/<string:version>/activate")
 class ActivateVersion(Resource):
     @api.doc("activate version")
     @api.response(200, "Success", activate_api_version_response)
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
-        return ApiManagement.activate_api_version(request, api_id= id, version=version)
+        return ApiManagement.activate_api_version(request, api_id=id, version=version)
 
 
 # this route is for deactivating a version of an api, supplier can only deactivate his own version
@@ -236,6 +250,8 @@ class DeactivateVersion(Resource):
 # this route is for adding a new header to a version of an api
 create_header_request = ApiDto.create_header_request
 create_header_response = ApiDto.create_header_response
+
+
 @api.route("/<int:id>/versions/<string:version>/headers/create")
 class CreateHeader(Resource):
     @api.doc("create header")
@@ -244,26 +260,31 @@ class CreateHeader(Resource):
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
         post_data = request.json
-        return ApiManagement.create_header(request,data=post_data,api_id=id,version=version)
+        return ApiManagement.create_header(
+            request, data=post_data, api_id=id, version=version
+        )
 
-#this route is for deleting a header from a version of an api
+
+# this route is for deleting a header from a version of an api
 delete_header_response = ApiDto.delete_header_response
-@api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/delete"
-)
+
+
+@api.route("/<int:id>/versions/<string:version>/headers/<int:header_id>/delete")
 class DeleteHeader(Resource):
     @api.doc("delete header")
     @api.response(200, "Success", delete_header_response)
     @role_token_required([Role.SUPPLIER])
     def delete(self, id, version, header_id):
-        return ApiManagement.delete_header(request, api_id=id, version=version, header_id=header_id)
+        return ApiManagement.delete_header(
+            request, api_id=id, version=version, header_id=header_id
+        )
 
 
 # this route is for updating a header from a version of an api
 update_header_request = ApiDto.update_header_request
-@api.route(
-    "/<int:id>/versions/<string:version>/headers/<int:header_id>/update"
-    )
+
+
+@api.route("/<int:id>/versions/<string:version>/headers/<int:header_id>/update")
 class UpdateHeader(Resource):
     @api.doc("update header")
     @api.expect(create_header_request, validate=True)
@@ -271,12 +292,16 @@ class UpdateHeader(Resource):
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, header_id):
         post_data = request.json
-        return ApiManagement.update_header(request, data=post_data, api_id=id, version=version, header_id=header_id)
+        return ApiManagement.update_header(
+            request, data=post_data, api_id=id, version=version, header_id=header_id
+        )
 
 
 # this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
 create_endpoint_request = ApiDto.create_endpoint_request
 create_endpoint_response = ApiDto.create_endpoint_response
+
+
 @api.route("/<int:id>/versions/<string:version>/endpoints/create")
 class CreateEndpoint(Resource):
     @api.doc("create endpoint")
@@ -285,40 +310,41 @@ class CreateEndpoint(Resource):
     @role_token_required([Role.SUPPLIER])
     def post(self, id, version):
         post_data = request.json
-        return ApiManagement.create_endpoint(request,api_id=id, version=version, data=post_data)
+        return ApiManagement.create_endpoint(
+            request, api_id=id, version=version, data=post_data
+        )
 
 
 # this route is for deleting an endpoint from a version of an api
 delete_endpoint_response = ApiDto.delete_endpoint_response
-@api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete"
-)
+
+
+@api.route("/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete")
 class DeleteEndpoint(Resource):
     @api.doc("delete endpoint")
     @api.response(200, "Success", delete_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def delete(self, id, version, endpoint_id):
-        return ApiManagement.delete_endpoint(request, api_id=id, version=version, endpoint_id=endpoint_id)
+        return ApiManagement.delete_endpoint(
+            request, api_id=id, version=version, endpoint_id=endpoint_id
+        )
 
 
 # this route is for updating an endpoint from a version of an api
 update_endpoint_request = ApiDto.update_endpoint_request
-@api.route(
-    "/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update"
-)
+
+
+@api.route("/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update")
 class UpdateEndpoint(Resource):
     @api.doc("update endpoint")
     @api.expect(update_endpoint_request, validate=True)
-    @api.response(200, "Success",create_endpoint_response)
+    @api.response(200, "Success", create_endpoint_response)
     @role_token_required([Role.SUPPLIER])
     def patch(self, id, version, endpoint_id):
         post_data = request.json
         return ApiManagement.update_endpoint(
-            request,
-            api_id=id,
-            version=version,
-            endpoint_id=endpoint_id,
-            data=post_data)
+            request, api_id=id, version=version, endpoint_id=endpoint_id, data=post_data
+        )
 
 
 # TODO: The request must be from a whitelist domains
@@ -480,3 +506,28 @@ class AnswerDetails(Resource):
 
 
 # TODO: add votes
+# vote is either up or down
+# user can only vote once
+# user can change his vote
+# user can remove his vote
+# user can only vote on an answer
+@api.route(
+    "/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>/votes"
+)
+class Votes(Resource):
+    @api.doc("vote on an answer")
+    @api.expect(ApiDto.create_vote_request, validate=True)
+    @api.response(HTTPStatus.OK, "Success")
+    @require_authentication
+    def post(self, answer_id, **_):
+        DiscussionService.vote_on_answer(
+            answer_id, top_g.user.get("id"), api.payload.get("vote")
+        )
+        return HTTPStatus.OK
+
+    @api.doc("remove vote from an answer")
+    @api.response(HTTPStatus.OK, "Success")
+    @require_authentication
+    def delete(self, answer_id, **_):
+        DiscussionService.remove_vote(answer_id, top_g.user.get("id"))
+        return HTTPStatus.OK

@@ -4,6 +4,7 @@ from app.main.model.discussion_answer_model import DiscussionAnswer
 from app.main import db
 from app.main.utils.exceptions import NotFoundException
 from app.main.model.api_model import ApiModel
+from app.main.model.answer_vote_model import AnswerVote
 
 
 class DiscussionService:
@@ -80,3 +81,37 @@ class DiscussionService:
         db.session.delete(answer)
         db.session.commit()
         return answer
+
+    @staticmethod
+    def vote_on_answer(answer_id: int, user_id: int, vote: str) -> None:
+
+        if DiscussionAnswer.query.filter_by(id=answer_id).first() is None:
+            raise NotFoundException("No answer found with id: {}".format(answer_id))
+
+        existing_vote: AnswerVote = AnswerVote.query.filter_by(
+            answer_id=answer_id, user_id=user_id
+        ).first()
+
+        if existing_vote:
+            existing_vote.vote = vote
+            db.session.commit()
+            return
+
+        vote = AnswerVote(answer_id=answer_id, user_id=user_id, vote=vote)
+        db.session.add(vote)
+        db.session.commit()
+        return
+
+    @staticmethod
+    def remove_vote(answer_id: int, user_id: int) -> None:
+        if DiscussionAnswer.query.filter_by(id=answer_id).first() is None:
+            raise NotFoundException("No answer found with id: {}".format(answer_id))
+
+        vote = AnswerVote.query.filter_by(answer_id=answer_id, user_id=user_id).first()
+        if not vote:
+            raise NotFoundException(
+                "No vote found for user: {} and answer: {}".format(user_id, answer_id)
+            )
+        db.session.delete(vote)
+        db.session.commit()
+        return
