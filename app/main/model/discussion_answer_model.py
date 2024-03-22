@@ -1,7 +1,7 @@
 from app.main import db
 
 
-class DiscussionAnswer(db.Model):
+class DiscussionAnswer(db.Model):  # type: ignore
     __tablename__ = "discussion_answer"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
