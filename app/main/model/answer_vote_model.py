@@ -2,7 +2,7 @@ from app.main import db
 from sqlalchemy import UniqueConstraint
 
 
-class AnswerVote(db.Model):
+class AnswerVote(db.Model):  # type: ignore
     __tablename__ = "answer_vote"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
