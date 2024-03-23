@@ -8,7 +8,7 @@ from typing import Dict
 
 
 class ApiVersionService:
-    def create_api_version(self, api_id: str, supplier_id: str, data: dict):
+    def create_api_version(self, api_id: int, supplier_id: int, data: dict):
         api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
         if api is None:
             raise NotFoundException("No API found with id: {}".format(api_id))
@@ -52,7 +52,7 @@ class ApiVersionService:
 
         db.session.commit()
 
-    def get_api_versions(self, api_id: str, query_params: Dict):
+    def get_api_versions(self, api_id: int, query_params: Dict):
         status = query_params.get("status")
 
         query = ApiVersion.query.filter_by(api_id=api_id)
@@ -71,7 +71,7 @@ class ApiVersionService:
             for version in versions
         ]
 
-    def get_api_version(self, api_id: str, version: str):
+    def get_api_version(self, api_id: int, version: str):
         version_data = (
             db.session.query(ApiVersion, ApiModel)
             .filter(
@@ -114,7 +114,7 @@ class ApiVersionService:
             ],
         }
 
-    def get_full_api_version(self, api_id: str, version: str):
+    def get_full_api_version(self, api_id: int, version: str):
         version_data = (
             db.session.query(ApiVersion, ApiModel)
             .filter(
@@ -170,7 +170,7 @@ class ApiVersionService:
             ],
         }
 
-    def activate_version(self, api_id: str, version: str, supplier_id: str, role: str):
+    def activate_version(self, api_id: int, version: str, supplier_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundException("No API found with id: {}".format(api_id))
@@ -191,7 +191,7 @@ class ApiVersionService:
         db.session.commit()
 
     def deactivate_version(
-        self, api_id: str, version: str, supplier_id: str, role: str
+        self, api_id: int, version: str, supplier_id: int, role: str
     ):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:

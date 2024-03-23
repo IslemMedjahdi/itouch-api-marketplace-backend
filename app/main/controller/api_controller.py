@@ -8,7 +8,6 @@ from app.main.utils.decorators.discussion import (
     check_delete_discussion_permission,
     check_delete_answer_permission,
 )
-from app.main.service.api_service import ApiManagement
 
 from app.main.utils.roles import Role
 
@@ -242,28 +241,31 @@ class DeactivateVersion(Resource):
         return HTTPStatus.OK
 
 
-# TODO: The request must be from a whitelist domains
 @api.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
     @api.doc("test endpoint")
-    @api.response(200, "Success")
     def get(self, id, version, params):
-        return ApiManagement.test_api(request, id, version, params)
+        return ServicesInitializer.an_api_tests_service().test_get(
+            api_id=id, version=version, params=params
+        )
 
     @api.doc("test endpoint")
-    @api.response(200, "Success")
     def post(self, id, version, params):
-        return ApiManagement.test_api(request, id, version, params)
+        return ServicesInitializer.an_api_tests_service().test_post(
+            api_id=id, version=version, params=params, data=api.payload
+        )
 
     @api.doc("test endpoint")
-    @api.response(200, "Success")
     def patch(self, id, version, params):
-        return ApiManagement.test_api(request, id, version, params)
+        return ServicesInitializer.an_api_tests_service().test_patch(
+            api_id=id, version=version, params=params, data=api.payload
+        )
 
     @api.doc("test endpoint")
-    @api.response(200, "Success")
     def delete(self, id, version, params):
-        return ApiManagement.test_api(request, id, version, params)
+        return ServicesInitializer.an_api_tests_service().test_delete(
+            api_id=id, version=version, params=params
+        )
 
 
 @api.route("/<int:api_id>/discussions")

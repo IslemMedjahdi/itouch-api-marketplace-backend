@@ -1,4 +1,5 @@
 from app.main.core.lib.media_manager import MediaManager
+from app.main.core.lib.rest_client import RestClient
 
 
 class ServicesInitializer:
@@ -19,3 +20,9 @@ class ServicesInitializer:
         from app.main.core.services.api_version_service import ApiVersionService
 
         return ApiVersionService()
+
+    @staticmethod
+    def an_api_tests_service():
+        from app.main.core.services.api_tests_service import ApiTestsService
+
+        return ApiTestsService(rest_client=RestClient())
