@@ -14,7 +14,7 @@ from app.main.service.api_service import ApiManagement
 from app.main.utils.roles import Role
 
 from app.main.service.discussion_service import DiscussionService
-from app.main.service.api_category_service import ApiCategoryService
+from app.main.core import ServicesInitializer
 
 from http import HTTPStatus
 
@@ -25,16 +25,13 @@ api = ApiDto.api
 class CreateCategory(Resource):
     @api.doc("create category")
     @api.expect(ApiDto.create_category_request, validate=True)
-    @api.response(HTTPStatus.CREATED, "success", ApiDto.create_category_response)
+    @api.response(HTTPStatus.CREATED, "success")
     @role_token_required([Role.ADMIN])
     def post(self):
-        new_category = ApiCategoryService.create_category(
+        ServicesInitializer.an_api_category_service().create_category(
             request.json, top_g.user.get("id")
         )
-        return {
-            "data": new_category.to_dict(),
-            "message": "Category created successfully",
-        }, HTTPStatus.CREATED
+        return HTTPStatus.CREATED
 
 
 @api.route("/categories")
@@ -42,29 +39,24 @@ class GetCategories(Resource):
     @api.doc("get categories")
     @api.response(HTTPStatus.OK, "Success", ApiDto.categories_list_response)
     def get(self):
-        categories = ApiCategoryService.get_all_categories()
+        categories = ServicesInitializer.an_api_category_service().get_all_categories()
 
         return {
             "data": [category.to_dict() for category in categories],
         }, HTTPStatus.OK
 
 
-create_api_request = ApiDto.create_api_request
-create_api_response = ApiDto.create_api_response
-
-
 @api.route("/create")
 class CreateApi(Resource):
     @api.doc("create api")
-    @api.expect(create_api_request, validate=True)
-    @api.response(201, "Success", create_api_response)
+    @api.expect(ApiDto.create_api_request, validate=True)
+    @api.response(HTTPStatus.CREATED, "Success")
     @role_token_required([Role.SUPPLIER])
     def post(self):
-        post_data = request.json
-        return ApiManagement.create_api(request, data=post_data)
-
-
-apis_list_response = ApiDto.apis_list_response
+        ServicesInitializer.an_api_service().create_api(
+            request.json, top_g.user.get("id")
+        )
+        return HTTPStatus.CREATED
 
 
 @api.route("/")
@@ -74,91 +66,93 @@ class GetApis(Resource):
     @api.param("per_page", "The number of items per page")
     @api.param("category_ids", "The category ID", type="array")
     @api.param("status", "The status of the apis")
-    @api.response(200, "Success", apis_list_response)
-    def get(self) -> Tuple[Dict[str, any], int]:
-        return ApiManagement.get_all_apis(request)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_list_response)
+    def get(self):
+        apis, pagination = ServicesInitializer.an_api_service().get_apis(request.args)
+        return {
+            "data": apis,
+            "pagination": pagination,
+        }, HTTPStatus.OK
 
 
 @api.route("/mine")
-class GetApis(Resource):
-    @api.doc("get the logged in supplier apis")
+class GetMyApis(Resource):
+    @api.doc("get my apis")
     @api.param("page", "The page number")
     @api.param("per_page", "The number of items per page")
     @api.param("category_ids", "The category ID", type="array")
     @api.param("status", "The status of the apis")
-    @api.response(200, "Success", apis_list_response)
-    def get(self) -> Tuple[Dict[str, any], int]:
-        return ApiManagement.get_logged_in_supplier_apis(request)
-
-
-update_api_request = ApiDto.update_api_request
-update_api_response = ApiDto.update_api_response
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_list_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        apis, pagination = ServicesInitializer.an_api_service().get_apis(
+            {**request.args, "supplierId": top_g.user.get("id")}
+        )
+        return {
+            "data": apis,
+            "pagination": pagination,
+        }, HTTPStatus.OK
 
 
 @api.route("/<int:id>/update")
 class UpdateApi(Resource):
     @api.doc("update api")
-    @api.expect(update_api_request, validate=True)
-    @api.response(200, "Success", update_api_response)
+    @api.expect(ApiDto.update_api_request, validate=True)
+    @api.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER])
     def patch(self, id):
-        post_data = request.json
-        return ApiManagement.update_api_info(request, api_id=id, data=post_data)
-
-
-# this route is for getting an api by id
-api_info_response = ApiDto.api_info_response
+        ServicesInitializer.an_api_service().update_api(
+            id, top_g.user.get("id"), request.json
+        )
+        return HTTPStatus.OK
 
 
 @api.route("/<int:id>")
 class GetApiById(Resource):
     @api.doc("get api by id")
-    @api.response(200, "Success", api_info_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_info_response)
     def get(self, id):
-        return ApiManagement.get_single_api(api_id=id)
-
-
-supplier_api_info_response = ApiDto.supplier_api_info_response
+        api_data = ServicesInitializer.an_api_service().get_api_by_id(id)
+        return {
+            "data": api_data,
+        }, HTTPStatus.OK
 
 
 @api.route("/mine/<int:id>")
-class GetApiById(Resource):
-    @api.doc("get api by id")
-    @api.response(200, "Success", supplier_api_info_response)
+class GetMyApiById(Resource):
+    @api.doc("get my api by id")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_info_response)
     @role_token_required([Role.SUPPLIER])
     def get(self, id):
-        return ApiManagement.get_logged_in_supplier_single_api(request, api_id=id)
-
-
-# this route is for activating a disabled api, supplier cant activate an api that is disabled by an admin
-# supplier can only activate his own api
-activate_api_response = ApiDto.activate_api_response
+        api_data = ServicesInitializer.an_api_service().get_api_by_id(id)
+        return {
+            "data": api_data,
+        }, HTTPStatus.OK
 
 
 @api.route("/<int:id>/activate")
 class ActivateApi(Resource):
     @api.doc("activate api")
-    @api.response(200, "Success", activate_api_response)
+    @api.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id):
-        return ApiManagement.activate_api(request, api_id=id)
-
-
-# this route is for deactivating an active api
-# supplier can only deactivate his own api
-activate_api_response = ApiDto.activate_api_response
+        ServicesInitializer.an_api_service().activate_api(
+            api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
+        )
+        return HTTPStatus.OK
 
 
 @api.route("/<int:id>/deactivate")
 class DeactivateApi(Resource):
     @api.doc("deactivate api")
-    @api.response(200, "Success", activate_api_response)
+    @api.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id):
-        return ApiManagement.disable_api(request, api_id=id)
+        ServicesInitializer.an_api_service().deactivate_api(
+            api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
+        )
+        return HTTPStatus.OK
 
-
-# this route is for creating a new version of an api (version_name,base_url,headers,endpoints)
 
 create_api_version_request = ApiDto.create_api_version_request
 create_api_version_response = ApiDto.create_api_version_response
