@@ -14,7 +14,6 @@ class ApiDto:
             "description": fields.String(
                 required=True, description="The category description"
             ),
-            # 'created_by': fields.String(required=True, description='The user  who create the category'),
         },
     )
 
@@ -30,7 +29,6 @@ class ApiDto:
                         "description": fields.String(
                             description="The category description"
                         ),
-                        #'created_by': fields.String(description='The user  who create the category'),
                         "created_at": fields.DateTime(
                             description="The category creation date"
                         ),
@@ -40,7 +38,6 @@ class ApiDto:
                     },
                 )
             ),
-            "status": fields.String(description="The status of the response"),
             "message": fields.String(description="The message of the response"),
         },
     )
@@ -73,7 +70,6 @@ class ApiDto:
                     )
                 )
             ),
-            "status": fields.String(description="The status of the response"),
         },
     )
 

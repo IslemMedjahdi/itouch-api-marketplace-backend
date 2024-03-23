@@ -14,36 +14,39 @@ from app.main.service.api_service import ApiManagement
 from app.main.utils.roles import Role
 
 from app.main.service.discussion_service import DiscussionService
+from app.main.service.api_category_service import ApiCategoryService
 
 from http import HTTPStatus
 
 api = ApiDto.api
 
 
-create_category_request = ApiDto.create_category_request
-create_category_response = ApiDto.create_category_response
-
-
 @api.route("/categories/create")
 class CreateCategory(Resource):
     @api.doc("create category")
-    @api.expect(create_category_request, validate=True)
-    @api.response(201, "success", create_category_response)
+    @api.expect(ApiDto.create_category_request, validate=True)
+    @api.response(HTTPStatus.CREATED, "success", ApiDto.create_category_response)
     @role_token_required([Role.ADMIN])
     def post(self):
-        post_data = request.json
-        return ApiManagement.create_category(request, data=post_data)
-
-
-categories_list_response = ApiDto.categories_list_response
+        new_category = ApiCategoryService.create_category(
+            request.json, top_g.user.get("id")
+        )
+        return {
+            "data": new_category.to_dict(),
+            "message": "Category created successfully",
+        }, HTTPStatus.CREATED
 
 
 @api.route("/categories")
 class GetCategories(Resource):
     @api.doc("get categories")
-    @api.response(200, "Success", categories_list_response)
-    def get(self) -> Tuple[Dict[str, any], int]:
-        return ApiManagement.get_all_categories()
+    @api.response(HTTPStatus.OK, "Success", ApiDto.categories_list_response)
+    def get(self):
+        categories = ApiCategoryService.get_all_categories()
+
+        return {
+            "data": [category.to_dict() for category in categories],
+        }, HTTPStatus.OK
 
 
 create_api_request = ApiDto.create_api_request

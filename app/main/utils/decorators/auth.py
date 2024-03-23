@@ -1,9 +1,7 @@
-from typing import Callable, List, Tuple, Dict
+from typing import Callable, List
 from functools import wraps
 from flask import request, g
 from http import HTTPStatus
-from flask_restx import Resource
-from app.main.service.discussion_service import DiscussionService
 from app.main.service.auth_service import Auth
 
 
@@ -32,11 +30,12 @@ def role_token_required(allowed_roles: List[str]) -> Callable:
 
             if role not in allowed_roles:
                 response = {
-                    #'role':role,
                     "status": "fail",
                     "message": "You do not have permission to access this resource",
                 }
                 return response, HTTPStatus.UNAUTHORIZED
+
+            g.user = response.get("data")
 
             return f(*args, **kwargs)
 
