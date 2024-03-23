@@ -1,6 +1,5 @@
 from flask import request, g as top_g
 from flask_restx import Resource
-from typing import Dict, Tuple
 
 from app.main.controller.dtos.api_dto import ApiDto
 
@@ -154,19 +153,17 @@ class DeactivateApi(Resource):
         return HTTPStatus.OK
 
 
-create_api_version_request = ApiDto.create_api_version_request
-create_api_version_response = ApiDto.create_api_version_response
-
-
 @api.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api.doc("create version")
-    @api.expect(create_api_version_request, validate=True)
-    @api.response(201, "Success", create_api_version_response)
+    @api.expect(ApiDto.create_api_version_request, validate=True)
+    @api.response(HTTPStatus.CREATED, "Success")
     @role_token_required([Role.SUPPLIER])
     def post(self, id):
-        post_data = request.json
-        return ApiManagement.create_version(request, api_id=id, data=post_data)
+        ServicesInitializer.an_api_version_service().create_api_version(
+            api_id=id, data=request.json, supplier_id=top_g.user.get("id")
+        )
+        return HTTPStatus.CREATED
 
 
 # this route is for getting all versions of an api
@@ -176,172 +173,73 @@ api_versions_list_response = ApiDto.api_versions_list_response
 @api.route("/<int:id>/versions")
 class GetVersions(Resource):
     @api.doc("get versions")
-    @api.param("page", "The page number")
-    @api.param("per_page", "The number of items per page")
     @api.param("status", "The status of the api versions")
-    @api.response(200, "Success", api_versions_list_response)
+    @api.response(HTTPStatus.OK, "Success", api_versions_list_response)
     def get(self, id):
-        return ApiManagement.get_all_api_versions(request, api_id=id)
+        versions = ServicesInitializer.an_api_version_service().get_api_versions(
+            api_id=id, query_params=request.args
+        )
 
-
-# this route is for getting a version of an api by id
-api_version_info_response = ApiDto.api_version_info_response
+        return {
+            "data": versions,
+        }, HTTPStatus.OK
 
 
 @api.route("/<int:id>/versions/<string:version>")
 class GetVersion(Resource):
     @api.doc("get version")
-    @api.response(200, "Success", api_version_info_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_version_info_response)
     def get(self, id, version):
-        return ApiManagement.get_single_api_version(api_id=id, version=version)
-
-
-supplier_api_version_info_response = ApiDto.supplier_api_version_info_response
+        version = ServicesInitializer.an_api_version_service().get_api_version(
+            api_id=id, version=version
+        )
+        return {
+            "data": version,
+        }, HTTPStatus.OK
 
 
 @api.route("/mine/<int:id>/versions/<string:version>")
-class GetVersion(Resource):
+class GetMyApiVersion(Resource):
     @api.doc("get version")
-    @api.response(200, "Success", supplier_api_version_info_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.full_api_version_info_response)
     @role_token_required([Role.SUPPLIER])
     def get(self, id, version):
-        return ApiManagement.get_logged_in_supplier_single_api_version(
-            request, api_id=id, version=version
+        version = ServicesInitializer.an_api_version_service().get_full_api_version(
+            api_id=id, version=version
         )
-
-
-# this route is for activating a version of an api, supplier can only activate his own version
-# supplier cant activate a version that is disabled by an admin
-activate_api_version_response = ApiDto.activate_api_version_response
+        return {
+            "data": version,
+        }, HTTPStatus.OK
 
 
 @api.route("/<int:id>/versions/<string:version>/activate")
 class ActivateVersion(Resource):
     @api.doc("activate version")
-    @api.response(200, "Success", activate_api_version_response)
+    @api.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
-        return ApiManagement.activate_api_version(request, api_id=id, version=version)
+        ServicesInitializer.an_api_version_service().activate_version(
+            api_id=id,
+            version=version,
+            supplier_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
+        )
+        return HTTPStatus.OK
 
 
-# this route is for deactivating a version of an api, supplier can only deactivate his own version
 @api.route("/<int:id>/versions/<string:version>/deactivate")
 class DeactivateVersion(Resource):
     @api.doc("deactivate version")
-    @api.response(200, "Success", activate_api_version_response)
+    @api.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
-        return ApiManagement.disable_api_version(request, api_id=id, version=version)
-
-
-# this route is for deleting a version of an api, supplier can only delete his own version
-# @api.route("/<int:id>/versions/<string:version>/delete", doc=False)
-# class DeleteVersion(Resource):
-#     @api.doc("delete version")
-#     @api.response(200, "Success")
-#     @role_token_required([Role.SUPPLIER])
-#     def delete(self, id, version):
-#         return "Not implemented yet"
-
-
-# this route is for adding a new header to a version of an api
-create_header_request = ApiDto.create_header_request
-create_header_response = ApiDto.create_header_response
-
-
-@api.route("/<int:id>/versions/<string:version>/headers/create")
-class CreateHeader(Resource):
-    @api.doc("create header")
-    @api.expect(create_header_request, validate=True)
-    @api.response(201, "Success", create_header_response)
-    @role_token_required([Role.SUPPLIER])
-    def post(self, id, version):
-        post_data = request.json
-        return ApiManagement.create_header(
-            request, data=post_data, api_id=id, version=version
+        ServicesInitializer.an_api_version_service().deactivate_version(
+            api_id=id,
+            version=version,
+            supplier_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
         )
-
-
-# this route is for deleting a header from a version of an api
-delete_header_response = ApiDto.delete_header_response
-
-
-@api.route("/<int:id>/versions/<string:version>/headers/<int:header_id>/delete")
-class DeleteHeader(Resource):
-    @api.doc("delete header")
-    @api.response(200, "Success", delete_header_response)
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id, version, header_id):
-        return ApiManagement.delete_header(
-            request, api_id=id, version=version, header_id=header_id
-        )
-
-
-# this route is for updating a header from a version of an api
-update_header_request = ApiDto.update_header_request
-
-
-@api.route("/<int:id>/versions/<string:version>/headers/<int:header_id>/update")
-class UpdateHeader(Resource):
-    @api.doc("update header")
-    @api.expect(create_header_request, validate=True)
-    @api.response(200, "Success", create_header_response)
-    @role_token_required([Role.SUPPLIER])
-    def patch(self, id, version, header_id):
-        post_data = request.json
-        return ApiManagement.update_header(
-            request, data=post_data, api_id=id, version=version, header_id=header_id
-        )
-
-
-# this route is for adding a new endpoint to a version of an api (endpoints are only for documentation purposes)
-create_endpoint_request = ApiDto.create_endpoint_request
-create_endpoint_response = ApiDto.create_endpoint_response
-
-
-@api.route("/<int:id>/versions/<string:version>/endpoints/create")
-class CreateEndpoint(Resource):
-    @api.doc("create endpoint")
-    @api.expect(create_endpoint_request, validate=True)
-    @api.response(201, "Success", create_endpoint_response)
-    @role_token_required([Role.SUPPLIER])
-    def post(self, id, version):
-        post_data = request.json
-        return ApiManagement.create_endpoint(
-            request, api_id=id, version=version, data=post_data
-        )
-
-
-# this route is for deleting an endpoint from a version of an api
-delete_endpoint_response = ApiDto.delete_endpoint_response
-
-
-@api.route("/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/delete")
-class DeleteEndpoint(Resource):
-    @api.doc("delete endpoint")
-    @api.response(200, "Success", delete_endpoint_response)
-    @role_token_required([Role.SUPPLIER])
-    def delete(self, id, version, endpoint_id):
-        return ApiManagement.delete_endpoint(
-            request, api_id=id, version=version, endpoint_id=endpoint_id
-        )
-
-
-# this route is for updating an endpoint from a version of an api
-update_endpoint_request = ApiDto.update_endpoint_request
-
-
-@api.route("/<int:id>/versions/<string:version>/endpoints/<int:endpoint_id>/update")
-class UpdateEndpoint(Resource):
-    @api.doc("update endpoint")
-    @api.expect(update_endpoint_request, validate=True)
-    @api.response(200, "Success", create_endpoint_response)
-    @role_token_required([Role.SUPPLIER])
-    def patch(self, id, version, endpoint_id):
-        post_data = request.json
-        return ApiManagement.update_endpoint(
-            request, api_id=id, version=version, endpoint_id=endpoint_id, data=post_data
-        )
+        return HTTPStatus.OK
 
 
 # TODO: The request must be from a whitelist domains
@@ -366,68 +264,6 @@ class TestEndpoint(Resource):
     @api.response(200, "Success")
     def delete(self, id, version, params):
         return ApiManagement.test_api(request, id, version, params)
-
-
-@api.route("/<int:id>/plans/<string:plan>/subscribe", doc=False)
-class SubscribePlan(Resource):
-    @api.doc("subscribe plan")
-    @api.response(200, "Success")
-    @role_token_required([Role.USER])
-    def post(self, id, plan):
-        return "Not implemented yet"
-
-
-@api.route("/<int:id>/api_key/create", doc=False)
-class CreateApiKey(Resource):
-    @api.doc("create api key")
-    @api.response(201, "Success")
-    @role_token_required([Role.USER])
-    def post(self, id):
-        return "Not implemented yet"
-
-
-# this route is for deleting an api key
-@api.route("/<int:id>/api_key/delete", doc=False)
-class DeleteApiKey(Resource):
-    @api.doc("delete api key")
-    @api.response(200, "Success")
-    @role_token_required([Role.USER])
-    def delete(self, id):
-        return "Not implemented yet"
-
-
-# this route is for getting all api keys of an api
-@api.route("/<int:id>/api_keys", doc=False)
-class GetApiKeys(Resource):
-    @api.doc("get api keys")
-    @api.response(200, "Success")
-    @role_token_required([Role.USER])
-    def get(self, id):
-        return "Not implemented yet"
-
-
-@api.route("/call/<int:id>/<string:version>/<path:params>", doc=False)
-class CallApi(Resource):
-    @api.doc("call api")
-    @api.response(200, "Success")
-    def get(self, id, version, params):
-        api_key = request.headers.get("X-API-KEY")
-        api_id = id
-        version = version
-        body = request.get_json()
-        # check if the api exists
-        # check if the api is active
-        # check if the version exists
-        # check if the version is active
-        # check if the api_key exists
-        # check if the api_key is active
-        # check if the api_key belongs to the api
-        # check if user has an active (not expired) subscription to the api
-        # check if the user has enough requests left
-        # call the api with base_url of the version and the params and headers of the version
-        # add an api request to the database with the required info
-        # return the response
-        return "Not implemented yet"
 
 
 @api.route("/<int:api_id>/discussions")

@@ -202,7 +202,7 @@ class ApiService:
         return api_dict
 
     def activate_api(self, api_id: str, supplier_id: str, role: str):
-        api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
+        api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundException("No API found with id: {}".format(api_id))
 
@@ -214,7 +214,7 @@ class ApiService:
         db.session.commit()
 
     def deactivate_api(self, api_id: str, supplier_id: str, role: str):
-        api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
+        api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundException("No API found with id: {}".format(api_id))
 

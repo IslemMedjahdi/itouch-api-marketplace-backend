@@ -13,3 +13,9 @@ class ServicesInitializer:
         from app.main.core.services.api_category_service import ApiCategoryService
 
         return ApiCategoryService()
+
+    @staticmethod
+    def an_api_version_service():
+        from app.main.core.services.api_version_service import ApiVersionService
+
+        return ApiVersionService()
