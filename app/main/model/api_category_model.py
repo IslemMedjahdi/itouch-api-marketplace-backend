@@ -19,3 +19,13 @@ class ApiCategory(db.Model):  # type: ignore
 
     def __str__(self):
         return self.name
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat(),
+            "created_by": self.created_by,
+        }

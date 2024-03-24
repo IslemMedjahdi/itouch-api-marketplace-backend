@@ -2,7 +2,7 @@ import pytest
 from app.main.service.discussion_service import DiscussionService
 from app.main.model.discussion_model import Discussion
 from app.main.model.discussion_answer_model import DiscussionAnswer
-from app.main.utils.exceptions import NotFoundException
+from app.main.utils.exceptions import NotFoundError
 from app.main.model.api_model import ApiModel
 from .fixtures.discussion.add_discussion import add_discussion
 from .fixtures.discussion.add_answer import add_answer
@@ -34,7 +34,7 @@ def test_get_all_by_api_id(test_db, test_api):
 
 
 def test_get_by_id_not_found():
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFoundError):
         DiscussionService.get_by_id(999)
 
 
@@ -59,7 +59,7 @@ def test_create_new_discussion(test_db, test_api):
 def test_create_new_discussion_with_api_not_found():
     api_id = 999
     data = {"title": "New Discussion", "question": "New Question"}
-    with pytest.raises(NotFoundException):
+    with pytest.raises(NotFoundError):
         DiscussionService.create_new_discussion(api_id, data, 1)
 
 
