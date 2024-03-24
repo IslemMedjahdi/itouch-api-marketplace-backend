@@ -243,25 +243,25 @@ class DeactivateVersion(Resource):
 
 @api.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
-    @api.doc("test endpoint")
+    @api.doc("test GET Endpoint")
     def get(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_get(
             api_id=id, version=version, params=params
         )
 
-    @api.doc("test endpoint")
+    @api.doc("test POST Endpoint")
     def post(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_post(
             api_id=id, version=version, params=params, data=api.payload
         )
 
-    @api.doc("test endpoint")
+    @api.doc("Test PATCH Endpoint")
     def patch(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_patch(
             api_id=id, version=version, params=params, data=api.payload
         )
 
-    @api.doc("test endpoint")
+    @api.doc("Test DELETE Endpoint")
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params

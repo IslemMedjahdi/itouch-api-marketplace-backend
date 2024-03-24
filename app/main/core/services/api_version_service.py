@@ -13,6 +13,11 @@ class ApiVersionService:
         if api is None:
             raise NotFoundException("No API found with id: {}".format(api_id))
 
+        if ApiVersion.query.filter_by(
+            api_id=api_id, version=data.get("version")
+        ).first():
+            raise BadRequestException("API version already exists")
+
         api_version = ApiVersion(
             api_id=api_id,
             version=data.get("version"),
@@ -44,7 +49,7 @@ class ApiVersionService:
         for header in headers:
             header = ApiVersionHeader(
                 api_id=api_id,
-                version=api_version.version,
+                api_version=api_version.version,
                 key=header.get("key"),
                 value=header.get("value"),
             )
