@@ -7,6 +7,7 @@ from app.main.model.user_model import User
 from app.main import db
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.core.lib.media_manager import MediaManager
+from app.main.utils.roles import Role
 
 
 class ApiService:
@@ -204,7 +205,7 @@ class ApiService:
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
-        if role == "supplier" and api.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
             raise BadRequestError("You are not the owner of the API")
 
         api.status = "active"
@@ -216,7 +217,7 @@ class ApiService:
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
-        if role == "supplier" and api.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
             raise BadRequestError("You are not the owner of the API")
 
         api.status = "inactive"

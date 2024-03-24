@@ -5,6 +5,7 @@ from app.main.model.api_header_model import ApiVersionHeader
 from app.main import db
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from typing import Dict
+from app.main.utils.roles import Role
 
 
 class ApiVersionService:
@@ -119,7 +120,9 @@ class ApiVersionService:
             ],
         }
 
-    def get_full_api_version(self, api_id: int, version: str):
+    def get_full_api_version(
+        self, api_id: int, version: str, supplier_id: str, role: str
+    ):
         version_data = (
             db.session.query(ApiVersion, ApiModel)
             .filter(
@@ -136,6 +139,9 @@ class ApiVersionService:
                     api_id, version
                 )
             )
+
+        if role == Role and version_data.ApiModel.supplier_id != supplier_id:
+            raise BadRequestError("You are not authorized to view this version")
 
         endpoints = ApiVersionEndpoint.query.filter_by(
             api_id=api_id, version=version
@@ -189,7 +195,7 @@ class ApiVersionService:
                 )
             )
 
-        if role == "supplier" and api_version.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api_version.supplier_id != supplier_id:
             raise BadRequestError("You are not authorized to activate this version")
 
         api_version.status = "active"
@@ -211,7 +217,7 @@ class ApiVersionService:
                 )
             )
 
-        if role == "supplier" and api_version.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api_version.supplier_id != supplier_id:
             raise BadRequestError("You are not authorized to activate this version")
 
         api_version.status = "disabled"

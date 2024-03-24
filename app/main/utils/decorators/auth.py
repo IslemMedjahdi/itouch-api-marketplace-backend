@@ -10,8 +10,10 @@ def require_authentication(f: Callable) -> Callable:
     def decorated(*args, **kwargs):
         auth_token = request.headers.get("Authorization")
 
-        if auth_token:
-            resp = User.decode_auth_token(auth_token)
+        if not auth_token:
+            raise BadRequestError("Token is missing.")
+
+        resp = User.decode_auth_token(auth_token)
 
         if isinstance(resp, str):
             raise BadRequestError("Invalid token. Please log in again.")
@@ -38,8 +40,10 @@ def role_token_required(allowed_roles: List[str]) -> Callable:
         def decorated(*args, **kwargs):
             auth_token = request.headers.get("Authorization")
 
-            if auth_token:
-                resp = User.decode_auth_token(auth_token)
+            if not auth_token:
+                raise BadRequestError("Token is missing.")
+
+            resp = User.decode_auth_token(auth_token)
 
             if isinstance(resp, str):
                 raise BadRequestError("Invalid token. Please log in again.")
