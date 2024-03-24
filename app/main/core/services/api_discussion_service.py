@@ -7,25 +7,26 @@ from app.main.model.api_model import ApiModel
 from app.main.model.answer_vote_model import AnswerVote
 
 
-class DiscussionService:
-    @staticmethod
-    def get_all_by_api_id(api_id: int) -> List[Discussion]:
+class ApiDiscussionService:
+    def get_all_by_api_id(self, api_id: int) -> List[Discussion]:
         if ApiModel.query.filter_by(id=api_id).first() is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
+
         discussions = Discussion.query.filter_by(api_id=api_id).all()
         return discussions
 
-    @staticmethod
-    def get_by_id(discussion_id: int) -> Discussion:
+    def get_by_id(self, discussion_id: int):
         discussion = Discussion.query.filter_by(id=discussion_id).first()
         if not discussion:
             raise NotFoundError("No discussion found with id: {}".format(discussion_id))
         return discussion
 
-    @staticmethod
-    def create_new_discussion(api_id: int, data: Dict, user_id) -> Discussion:
+    def create_new_discussion(
+        self, api_id: int, data: dict, user_id: int
+    ) -> Discussion:
         if ApiModel.query.filter_by(id=api_id).first() is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
+
         new_discussion = Discussion(
             title=data["title"],
             question=data["question"],
@@ -36,17 +37,16 @@ class DiscussionService:
         db.session.commit()
         return new_discussion
 
-    @staticmethod
-    def delete_discussion(discussion_id: int):
+    def delete_discussion(self, discussion_id: int):
         if Discussion.query.filter_by(id=discussion_id).first() is None:
             raise NotFoundError("No discussion found with id: {}".format(discussion_id))
+
         discussion = Discussion.query.filter_by(id=discussion_id).first()
         db.session.delete(discussion)
         db.session.commit()
         return discussion
 
-    @staticmethod
-    def create_new_answer(discussion_id, data: Dict, user_id: int):
+    def create_new_answer(self, discussion_id, data: Dict, user_id: int):
         if Discussion.query.filter_by(id=discussion_id).first() is None:
             raise NotFoundError("No discussion found with id: {}".format(discussion_id))
 
@@ -59,16 +59,14 @@ class DiscussionService:
         db.session.commit()
         return new_answer
 
-    @staticmethod
-    def get_answer_by_id(answer_id: int) -> DiscussionAnswer:
+    def get_answer_by_id(self, answer_id: int) -> DiscussionAnswer:
         answer = DiscussionAnswer.query.filter_by(id=answer_id).first()
         if not answer:
             raise NotFoundError("No answer found with id: {}".format(answer_id))
 
         return answer
 
-    @staticmethod
-    def delete_answer(answer_id: int) -> DiscussionAnswer:
+    def delete_answer(self, answer_id: int) -> DiscussionAnswer:
         answer = DiscussionAnswer.query.filter_by(id=answer_id).first()
         if not answer:
             raise NotFoundError("No answer found with id: {}".format(answer_id))
@@ -76,8 +74,7 @@ class DiscussionService:
         db.session.commit()
         return answer
 
-    @staticmethod
-    def vote_on_answer(answer_id: int, user_id: int, vote: str) -> None:
+    def vote_on_answer(self, answer_id: int, user_id: int, vote: str) -> None:
 
         if DiscussionAnswer.query.filter_by(id=answer_id).first() is None:
             raise NotFoundError("No answer found with id: {}".format(answer_id))
@@ -91,13 +88,12 @@ class DiscussionService:
             db.session.commit()
             return
 
-        vote = AnswerVote(answer_id=answer_id, user_id=user_id, vote=vote)
+        vote = AnswerVote(self, answer_id=answer_id, user_id=user_id, vote=vote)
         db.session.add(vote)
         db.session.commit()
         return
 
-    @staticmethod
-    def remove_vote(answer_id: int, user_id: int) -> None:
+    def remove_vote(self, answer_id: int, user_id: int) -> None:
         if DiscussionAnswer.query.filter_by(id=answer_id).first() is None:
             raise NotFoundError("No answer found with id: {}".format(answer_id))
 

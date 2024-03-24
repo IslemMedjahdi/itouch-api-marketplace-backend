@@ -38,3 +38,9 @@ class ServicesInitializer:
         from app.main.core.services.api_tests_service import ApiTestsService
 
         return ApiTestsService(rest_client=RestClient())
+
+    @staticmethod
+    def a_discussion_service():
+        from app.main.core.services.api_discussion_service import ApiDiscussionService
+
+        return ApiDiscussionService()
