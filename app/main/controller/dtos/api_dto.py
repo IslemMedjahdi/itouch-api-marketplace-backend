@@ -364,7 +364,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the discussion",
-                model=UserDto.user_details,
+                model=UserDto.user_info_response,
             ),
             "created_at": fields.DateTime(
                 description="The date and time when the discussion was created"
@@ -396,7 +396,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the answer",
-                model=UserDto.user_details,
+                model=UserDto.user_info_response,
             ),
             "answer": fields.String(description="The answer of the discussion"),
             "created_at": fields.DateTime(
@@ -419,7 +419,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the answer",
-                model=UserDto.user_details,
+                model=UserDto.user_info_response,
             ),
             "created_at": fields.DateTime(
                 description="The date and time when the discussion was created"
