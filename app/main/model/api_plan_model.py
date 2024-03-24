@@ -11,6 +11,7 @@ class ApiPlan(db.Model):  # type: ignore
     price = db.Column(db.Integer)
     max_requests = db.Column(db.Integer)
     duration = db.Column(db.Integer)
+    chargily_price_id = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
         return "<ApiPlan '{}'>".format(self.name)
