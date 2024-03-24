@@ -1,4 +1,5 @@
 import requests
+import json
 from typing import Dict, Tuple
 
 
@@ -8,7 +9,10 @@ class RestClient:
         return response.json(), response.status_code
 
     def post(self, url, headers, data) -> Tuple[Dict, int]:
+        if not isinstance(data, str):
+            data = json.dumps(data)
         response = requests.post(url, headers=headers, data=data, timeout=10)
+
         return response.json(), response.status_code
 
     def delete(self, url, headers) -> Tuple[Dict, int]:
@@ -16,5 +20,7 @@ class RestClient:
         return response.json(), response.status_code
 
     def patch(self, url, headers, data) -> Tuple[Dict, int]:
+        if not isinstance(data, str):
+            data = json.dumps(data)
         response = requests.patch(url, headers=headers, data=data, timeout=10)
         return response.json(), response.status_code

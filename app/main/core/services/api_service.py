@@ -7,13 +7,15 @@ from app.main.model.user_model import User
 from app.main import db
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.core.lib.media_manager import MediaManager
+from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.utils.roles import Role
 
 
 class ApiService:
 
-    def __init__(self, media_manager: MediaManager):
+    def __init__(self, media_manager: MediaManager, chargily_api: ChargilyApi):
         self.media_manager = media_manager
+        self.chargily_api = chargily_api
 
     def create_api(self, data: Dict, user_id: str):
         if (
@@ -38,15 +40,43 @@ class ApiService:
         db.session.add(new_api)
         db.session.commit()
 
+        print(new_api.id)
+
+        product_id = self.chargily_api.create_product(
+            new_api.id, f"{new_api.name} - {new_api.description}"
+        )
+
+        if product_id is None:
+            db.session.delete(new_api)
+            db.session.commit()
+            raise BadRequestError("Failed to create product in chargily API")
+
+        new_api.chargily_product_id = product_id
+        db.session.commit()
+
         for plan in data.get("plans", []):
             new_plan = ApiPlan(
                 name=plan.get("name", None),
                 price=plan.get("price", None),
+                description=plan.get("description", None),
                 max_requests=plan.get("max_requests", None),
                 duration=plan.get("duration", None),
                 api_id=new_api.id,
             )
             db.session.add(new_plan)
+            price_id = self.chargily_api.create_price(
+                product_id, plan.get("price", None)
+            )
+
+            if price_id is None:
+                db.session.rollback()
+                db.session.delete(new_api)
+                db.session.commit()
+                raise BadRequestError("Failed to create price in chargily API")
+
+            new_plan.chargily_price_id = price_id
+
+        db.session.commit()
 
     def __validate_plans(self, plans: Dict):
         names = []
