@@ -4,8 +4,7 @@ from app.main import db
 
 
 class ApiCategoryService:
-    @staticmethod
-    def create_category(data: Dict, user_id: str) -> ApiCategory:
+    def create_category(self, data: Dict, user_id: str) -> ApiCategory:
         new_category = ApiCategory(
             name=data["name"],
             description=data["description"],
@@ -15,6 +14,5 @@ class ApiCategoryService:
         db.session.commit()
         return new_category
 
-    @staticmethod
-    def get_all_categories() -> List[ApiCategory]:
+    def get_all_categories(self) -> List[ApiCategory]:
         return ApiCategory.query.all()

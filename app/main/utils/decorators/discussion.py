@@ -5,7 +5,6 @@ from http import HTTPStatus
 from flask_restx import Resource
 from app.main.utils.roles import Role
 from app.main.service.discussion_service import DiscussionService
-from app.main.service.auth_service import Auth
 
 
 def check_delete_discussion_permission(f: Callable) -> Callable:
