@@ -11,7 +11,6 @@ from app.main.utils.decorators.discussion import (
 
 from app.main.utils.roles import Role
 
-from app.main.service.discussion_service import DiscussionService
 from app.main.core import ServicesInitializer
 
 from http import HTTPStatus
@@ -165,15 +164,11 @@ class CreateVersion(Resource):
         return HTTPStatus.CREATED
 
 
-# this route is for getting all versions of an api
-api_versions_list_response = ApiDto.api_versions_list_response
-
-
 @api.route("/<int:id>/versions")
 class GetVersions(Resource):
     @api.doc("get versions")
     @api.param("status", "The status of the api versions")
-    @api.response(HTTPStatus.OK, "Success", api_versions_list_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_versions_list_response)
     def get(self, id):
         versions = ServicesInitializer.an_api_version_service().get_api_versions(
             api_id=id, query_params=request.args
@@ -274,7 +269,10 @@ class Discussions(Resource):
     @api.marshal_list_with(ApiDto.discussions_response, envelope="data")
     @api.response(HTTPStatus.OK, "Success", ApiDto.discussions_response)
     def get(self, api_id):
-        return DiscussionService.get_all_by_api_id(api_id), HTTPStatus.OK
+        return (
+            ServicesInitializer.a_discussion_service().get_all_by_api_id(api_id=api_id),
+            HTTPStatus.OK,
+        )
 
     @api.doc("create a new discussion")
     @api.expect(ApiDto.create_discussion_request, validate=True)
@@ -284,7 +282,7 @@ class Discussions(Resource):
     @require_authentication
     def post(self, api_id):
         return (
-            DiscussionService.create_new_discussion(
+            ServicesInitializer.a_discussion_service().create_new_discussion(
                 api_id, api.payload, top_g.user.get("id")
             ),
             HTTPStatus.CREATED,
@@ -296,14 +294,17 @@ class DiscussionDetails(Resource):
     @api.doc("get a specific discussion")
     @api.marshal_with(ApiDto.discussion_details_response, envelope="data")
     def get(self, discussion_id, **_):
-        return DiscussionService.get_by_id(discussion_id), HTTPStatus.OK
+        return (
+            ServicesInitializer.a_discussion_service().get_by_id(discussion_id),
+            HTTPStatus.OK,
+        )
 
     @api.doc("delete a specific discussion")
     @api.response(HTTPStatus.OK, "Success")
     @require_authentication
     @check_delete_discussion_permission
     def delete(self, discussion_id, **_):
-        DiscussionService.delete_discussion(discussion_id)
+        ServicesInitializer.a_discussion_service().delete_discussion(discussion_id)
         return HTTPStatus.OK
 
 
@@ -317,7 +318,7 @@ class DiscussionAnswers(Resource):
     @require_authentication
     def post(self, discussion_id, **_):
         return (
-            DiscussionService.create_new_answer(
+            ServicesInitializer.a_discussion_service().create_new_answer(
                 discussion_id, api.payload, top_g.user.get("id")
             ),
             HTTPStatus.CREATED,
@@ -329,23 +330,20 @@ class AnswerDetails(Resource):
     @api.doc("get a specific answer")
     @api.marshal_with(ApiDto.discussion_answer_response, envelope="data")
     def get(self, answer_id, **_):
-        return (DiscussionService.get_answer_by_id(answer_id), HTTPStatus.OK)
+        return (
+            ServicesInitializer.a_discussion_service().get_answer_by_id(answer_id),
+            HTTPStatus.OK,
+        )
 
     @api.doc("delete a specific answer")
     @api.response(HTTPStatus.OK, "Success")
     @require_authentication
     @check_delete_answer_permission
     def delete(self, answer_id, **_):
-        DiscussionService.delete_answer(answer_id)
+        ServicesInitializer.a_discussion_service().delete_answer(answer_id)
         return HTTPStatus.OK
 
 
-# TODO: add votes
-# vote is either up or down
-# user can only vote once
-# user can change his vote
-# user can remove his vote
-# user can only vote on an answer
 @api.route(
     "/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>/votes"
 )
@@ -355,8 +353,8 @@ class Votes(Resource):
     @api.response(HTTPStatus.OK, "Success")
     @require_authentication
     def post(self, answer_id, **_):
-        DiscussionService.vote_on_answer(
-            answer_id, top_g.user.get("id"), api.payload.get("vote")
+        ServicesInitializer.a_discussion_service().vote_on_answer(
+            answer_id, top_g.user.get("id"), api.payload["vote"]
         )
         return HTTPStatus.OK
 
@@ -364,5 +362,7 @@ class Votes(Resource):
     @api.response(HTTPStatus.OK, "Success")
     @require_authentication
     def delete(self, answer_id, **_):
-        DiscussionService.remove_vote(answer_id, top_g.user.get("id"))
+        ServicesInitializer.a_discussion_service().vote_on_answer(
+            answer_id, top_g.user.get("id"), None
+        )
         return HTTPStatus.OK
