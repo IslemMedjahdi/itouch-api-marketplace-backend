@@ -1,3 +1,6 @@
+import hmac
+import hashlib
+
 # flake8: noqa
 
 from app.main.core.lib.rest_client import RestClient
@@ -21,7 +24,7 @@ class ChargilyApi:
                 },
                 data=data,
             )
-            print(response)
+
             return response.get("id")
         except Exception as e:
             print(e)
@@ -42,3 +45,39 @@ class ChargilyApi:
             return response.get("id")
         except Exception:
             return None
+
+    def create_checkout(
+        self, price_id: str, redirect_url: str, metadata: dict
+    ) -> str | None:
+        data = {
+            "items": [{"price": price_id, "quantity": 1}],
+            "success_url": redirect_url,
+            "metadata": {
+                "user_id": metadata.get("user_id"),
+                "api_id": metadata.get("api_id"),
+                "plan_name": metadata.get("plan_name"),
+            },
+        }
+        try:
+            response, status = self.rest_client.post(
+                self.api_url + "/checkouts",
+                {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.secret_key}",
+                },
+                data=data,
+            )
+            return response.get("checkout_url")
+        except Exception as e:
+            print(e)
+            return None
+
+    def verify_webhook_signature(self, payload: str, signature: str) -> bool:
+        computed_signature = hmac.new(
+            self.secret_key.encode("utf-8"), payload.encode("utf-8"), hashlib.sha256
+        ).hexdigest()
+
+        if not hmac.compare_digest(signature, computed_signature):
+            return False
+
+        return True

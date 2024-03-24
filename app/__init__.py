@@ -11,6 +11,7 @@ from app.main.controller.api_controller import api_category as api_category_ns
 from app.main.controller.api_controller import api_tests as api_tests_ns
 from app.main.controller.api_controller import api_version as api_version_ns
 from app.main.controller.api_controller import api_discussions as api_discussions_ns
+from app.main.controller.api_controller import api_subscription as api_subscription_ns
 
 from app.main.utils.error_handlers import register_error_handlers
 
@@ -45,6 +46,7 @@ api.add_namespace(api_category_ns, path="/apis")
 api.add_namespace(api_tests_ns, path="/apis")
 api.add_namespace(api_version_ns, path="/apis")
 api.add_namespace(api_discussions_ns, path="/apis")
+api.add_namespace(api_subscription_ns, path="/apis")
 
 app = create_app(os.getenv("FLASK_ENV", "dev"))
 

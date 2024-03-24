@@ -47,3 +47,11 @@ class ServicesInitializer:
         from app.main.core.services.api_discussion_service import ApiDiscussionService
 
         return ApiDiscussionService()
+
+    @staticmethod
+    def an_api_subscription_service():
+        from app.main.core.services.api_subscription_service import (
+            ApiSubscriptionService,
+        )
+
+        return ApiSubscriptionService(chargily_api=ChargilyApi(RestClient()))

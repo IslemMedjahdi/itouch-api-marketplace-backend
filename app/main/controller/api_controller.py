@@ -20,6 +20,7 @@ api = ApiDto.api
 api_tests = ApiDto.api_tests
 api_version = ApiDto.api_version
 api_discussions = ApiDto.api_discussions
+api_subscription = ApiDto.api_subscription
 
 
 @api_category.route("/categories/create")
@@ -241,6 +242,35 @@ class DeactivateVersion(Resource):
             version=version,
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
+        )
+        return HTTPStatus.OK
+
+
+@api_subscription.route("/<int:id>/<string:plan_name>/chargily/checkout")
+class CreateCheckout(Resource):
+    @api_subscription.doc("create checkout")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.create_charigly_checkout_response
+    )
+    @api_subscription.param("redirect_url", "The redirect URL")
+    @role_token_required([Role.USER])
+    def post(self, id, plan_name):
+        return {
+            "checkout_url": ServicesInitializer.an_api_subscription_service().create_charigly_checkout(
+                api_id=id,
+                plan_name=plan_name,
+                redirect_url=request.args.get("redirect_url"),
+                user_id=top_g.user.get("id"),
+            )
+        }
+
+
+@api_subscription.route("/webhook/chargily")
+class ChargilyWebhook(Resource):
+    @api_subscription.doc("chargily webhook")
+    def post(self):
+        ServicesInitializer.an_api_subscription_service().handle_chargily_webhook(
+            request
         )
         return HTTPStatus.OK
 
