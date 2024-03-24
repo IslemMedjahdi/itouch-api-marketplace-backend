@@ -3,7 +3,7 @@ from app.main.model.api_model import ApiModel
 from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
 from app.main.model.api_header_model import ApiVersionHeader
 from app.main import db
-from app.main.utils.exceptions import NotFoundException, BadRequestException
+from app.main.utils.exceptions import NotFoundError, BadRequestError
 from typing import Dict
 
 
@@ -11,12 +11,12 @@ class ApiVersionService:
     def create_api_version(self, api_id: int, supplier_id: int, data: dict):
         api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         if ApiVersion.query.filter_by(
             api_id=api_id, version=data.get("version")
         ).first():
-            raise BadRequestException("API version already exists")
+            raise BadRequestError("API version already exists")
 
         api_version = ApiVersion(
             api_id=api_id,
@@ -88,7 +88,7 @@ class ApiVersionService:
         )
 
         if version_data is None:
-            raise NotFoundException(
+            raise NotFoundError(
                 "No API version found with id: {} and version: {}".format(
                     api_id, version
                 )
@@ -131,7 +131,7 @@ class ApiVersionService:
         )
 
         if version_data is None:
-            raise NotFoundException(
+            raise NotFoundError(
                 "No API version found with id: {} and version: {}".format(
                     api_id, version
                 )
@@ -178,19 +178,19 @@ class ApiVersionService:
     def activate_version(self, api_id: int, version: str, supplier_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
 
         if api_version is None:
-            raise NotFoundException(
+            raise NotFoundError(
                 "No API version found with id: {} and version: {}".format(
                     api_id, version
                 )
             )
 
         if role == "supplier" and api_version.supplier_id != supplier_id:
-            raise BadRequestException("You are not authorized to activate this version")
+            raise BadRequestError("You are not authorized to activate this version")
 
         api_version.status = "active"
         db.session.commit()
@@ -200,19 +200,19 @@ class ApiVersionService:
     ):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         api_version = ApiVersion.query.filter_by(api_id=api_id, version=version).first()
 
         if api_version is None:
-            raise NotFoundException(
+            raise NotFoundError(
                 "No API version found with id: {} and version: {}".format(
                     api_id, version
                 )
             )
 
         if role == "supplier" and api_version.supplier_id != supplier_id:
-            raise BadRequestException("You are not authorized to activate this version")
+            raise BadRequestError("You are not authorized to activate this version")
 
         api_version.status = "disabled"
         db.session.commit()

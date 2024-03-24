@@ -2,7 +2,7 @@ from app.main.core.lib.rest_client import RestClient
 from app.main.model.api_model import ApiModel
 from app.main.model.api_version_model import ApiVersion
 from app.main.model.api_header_model import ApiVersionHeader
-from app.main.utils.exceptions import NotFoundException, BadRequestException
+from app.main.utils.exceptions import NotFoundError, BadRequestError
 
 
 class ApiTestsService:
@@ -58,20 +58,20 @@ class ApiTestsService:
         api_data = ApiModel.query.filter_by(id=api_id).first()
 
         if api_data is None:
-            raise NotFoundException("API not found")
+            raise NotFoundError("API not found")
 
         if api_data.status != "active":
-            raise BadRequestException("API is not active")
+            raise BadRequestError("API is not active")
 
         version_data = ApiVersion.query.filter_by(
             api_id=api_id, version=version
         ).first()
 
         if version_data is None:
-            raise NotFoundException("API version not found")
+            raise NotFoundError("API version not found")
 
         if version_data.status != "active":
-            raise BadRequestException("API version is not active")
+            raise BadRequestError("API version is not active")
 
         return version_data.base_url
 

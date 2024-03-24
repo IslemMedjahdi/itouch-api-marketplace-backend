@@ -5,7 +5,7 @@ from app.main.model.api_model import ApiModel
 from app.main.model.api_plan_model import ApiPlan
 from app.main.model.user_model import User
 from app.main import db
-from app.main.utils.exceptions import NotFoundException, BadRequestException
+from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.core.lib.media_manager import MediaManager
 
 
@@ -19,7 +19,7 @@ class ApiService:
             ApiCategory.query.filter_by(id=data.get("category_id", None)).first()
             is None
         ):
-            raise NotFoundException(
+            raise NotFoundError(
                 "No API Category found with id: {}".format(
                     data.get("category_id", None)
                 )
@@ -51,15 +51,13 @@ class ApiService:
         names = []
         for plan in plans:
             if plan.get("name") in names:
-                raise BadRequestException(
-                    "Duplicate plan name found: {}".format(plan.name)
-                )
+                raise BadRequestError("Duplicate plan name found: {}".format(plan.name))
             if plan.get("price") < 0:
-                raise BadRequestException("Price cannot be negative")
+                raise BadRequestError("Price cannot be negative")
             if plan.get("max_requests") < 0:
-                raise BadRequestException("Max requests cannot be negative")
+                raise BadRequestError("Max requests cannot be negative")
             if plan.get("duration") < 0:
-                raise BadRequestException("Duration cannot be negative")
+                raise BadRequestError("Duration cannot be negative")
             names.append(plan.get("name"))
 
     def get_apis(self, query_params: Dict):
@@ -128,17 +126,17 @@ class ApiService:
     def update_api(self, api_id, supplier_id, data):
         api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         if api.supplier_id != supplier_id:
-            raise BadRequestException("You are not the owner of the API")
+            raise BadRequestError("You are not the owner of the API")
 
         if data.get("category_id", None) is not None:
             if (
                 ApiCategory.query.filter_by(id=data.get("category_id", None)).first()
                 is None
             ):
-                raise NotFoundException(
+                raise NotFoundError(
                     "No API Category found with id: {}".format(
                         data.get("category_id", None)
                     )
@@ -163,7 +161,7 @@ class ApiService:
         api = query.filter(ApiModel.id == api_id).first()
 
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         api, user, category = api
 
@@ -204,10 +202,10 @@ class ApiService:
     def activate_api(self, api_id: int, supplier_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         if role == "supplier" and api.supplier_id != supplier_id:
-            raise BadRequestException("You are not the owner of the API")
+            raise BadRequestError("You are not the owner of the API")
 
         api.status = "active"
 
@@ -216,10 +214,10 @@ class ApiService:
     def deactivate_api(self, api_id: int, supplier_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
-            raise NotFoundException("No API found with id: {}".format(api_id))
+            raise NotFoundError("No API found with id: {}".format(api_id))
 
         if role == "supplier" and api.supplier_id != supplier_id:
-            raise BadRequestException("You are not the owner of the API")
+            raise BadRequestError("You are not the owner of the API")
 
         api.status = "inactive"
 

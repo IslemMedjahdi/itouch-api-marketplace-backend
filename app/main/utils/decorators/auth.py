@@ -2,7 +2,7 @@ from typing import Callable, List
 from functools import wraps
 from flask import request, g
 from app.main.model.user_model import User
-from app.main.utils.exceptions import BadRequestException
+from app.main.utils.exceptions import BadRequestError
 
 
 def require_authentication(f: Callable) -> Callable:
@@ -14,12 +14,12 @@ def require_authentication(f: Callable) -> Callable:
             resp = User.decode_auth_token(auth_token)
 
         if isinstance(resp, str):
-            raise BadRequestException("Invalid token. Please log in again.")
+            raise BadRequestError("Invalid token. Please log in again.")
 
         user = User.query.filter_by(id=resp).first()
 
         if not user:
-            raise BadRequestException("User does not exist.")
+            raise BadRequestError("User does not exist.")
 
         g.user = {
             "id": user.id,
@@ -42,15 +42,15 @@ def role_token_required(allowed_roles: List[str]) -> Callable:
                 resp = User.decode_auth_token(auth_token)
 
             if isinstance(resp, str):
-                raise BadRequestException("Invalid token. Please log in again.")
+                raise BadRequestError("Invalid token. Please log in again.")
 
             user = User.query.filter_by(id=resp).first()
 
             if not user:
-                raise BadRequestException("User does not exist.")
+                raise BadRequestError("User does not exist.")
 
             if user.role not in allowed_roles:
-                raise BadRequestException("Unauthorized access.")
+                raise BadRequestError("Unauthorized access.")
 
             g.user = {
                 "id": user.id,

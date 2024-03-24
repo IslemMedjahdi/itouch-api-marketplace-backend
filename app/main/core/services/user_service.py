@@ -1,5 +1,5 @@
 from app.main.model.user_model import User
-from app.main.utils.exceptions import NotFoundException, BadRequestException
+from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.core.lib.media_manager import MediaManager
 from app.main import db
 from app.main.utils.validators import is_email_valid
@@ -16,7 +16,7 @@ class UserService:
         user = User.query.filter_by(id=user_id).first()
 
         if user is None:
-            raise NotFoundException("User does not exist")
+            raise NotFoundError("User does not exist")
 
         return {
             "id": user.id,
@@ -75,7 +75,7 @@ class UserService:
         user = User.query.filter_by(id=user_id).first()
 
         if user is None:
-            raise NotFoundException("User does not exist")
+            raise NotFoundError("User does not exist")
 
         user.status = "active"
         user.save()
@@ -84,7 +84,7 @@ class UserService:
         user = User.query.filter_by(id=user_id).first()
 
         if user is None:
-            raise NotFoundException("User does not exist")
+            raise NotFoundError("User does not exist")
 
         user.status = "suspended"
         user.save()
@@ -97,10 +97,10 @@ class UserService:
 
         user = User.query.filter_by(email=email).first()
         if user:
-            raise BadRequestException("User already exists. Please Log in.")
+            raise BadRequestError("User already exists. Please Log in.")
 
         if not is_email_valid(email):
-            raise BadRequestException("Invalid email format")
+            raise BadRequestError("Invalid email format")
 
         new_user = User(
             email=email,
