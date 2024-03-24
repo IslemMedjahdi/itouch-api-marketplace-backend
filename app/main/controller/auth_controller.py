@@ -31,6 +31,7 @@ class UserRegister(Resource):
     @api.expect(AuthDto.user_register_request, validate=True)
     @api.response(HTTPStatus.CREATED, "Success", AuthDto.user_register_request)
     def post(self):
+        ServicesInitializer.an_auth_service().register(request.json)
         return HTTPStatus.CREATED
 
 

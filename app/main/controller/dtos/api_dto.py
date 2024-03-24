@@ -17,6 +17,10 @@ class ApiDto:
         "Api Discussions", description="api discussions related operations"
     )
 
+    api_subscription = Namespace(
+        "Api Subscription", description="api subscription related operations"
+    )
+
     create_category_request = api.model(
         "create_category_request",
         {
@@ -362,6 +366,13 @@ class ApiDto:
                     },
                 )
             ),
+        },
+    )
+
+    create_charigly_checkout_response = api.model(
+        "create_charigly_checkout_response",
+        {
+            "checkout_url": fields.String(),
         },
     )
 
