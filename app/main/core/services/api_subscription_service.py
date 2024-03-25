@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 
 from flask import Request
@@ -46,10 +45,10 @@ class ApiSubscriptionService:
     def handle_chargily_webhook(self, request: Request):
         signature = request.headers.get("signature")
 
-        body = request.json
-
         if signature is None:
             raise BadRequestError("No signature found in headers")
+
+        body = request.data
 
         if body is None:
             raise BadRequestError("No body found in request")
@@ -59,7 +58,10 @@ class ApiSubscriptionService:
         if not self.chargily_api.verify_webhook_signature(payload, signature):
             raise BadRequestError("Invalid signature, STOP TRYING TO HACK US")
 
-        event = json.loads(payload)
+        event = request.json
+
+        if event is None:
+            raise BadRequestError("No JSON found in request")
 
         if event["type"] == "checkout.paid":
             checkout = event["data"]
@@ -83,7 +85,7 @@ class ApiSubscriptionService:
                 plan_name=plan_name,
                 user_id=user_id,
                 start_date=datetime.now(),
-                end_date=datetime.now() + timedelta(days=duration),
+                end_date=datetime.now() + timedelta(seconds=duration),
                 max_requests=plan.max_requests,
                 status="active",
             )
