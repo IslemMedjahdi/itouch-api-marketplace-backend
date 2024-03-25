@@ -31,6 +31,7 @@ class UserRegister(Resource):
     @api.expect(AuthDto.user_register_request, validate=True)
     @api.response(HTTPStatus.CREATED, "Success", AuthDto.user_register_request)
     def post(self):
+        ServicesInitializer.an_auth_service().register(request.json)
         return HTTPStatus.CREATED
 
 
@@ -43,3 +44,13 @@ class UserInfo(Resource):
         user = ServicesInitializer.a_user_service().get_user_by_id(top_g.user.get("id"))
 
         return {"data": user}, HTTPStatus.OK
+
+    @api.doc("update user info")
+    @api.expect(AuthDto.user_info_update_request, validate=True)
+    @api.response(HTTPStatus.OK, "Success")
+    @require_authentication
+    def patch(self):
+        ServicesInitializer.a_user_service().edit_user(
+            top_g.user.get("id"), request.json
+        )
+        return HTTPStatus.OK

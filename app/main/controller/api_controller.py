@@ -15,14 +15,19 @@ from app.main.core import ServicesInitializer
 
 from http import HTTPStatus
 
+api_category = ApiDto.api_category
 api = ApiDto.api
+api_tests = ApiDto.api_tests
+api_version = ApiDto.api_version
+api_discussions = ApiDto.api_discussions
+api_subscription = ApiDto.api_subscription
 
 
-@api.route("/categories/create")
+@api_category.route("/categories/create")
 class CreateCategory(Resource):
-    @api.doc("create category")
-    @api.expect(ApiDto.create_category_request, validate=True)
-    @api.response(HTTPStatus.CREATED, "success")
+    @api_category.doc("create category")
+    @api_category.expect(ApiDto.create_category_request, validate=True)
+    @api_category.response(HTTPStatus.CREATED, "success")
     @role_token_required([Role.ADMIN])
     def post(self):
         ServicesInitializer.an_api_category_service().create_category(
@@ -31,10 +36,10 @@ class CreateCategory(Resource):
         return HTTPStatus.CREATED
 
 
-@api.route("/categories")
+@api_category.route("/categories")
 class GetCategories(Resource):
-    @api.doc("get categories")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.categories_list_response)
+    @api_category.doc("get categories")
+    @api_category.response(HTTPStatus.OK, "Success", ApiDto.categories_list_response)
     def get(self):
         categories = ServicesInitializer.an_api_category_service().get_all_categories()
 
@@ -151,11 +156,11 @@ class DeactivateApi(Resource):
         return HTTPStatus.OK
 
 
-@api.route("/<int:id>/versions/create")
+@api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
-    @api.doc("create version")
-    @api.expect(ApiDto.create_api_version_request, validate=True)
-    @api.response(HTTPStatus.CREATED, "Success")
+    @api_version.doc("create version")
+    @api_version.expect(ApiDto.create_api_version_request, validate=True)
+    @api_version.response(HTTPStatus.CREATED, "Success")
     @role_token_required([Role.SUPPLIER])
     def post(self, id):
         ServicesInitializer.an_api_version_service().create_api_version(
@@ -164,11 +169,11 @@ class CreateVersion(Resource):
         return HTTPStatus.CREATED
 
 
-@api.route("/<int:id>/versions")
+@api_version.route("/<int:id>/versions")
 class GetVersions(Resource):
-    @api.doc("get versions")
-    @api.param("status", "The status of the api versions")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.api_versions_list_response)
+    @api_version.doc("get versions")
+    @api_version.param("status", "The status of the api versions")
+    @api_version.response(HTTPStatus.OK, "Success", ApiDto.api_versions_list_response)
     def get(self, id):
         versions = ServicesInitializer.an_api_version_service().get_api_versions(
             api_id=id, query_params=request.args
@@ -179,10 +184,10 @@ class GetVersions(Resource):
         }, HTTPStatus.OK
 
 
-@api.route("/<int:id>/versions/<string:version>")
+@api_version.route("/<int:id>/versions/<string:version>")
 class GetVersion(Resource):
-    @api.doc("get version")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.api_version_info_response)
+    @api_version.doc("get version")
+    @api_version.response(HTTPStatus.OK, "Success", ApiDto.api_version_info_response)
     def get(self, id, version):
         version = ServicesInitializer.an_api_version_service().get_api_version(
             api_id=id, version=version
@@ -192,24 +197,29 @@ class GetVersion(Resource):
         }, HTTPStatus.OK
 
 
-@api.route("/mine/<int:id>/versions/<string:version>")
+@api_version.route("/mine/<int:id>/versions/<string:version>")
 class GetMyApiVersion(Resource):
-    @api.doc("get version")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.full_api_version_info_response)
+    @api_version.doc("get version")
+    @api_version.response(
+        HTTPStatus.OK, "Success", ApiDto.full_api_version_info_response
+    )
     @role_token_required([Role.SUPPLIER])
     def get(self, id, version):
         version = ServicesInitializer.an_api_version_service().get_full_api_version(
-            api_id=id, version=version
+            api_id=id,
+            version=version,
+            supplier_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
         )
         return {
             "data": version,
         }, HTTPStatus.OK
 
 
-@api.route("/<int:id>/versions/<string:version>/activate")
+@api_version.route("/<int:id>/versions/<string:version>/activate")
 class ActivateVersion(Resource):
-    @api.doc("activate version")
-    @api.response(HTTPStatus.OK, "Success")
+    @api_version.doc("activate version")
+    @api_version.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
         ServicesInitializer.an_api_version_service().activate_version(
@@ -221,10 +231,10 @@ class ActivateVersion(Resource):
         return HTTPStatus.OK
 
 
-@api.route("/<int:id>/versions/<string:version>/deactivate")
+@api_version.route("/<int:id>/versions/<string:version>/deactivate")
 class DeactivateVersion(Resource):
-    @api.doc("deactivate version")
-    @api.response(HTTPStatus.OK, "Success")
+    @api_version.doc("deactivate version")
+    @api_version.response(HTTPStatus.OK, "Success")
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
     def patch(self, id, version):
         ServicesInitializer.an_api_version_service().deactivate_version(
@@ -236,71 +246,100 @@ class DeactivateVersion(Resource):
         return HTTPStatus.OK
 
 
-@api.route("/test/<int:id>/<string:version>/<path:params>")
+@api_subscription.route("/<int:id>/<string:plan_name>/chargily/checkout")
+class CreateCheckout(Resource):
+    @api_subscription.doc("create checkout")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.create_charigly_checkout_response
+    )
+    @api_subscription.param("redirect_url", "The redirect URL")
+    @role_token_required([Role.USER])
+    def post(self, id, plan_name):
+        return {
+            "checkout_url": ServicesInitializer.an_api_subscription_service().create_charigly_checkout(
+                api_id=id,
+                plan_name=plan_name,
+                redirect_url=request.args.get("redirect_url"),
+                user_id=top_g.user.get("id"),
+            )
+        }
+
+
+@api_subscription.route("/webhook/chargily")
+class ChargilyWebhook(Resource):
+    @api_subscription.doc("chargily webhook")
+    def post(self):
+        ServicesInitializer.an_api_subscription_service().handle_chargily_webhook(
+            request
+        )
+        return HTTPStatus.OK
+
+
+@api_tests.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
-    @api.doc("test GET Endpoint")
+    @api_tests.doc("test GET Endpoint")
     def get(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_get(
             api_id=id, version=version, params=params
         )
 
-    @api.doc("test POST Endpoint")
+    @api_tests.doc("test POST Endpoint")
     def post(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_post(
-            api_id=id, version=version, params=params, data=api.payload
+            api_id=id, version=version, params=params, data=api_tests.payload
         )
 
-    @api.doc("Test PATCH Endpoint")
+    @api_tests.doc("Test PATCH Endpoint")
     def patch(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_patch(
-            api_id=id, version=version, params=params, data=api.payload
+            api_id=id, version=version, params=params, data=api_tests.payload
         )
 
-    @api.doc("Test DELETE Endpoint")
+    @api_tests.doc("Test DELETE Endpoint")
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params
         )
 
 
-@api.route("/<int:api_id>/discussions")
+@api_discussions.route("/<int:api_id>/discussions")
 class Discussions(Resource):
-    @api.doc("get a specific api discussions")
-    @api.marshal_list_with(ApiDto.discussions_response, envelope="data")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.discussions_response)
+    @api_discussions.doc("get a specific api discussions")
+    @api_discussions.marshal_list_with(ApiDto.discussions_response, envelope="data")
+    @api_discussions.response(HTTPStatus.OK, "Success", ApiDto.discussions_response)
     def get(self, api_id):
         return (
             ServicesInitializer.a_discussion_service().get_all_by_api_id(api_id=api_id),
             HTTPStatus.OK,
         )
 
-    @api.doc("create a new discussion")
-    @api.expect(ApiDto.create_discussion_request, validate=True)
-    @api.marshal_with(
+    @api_discussions.doc("create a new discussion")
+    @api_discussions.expect(ApiDto.create_discussion_request, validate=True)
+    @api_discussions.marshal_with(
         ApiDto.discussions_response, envelope="data", code=HTTPStatus.CREATED
     )
     @require_authentication
     def post(self, api_id):
         return (
             ServicesInitializer.a_discussion_service().create_new_discussion(
-                api_id, api.payload, top_g.user.get("id")
+                api_id, api_discussions.payload, top_g.user.get("id")
             ),
             HTTPStatus.CREATED,
         )
 
 
-@api.route("/<int:api_id>/discussions/<int:discussion_id>")
+@api_discussions.route("/<int:api_id>/discussions/<int:discussion_id>")
 class DiscussionDetails(Resource):
-    @api.doc("get a specific discussion")
-    @api.marshal_with(ApiDto.discussion_details_response, envelope="data")
+    @api_discussions.doc("get a specific discussion")
+    @api_discussions.marshal_with(ApiDto.discussion_details_response, envelope="data")
     def get(self, discussion_id, **_):
         return (
             ServicesInitializer.a_discussion_service().get_by_id(discussion_id),
             HTTPStatus.OK,
         )
 
-    @api.doc("delete a specific discussion")
-    @api.response(HTTPStatus.OK, "Success")
+    @api_discussions.doc("delete a specific discussion")
+    @api_discussions.response(HTTPStatus.OK, "Success")
     @require_authentication
     @check_delete_discussion_permission
     def delete(self, discussion_id, **_):
@@ -308,35 +347,37 @@ class DiscussionDetails(Resource):
         return HTTPStatus.OK
 
 
-@api.route("/<int:api_id>/discussions/<int:discussion_id>/answers")
+@api_discussions.route("/<int:api_id>/discussions/<int:discussion_id>/answers")
 class DiscussionAnswers(Resource):
-    @api.doc("create a new discussion answer")
-    @api.expect(ApiDto.create_discussion_answer_request, validate=True)
-    @api.marshal_with(
+    @api_discussions.doc("create a new discussion answer")
+    @api_discussions.expect(ApiDto.create_discussion_answer_request, validate=True)
+    @api_discussions.marshal_with(
         ApiDto.discussion_answer_response, envelope="data", code=HTTPStatus.CREATED
     )
     @require_authentication
     def post(self, discussion_id, **_):
         return (
             ServicesInitializer.a_discussion_service().create_new_answer(
-                discussion_id, api.payload, top_g.user.get("id")
+                discussion_id, api_discussions.payload, top_g.user.get("id")
             ),
             HTTPStatus.CREATED,
         )
 
 
-@api.route("/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>")
+@api_discussions.route(
+    "/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>"
+)
 class AnswerDetails(Resource):
-    @api.doc("get a specific answer")
-    @api.marshal_with(ApiDto.discussion_answer_response, envelope="data")
+    @api_discussions.doc("get a specific answer")
+    @api_discussions.marshal_with(ApiDto.discussion_answer_response, envelope="data")
     def get(self, answer_id, **_):
         return (
             ServicesInitializer.a_discussion_service().get_answer_by_id(answer_id),
             HTTPStatus.OK,
         )
 
-    @api.doc("delete a specific answer")
-    @api.response(HTTPStatus.OK, "Success")
+    @api_discussions.doc("delete a specific answer")
+    @api_discussions.response(HTTPStatus.OK, "Success")
     @require_authentication
     @check_delete_answer_permission
     def delete(self, answer_id, **_):
@@ -344,22 +385,22 @@ class AnswerDetails(Resource):
         return HTTPStatus.OK
 
 
-@api.route(
+@api_discussions.route(
     "/<int:api_id>/discussions/<int:discussion_id>/answers/<int:answer_id>/votes"
 )
 class Votes(Resource):
-    @api.doc("vote on an answer")
-    @api.expect(ApiDto.create_vote_request, validate=True)
-    @api.response(HTTPStatus.OK, "Success")
+    @api_discussions.doc("vote on an answer")
+    @api_discussions.expect(ApiDto.create_vote_request, validate=True)
+    @api_discussions.response(HTTPStatus.OK, "Success")
     @require_authentication
     def post(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().vote_on_answer(
-            answer_id, top_g.user.get("id"), api.payload["vote"]
+            answer_id, top_g.user.get("id"), api_discussions.payload["vote"]
         )
         return HTTPStatus.OK
 
-    @api.doc("remove vote from an answer")
-    @api.response(HTTPStatus.OK, "Success")
+    @api_discussions.doc("remove vote from an answer")
+    @api_discussions.response(HTTPStatus.OK, "Success")
     @require_authentication
     def delete(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().vote_on_answer(

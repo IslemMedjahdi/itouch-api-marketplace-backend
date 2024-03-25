@@ -7,6 +7,12 @@ from flask import Blueprint
 from app.main.controller.auth_controller import api as auth_ns
 from app.main.controller.user_controller import api as users_ns
 from app.main.controller.api_controller import api as api_ns
+from app.main.controller.api_controller import api_category as api_category_ns
+from app.main.controller.api_controller import api_tests as api_tests_ns
+from app.main.controller.api_controller import api_version as api_version_ns
+from app.main.controller.api_controller import api_discussions as api_discussions_ns
+from app.main.controller.api_controller import api_subscription as api_subscription_ns
+
 from app.main.utils.error_handlers import register_error_handlers
 
 # import models to let the migrate tool know
@@ -36,6 +42,11 @@ api = Api(
 api.add_namespace(auth_ns, path="/auth")
 api.add_namespace(users_ns, path="/users")
 api.add_namespace(api_ns, path="/apis")
+api.add_namespace(api_category_ns, path="/apis")
+api.add_namespace(api_tests_ns, path="/apis")
+api.add_namespace(api_version_ns, path="/apis")
+api.add_namespace(api_discussions_ns, path="/apis")
+api.add_namespace(api_subscription_ns, path="/apis")
 
 app = create_app(os.getenv("FLASK_ENV", "dev"))
 

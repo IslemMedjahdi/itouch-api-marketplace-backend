@@ -44,13 +44,27 @@ class AuthDto:
                     {
                         "id": fields.Integer(),
                         "email": fields.String(),
+                        "firstname": fields.String(),
+                        "lastname": fields.String(),
                         "role": fields.String(),
                         "status": fields.String(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),
                         "avatar": fields.String(nullable=True),
+                        "phone_number": fields.String(nullable=True),
+                        "bio": fields.String(nullable=True),
                     },
                 )
             ),
+        },
+    )
+
+    user_info_update_request = api.model(
+        "user_info_update",
+        {
+            "firstname": fields.String(),
+            "lastname": fields.String(),
+            "bio": fields.String(),
+            "phone_number": fields.String(),
         },
     )

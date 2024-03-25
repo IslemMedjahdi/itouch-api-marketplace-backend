@@ -3,7 +3,23 @@ from .user_dto import UserDto
 
 
 class ApiDto:
+    api_category = Namespace(
+        "Api Category", description="api category related operations"
+    )
+
     api = Namespace("Api", description="api related operations")
+
+    api_tests = Namespace("Api Tests", description="api tests related operations")
+
+    api_version = Namespace("Api Version", description="api version related operations")
+
+    api_discussions = Namespace(
+        "Api Discussions", description="api discussions related operations"
+    )
+
+    api_subscription = Namespace(
+        "Api Subscription", description="api subscription related operations"
+    )
 
     create_category_request = api.model(
         "create_category_request",
@@ -116,6 +132,17 @@ class ApiDto:
                             "image": fields.String(),
                         },
                     )
+                )
+            ),
+            "pagination": fields.Nested(
+                api.model(
+                    "users_list_pagination",
+                    {
+                        "page": fields.Integer(),
+                        "per_page": fields.Integer(),
+                        "total": fields.Integer(),
+                        "pages": fields.Integer(),
+                    },
                 )
             ),
         },
@@ -350,6 +377,13 @@ class ApiDto:
                     },
                 )
             ),
+        },
+    )
+
+    create_charigly_checkout_response = api.model(
+        "create_charigly_checkout_response",
+        {
+            "checkout_url": fields.String(),
         },
     )
 

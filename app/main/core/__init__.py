@@ -1,5 +1,6 @@
 from app.main.core.lib.media_manager import MediaManager
 from app.main.core.lib.rest_client import RestClient
+from app.main.core.lib.chargily_api import ChargilyApi
 
 
 class ServicesInitializer:
@@ -19,7 +20,9 @@ class ServicesInitializer:
     def an_api_service():
         from app.main.core.services.api_service import ApiService
 
-        return ApiService(media_manager=MediaManager())
+        return ApiService(
+            media_manager=MediaManager(), chargily_api=ChargilyApi(RestClient())
+        )
 
     @staticmethod
     def an_api_category_service():
@@ -44,3 +47,11 @@ class ServicesInitializer:
         from app.main.core.services.api_discussion_service import ApiDiscussionService
 
         return ApiDiscussionService()
+
+    @staticmethod
+    def an_api_subscription_service():
+        from app.main.core.services.api_subscription_service import (
+            ApiSubscriptionService,
+        )
+
+        return ApiSubscriptionService(chargily_api=ChargilyApi(RestClient()))

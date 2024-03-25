@@ -26,6 +26,8 @@ class User(db.Model):  # type: ignore
     role = db.Column(db.String(20), default="user")
     # status can be pending, active, suspended, or deleted
     status = db.Column(db.String(20), default="active")
+    bio = db.Column(db.String(1024), default="", nullable=True)
+    phone_number = db.Column(db.String(20), default="", nullable=True)
 
     def __init__(
         self, firstname: str, lastname: str, email: str, password: str, role=None
@@ -49,7 +51,7 @@ class User(db.Model):  # type: ignore
         return self.status == status
 
     @staticmethod
-    def encode_auth_token(user_id: int) -> bytes:
+    def encode_auth_token(user_id: int):
         """
         Generates the Auth Token
         :return: string
