@@ -11,18 +11,17 @@ fake = Faker()
 AuthService = ServicesInitializer.an_auth_service()
 
 
-# def test_register():
-#     data = {
-#         "email": "New_user@gmail.com",
-#         "password": "New User password",
-#         "firstname": "New User",
-#         "lastname": "New User",
-#     }
-#     new_user = AuthService.register(data)
-#     assert new_user.email == data["email"]
-#     assert new_user.firstname == data["firstname"]
-#     user = User.query.get(new_user.id)
-#     assert user is not None
+def test_register(test_db):
+    data = {
+        "email": "New_user@gmail.com",
+        "password": "New User password",
+        "firstname": "New User",
+        "lastname": "New User",
+    }
+    AuthService.register(data)
+
+    user = User.query.all()
+    assert len(user) == 2
 
 
 def test_login(test_db):
@@ -30,7 +29,7 @@ def test_login(test_db):
 
     new_user = add_user(
         db=test_db,
-        email="New_user@gmail.com",
+        email="New_user1@gmail.com",
         firstname="New User",
         lastname="New User",
         password=password,
