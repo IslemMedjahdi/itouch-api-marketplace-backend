@@ -134,6 +134,17 @@ class ApiDto:
                     )
                 )
             ),
+            "pagination": fields.Nested(
+                api.model(
+                    "users_list_pagination",
+                    {
+                        "page": fields.Integer(),
+                        "per_page": fields.Integer(),
+                        "total": fields.Integer(),
+                        "pages": fields.Integer(),
+                    },
+                )
+            ),
         },
     )
 

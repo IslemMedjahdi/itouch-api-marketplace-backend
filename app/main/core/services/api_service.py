@@ -40,8 +40,6 @@ class ApiService:
         db.session.add(new_api)
         db.session.commit()
 
-        print(new_api.id)
-
         product_id = self.chargily_api.create_product(new_api.name, new_api.description)
 
         if product_id is None:

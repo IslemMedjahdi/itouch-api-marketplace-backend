@@ -27,7 +27,6 @@ class ChargilyApi:
 
             return response.get("id")
         except Exception as e:
-            print(e)
             return None
 
     def create_price(self, product_id: str, amount: int) -> str | None:
@@ -69,7 +68,6 @@ class ChargilyApi:
             )
             return response.get("checkout_url")
         except Exception as e:
-            print(e)
             return None
 
     def verify_webhook_signature(self, payload: str, signature: str) -> bool:
