@@ -54,3 +54,13 @@ class AuthDto:
             ),
         },
     )
+
+    user_info_update_request = api.model(
+        "user_info_update",
+        {
+            "firstname": fields.String(),
+            "lastname": fields.String(),
+            "bio": fields.String(),
+            "phone_number": fields.String(),
+        },
+    )

@@ -112,3 +112,15 @@ class UserService:
 
         db.session.add(new_user)
         db.session.commit()
+
+    def edit_user(self, user_id: int, data: Dict):
+        user = User.query.filter_by(id=user_id).first()
+        if user is None:
+            raise NotFoundError("User does not exist")
+
+        user.firstname = data.get("firstname", user.firstname)
+        user.lastname = data.get("lastname", user.lastname)
+        user.bio = data.get("bio", user.bio)
+        user.phone_number = data.get("phone_number", user.phone_number)
+
+        db.session.commit()
