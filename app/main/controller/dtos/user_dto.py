@@ -14,10 +14,14 @@ class UserDto:
                         "id": fields.Integer(),
                         "email": fields.String(),
                         "role": fields.String(),
+                        "firstname": fields.String(),
+                        "lastname": fields.String(),
                         "status": fields.String(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),
                         "avatar": fields.String(nullable=True),
+                        "phone_number": fields.String(nullable=True),
+                        "bio": fields.String(nullable=True),
                     },
                 )
             ),
@@ -34,11 +38,15 @@ class UserDto:
                         {
                             "id": fields.Integer(),
                             "email": fields.String(),
+                            "firstname": fields.String(),
+                            "lastname": fields.String(),
                             "role": fields.String(),
                             "status": fields.String(),
                             "created_at": fields.DateTime(),
                             "updated_at": fields.DateTime(),
                             "avatar": fields.String(nullable=True),
+                            "phone_number": fields.String(nullable=True),
+                            "bio": fields.String(nullable=True),
                         },
                     )
                 )

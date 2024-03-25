@@ -30,6 +30,8 @@ class UserService:
             ),  # TODO: this will be user.avatar_id
             "created_at": user.created_at.isoformat(),
             "updated_at": user.updated_at.isoformat(),
+            "phone_number": user.phone_number,
+            "bio": user.bio,
         }
 
     def get_users(self, query_params: Dict):
@@ -60,6 +62,8 @@ class UserService:
                     "avatar:": self.media_manager.get_media_url_by_id(user.id),
                     "created_at": user.created_at.isoformat(),
                     "updated_at": user.updated_at.isoformat(),
+                    "phone_number": user.phone_number,
+                    "bio": user.bio,
                 }
                 for user in users.items
             ],
