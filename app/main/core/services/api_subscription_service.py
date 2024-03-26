@@ -1,12 +1,17 @@
 from datetime import datetime, timedelta
 
+from typing import Dict
+
 from flask import Request
 
 from app.main import db
 
+from app.main.utils.roles import Role
+
 from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.model.api_model import ApiModel
 from app.main.model.api_plan_model import ApiPlan
+from app.main.model.user_model import User
 from app.main.model.api_subscription_model import ApiSubscription
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 
@@ -69,6 +74,7 @@ class ApiSubscriptionService:
             api_id = checkout["metadata"]["api_id"]
             plan_name = checkout["metadata"]["plan_name"]
             user_id = checkout["metadata"]["user_id"]
+            amount = checkout["amount"]
 
             api = ApiModel.query.filter_by(id=api_id).first()
             if api is None:
@@ -88,7 +94,75 @@ class ApiSubscriptionService:
                 end_date=datetime.now() + timedelta(seconds=duration),
                 max_requests=plan.max_requests,
                 status="active",
+                price=amount,
             )
 
             db.session.add(subscription)
             db.session.commit()
+
+    def get_subscriptions(self, query_params: Dict, supplier_id: str, role: str):
+        api_id = query_params.get("api_id")
+        plan_name = query_params.get("plan_name")
+        user_id = query_params.get("user_id")
+        start_date = query_params.get("start_date")
+        end_date = query_params.get("end_date")
+        expired = query_params.get("expired")
+
+        query = (
+            db.session.query(ApiSubscription, ApiModel, User)
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .join(
+                User,
+                ApiSubscription.user_id == User.id,
+            )
+        )
+
+        if api_id is not None:
+            query = query.filter(ApiModel.id == api_id)
+
+            if plan_name is not None:
+                query = query.filter(ApiSubscription.plan_name == plan_name)
+
+        if user_id is not None:
+            query = query.filter(User.id == user_id)
+
+        if start_date is not None:
+            query = query.filter(ApiSubscription.start_date >= start_date)
+
+        if end_date is not None:
+            query = query.filter(ApiSubscription.end_date <= end_date)
+
+        if expired is not None:
+            if expired == "true":
+                query = query.filter(ApiSubscription.end_date < datetime.now())
+            else:
+                query = query.filter(ApiSubscription.end_date >= datetime.now())
+
+        if role == Role.SUPPLIER:
+            query = query.filter(ApiModel.supplier_id == supplier_id)
+
+        return [
+            {
+                "id": item.ApiSubscription.id,
+                "api_id": item.ApiModel.id,
+                "api": {
+                    "id": item.ApiModel.id,
+                    "name": item.ApiModel.name,
+                    "supplier_id": item.ApiModel.supplier_id,
+                },
+                "api_plan": item.ApiSubscription.plan_name,
+                "user_id": item.User.id,
+                "user": {
+                    "id": item.User.id,
+                    "firstname": item.User.firstname,
+                    "lastname": item.User.lastname,
+                },
+                "start_date": item.ApiSubscription.start_date.isoformat(),
+                "end_date": item.ApiSubscription.end_date.isoformat(),
+                "remaining_requests": item.ApiSubscription.max_requests,
+                "status": item.ApiSubscription.status,
+                "expired": item.ApiSubscription.end_date < datetime.now(),
+                "price": item.ApiSubscription.price,
+            }
+            for item in query.all()
+        ]

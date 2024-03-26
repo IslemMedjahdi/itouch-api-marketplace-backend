@@ -265,6 +265,23 @@ class CreateCheckout(Resource):
         }
 
 
+@api_subscription.route("/subscriptions")
+class GetSubscriptions(Resource):
+    @api_subscription.doc("get subscriptions")
+    @api_subscription.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.SUPPLIER, Role.ADMIN])
+    # TODO: ADD RESPONSE BODY DOCUMENTATION
+    # TODO: ADD PAGINATION
+    def get(self):
+        return {
+            "data": ServicesInitializer.an_api_subscription_service().get_subscriptions(
+                request.args,
+                supplier_id=top_g.user.get("id"),
+                role=top_g.user.get("role"),
+            )
+        }
+
+
 @api_subscription.route("/webhook/chargily")
 class ChargilyWebhook(Resource):
     @api_subscription.doc("chargily webhook")

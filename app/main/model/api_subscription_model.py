@@ -13,6 +13,7 @@ class ApiSubscription(db.Model):  # type: ignore
     end_date = db.Column(db.DateTime, nullable=False)
     max_requests = db.Column(db.Integer)
     status = db.Column(db.String, nullable=False)
+    price = db.Column(db.Float, nullable=True, default=0.0)
 
     def __repr__(self):
         return "<ApiSubscription '{}'>".format(self.plan_name)
