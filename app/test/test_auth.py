@@ -2,6 +2,7 @@ import pytest
 from app.main.core import ServicesInitializer
 from app.main.model.user_model import User
 from .fixtures.user.add_user import add_user
+from .fixtures.user.suspend_user import suspend_user
 from faker import Faker
 from app.main.utils.exceptions import NotFoundError
 from app.main.utils.exceptions import BadRequestError
@@ -60,5 +61,22 @@ def test_login_with_email_not_match(test_db):
         password=password,
     )
     login_data = {"email": new_user.email, "password": "wrong password"}
+    with pytest.raises(BadRequestError):
+        AuthService.login(data=login_data)
+
+
+def test_login_with_user_not_active(test_db):
+    password = fake.password()
+
+    new_user = add_user(
+        db=test_db,
+        email="New_user3@gmail.com",
+        firstname="New User",
+        lastname="New User",
+        password=password,
+    )
+    user_id = new_user.id
+    user = suspend_user(db=test_db, user_id=user_id)
+    login_data = {"email": user.email, "password": password}
     with pytest.raises(BadRequestError):
         AuthService.login(data=login_data)
