@@ -56,6 +56,9 @@ def role_token_required(allowed_roles: List[str]) -> Callable:
             if user.role not in allowed_roles:
                 raise BadRequestError("Unauthorized access.")
 
+            if not user.check_status("active"):
+                raise BadRequestError("User is not active.")
+
             g.user = {
                 "id": user.id,
                 "email": user.email,
