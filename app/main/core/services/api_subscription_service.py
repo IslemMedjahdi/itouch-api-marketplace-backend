@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import math
 
 from typing import Dict
 
@@ -101,6 +102,8 @@ class ApiSubscriptionService:
             db.session.commit()
 
     def get_subscriptions(self, query_params: Dict, supplier_id: str, role: str):
+        page = int(query_params.get("page", 1))
+        per_page = int(query_params.get("per_page", 10))
         api_id = query_params.get("api_id")
         plan_name = query_params.get("plan_name")
         user_id = query_params.get("user_id")
@@ -141,6 +144,11 @@ class ApiSubscriptionService:
         if role == Role.SUPPLIER:
             query = query.filter(ApiModel.supplier_id == supplier_id)
 
+        query = query.limit(per_page).offset((page - 1) * per_page)
+
+        total = query.count()
+        total_pages = math.ceil(total / per_page)
+
         return [
             {
                 "id": item.ApiSubscription.id,
@@ -165,4 +173,9 @@ class ApiSubscriptionService:
                 "price": item.ApiSubscription.price,
             }
             for item in query.all()
-        ]
+        ], {
+            "page": page,
+            "per_page": per_page,
+            "total": total,
+            "total_pages": total_pages,
+        }

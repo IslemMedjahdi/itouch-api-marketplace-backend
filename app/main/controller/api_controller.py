@@ -269,18 +269,28 @@ class CreateCheckout(Resource):
 @api_subscription.route("/subscriptions")
 class GetSubscriptions(Resource):
     @api_subscription.doc("get subscriptions")
-    @api_subscription.response(HTTPStatus.OK, "Success")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscriptions_list_response
+    )
     @role_token_required([Role.SUPPLIER, Role.ADMIN])
-    # TODO: ADD RESPONSE BODY DOCUMENTATION
-    # TODO: ADD PAGINATION
+    @api_subscription.param("page", "The page number")
+    @api_subscription.param("per_page", "The per page number")
+    @api_subscription.param("api_id", "The API ID")
+    @api_subscription.param("user_id", "The user ID")
+    @api_subscription.param("plan_name", "The plan name")
+    @api_subscription.param("start_date", "The start date")
+    @api_subscription.param("end_date", "The end date")
+    @api_subscription.param("expired", "true or false")
     def get(self):
-        return {
-            "data": ServicesInitializer.an_api_subscription_service().get_subscriptions(
-                request.args,
-                supplier_id=top_g.user.get("id"),
-                role=top_g.user.get("role"),
-            )
-        }
+        (
+            data,
+            pagination,
+        ) = ServicesInitializer.an_api_subscription_service().get_subscriptions(
+            request.args,
+            supplier_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
+        )
+        return {"data": data, "pagination": pagination}
 
 
 @api_subscription.route("/webhook/chargily")
