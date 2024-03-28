@@ -48,7 +48,7 @@ class UserService:
         if roles:
             query = query.filter(User.role.in_(roles))
 
-        users = query.paginate(page=page, per_page=per_page)
+        users = query.paginate(page=page, per_page=per_page, error_out=False)
 
         return (
             [
