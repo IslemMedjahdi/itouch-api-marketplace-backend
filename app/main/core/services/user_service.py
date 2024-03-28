@@ -25,7 +25,7 @@ class UserService:
             "lastname": user.lastname,
             "role": user.role,
             "status": user.status,
-            "avatar:": self.media_manager.get_media_url_by_id(
+            "avatar": self.media_manager.get_media_url_by_id(
                 user.id
             ),  # TODO: this will be user.avatar_id
             "created_at": user.created_at.isoformat(),
@@ -59,7 +59,7 @@ class UserService:
                     "lastname": user.lastname,
                     "role": user.role,
                     "status": user.status,
-                    "avatar:": self.media_manager.get_media_url_by_id(user.id),
+                    "avatar": self.media_manager.get_media_url_by_id(user.id),
                     "created_at": user.created_at.isoformat(),
                     "updated_at": user.updated_at.isoformat(),
                     "phone_number": user.phone_number,
