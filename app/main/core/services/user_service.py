@@ -35,8 +35,8 @@ class UserService:
         }
 
     def get_users(self, query_params: Dict):
-        page = query_params.get("page", 1)
-        per_page = query_params.get("per_page", 10)
+        page = int(query_params.get("page", 1))
+        per_page = int(query_params.get("per_page", 10))
         status = query_params.get("status", None)
         roles = query_params.get("role", None)
 
