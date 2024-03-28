@@ -1,8 +1,9 @@
 import pytest
-from app.main.core import ServicesInitializer
+from app.main.core.services.user_service import UserService
 from app.main.model.user_model import User
 from .fixtures.user.add_user import add_user
 from .fixtures.user.suspend_user import suspend_user
+from .fixtures.media_manager_mock import MediaManagerMock
 from faker import Faker
 from app.main.utils.exceptions import NotFoundError
 from app.main.utils.exceptions import BadRequestError
@@ -11,7 +12,7 @@ from app.main.utils.roles import Role
 
 fake = Faker()
 
-UserService = ServicesInitializer.a_user_service()
+user_service = UserService(media_manager=MediaManagerMock())
 
 
 def test_get_users(test_db):
@@ -24,7 +25,7 @@ def test_get_users(test_db):
         password=password,
     )
     query_params = {"page": 1, "per_page": 10, "status": "", "role": None}
-    users_data, pagination_info = UserService.get_users(query_params)
+    users_data, pagination_info = user_service.get_users(query_params)
     assert len(users_data) == 2
     assert users_data[1]["id"] == new_user.id
 
@@ -39,7 +40,7 @@ def test_get_user_by_id(test_db):
         lastname="New User",
         password=password,
     )
-    fetched_user_data = UserService.get_user_by_id(new_user.id)
+    fetched_user_data = user_service.get_user_by_id(new_user.id)
     fetched_user_id = fetched_user_data["id"]
     assert fetched_user_id == new_user.id
 
@@ -48,7 +49,7 @@ def test_get_user_by_id_with_user_not_found(test_db):
     user_id = 99999
 
     with pytest.raises(NotFoundError):
-        UserService.get_user_by_id(user_id)
+        user_service.get_user_by_id(user_id)
 
 
 def test_activate_user(test_db):
@@ -63,7 +64,7 @@ def test_activate_user(test_db):
     )
     user_id = new_user.id
     suspend_user(db=test_db, user_id=user_id)
-    UserService.activate_user(user_id)
+    user_service.activate_user(user_id)
     activated_use = User.query.filter_by(id=user_id).first()
     assert activated_use.status == "active"
 
@@ -72,7 +73,7 @@ def test_activate_user_with_user_not_found(test_db):
     user_id = 99999
 
     with pytest.raises(NotFoundError):
-        UserService.activate_user(user_id)
+        user_service.activate_user(user_id)
 
 
 def test_suspend_user(test_db):
@@ -86,7 +87,7 @@ def test_suspend_user(test_db):
         password=password,
     )
     user_id = new_user.id
-    UserService.suspend_user(user_id)
+    user_service.suspend_user(user_id)
     suspended_use = User.query.filter_by(id=user_id).first()
     assert suspended_use.status == "suspended"
 
@@ -95,7 +96,7 @@ def test_suspend_user_with_user_not_found(test_db):
     user_id = 99999
 
     with pytest.raises(NotFoundError):
-        UserService.suspend_user(user_id)
+        user_service.suspend_user(user_id)
 
 
 def test_create_supplier(test_db):
@@ -105,7 +106,7 @@ def test_create_supplier(test_db):
         "firstname": "New supplier",
         "lastname": "New supplier",
     }
-    UserService.create_supplier(data)
+    user_service.create_supplier(data)
 
     users = User.query.all()
     assert len(users) == 6
@@ -129,7 +130,7 @@ def test_create_supplier_with_user_already_exists(test_db):
         "lastname": "Existed supplier",
     }
     with pytest.raises(BadRequestError):
-        UserService.create_supplier(data)
+        user_service.create_supplier(data)
 
 
 def test_create_supplier_with_invalid_email(test_db):
@@ -140,7 +141,7 @@ def test_create_supplier_with_invalid_email(test_db):
         "lastname": "supplier",
     }
     with pytest.raises(BadRequestError):
-        UserService.create_supplier(data)
+        user_service.create_supplier(data)
 
 
 def test_edit_user(test_db):
@@ -159,7 +160,7 @@ def test_edit_user(test_db):
         "bio": "the user bio",
         "phone_number": "0775757899",
     }
-    UserService.edit_user(user_id, data)
+    user_service.edit_user(user_id, data)
 
     edited_user = User.query.filter_by(id=user_id).first()
     assert edited_user.id == user_id
@@ -177,4 +178,4 @@ def test_edit_user_with_user_not_found(test_db):
     }
 
     with pytest.raises(NotFoundError):
-        UserService.edit_user(user_id, data)
+        user_service.edit_user(user_id, data)

@@ -1,4 +1,4 @@
-from app.main.core.lib.media_manager import MediaManager
+from app.main.core.lib.impl.media_manager_impl import MediaManagerImpl
 from app.main.core.lib.rest_client import RestClient
 from app.main.core.lib.chargily_api import ChargilyApi
 
@@ -14,14 +14,14 @@ class ServicesInitializer:
     def a_user_service():
         from app.main.core.services.user_service import UserService
 
-        return UserService(media_manager=MediaManager())
+        return UserService(media_manager=MediaManagerImpl())
 
     @staticmethod
     def an_api_service():
         from app.main.core.services.api_service import ApiService
 
         return ApiService(
-            media_manager=MediaManager(), chargily_api=ChargilyApi(RestClient())
+            media_manager=MediaManagerImpl(), chargily_api=ChargilyApi(RestClient())
         )
 
     @staticmethod
