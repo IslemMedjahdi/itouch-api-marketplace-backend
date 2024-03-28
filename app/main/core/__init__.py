@@ -1,6 +1,6 @@
-from app.main.core.lib.media_manager import MediaManager
-from app.main.core.lib.rest_client import RestClient
-from app.main.core.lib.chargily_api import ChargilyApi
+from app.main.core.lib.impl.media_manager_impl import MediaManagerImpl
+from app.main.core.lib.impl.rest_client_impl import RestClientImpl
+from app.main.core.lib.impl.chargily_api_impl import ChargilyApiImpl
 
 
 class ServicesInitializer:
@@ -14,14 +14,15 @@ class ServicesInitializer:
     def a_user_service():
         from app.main.core.services.user_service import UserService
 
-        return UserService(media_manager=MediaManager())
+        return UserService(media_manager=MediaManagerImpl())
 
     @staticmethod
     def an_api_service():
         from app.main.core.services.api_service import ApiService
 
         return ApiService(
-            media_manager=MediaManager(), chargily_api=ChargilyApi(RestClient())
+            media_manager=MediaManagerImpl(),
+            chargily_api=ChargilyApiImpl(RestClientImpl()),
         )
 
     @staticmethod
@@ -40,7 +41,7 @@ class ServicesInitializer:
     def an_api_tests_service():
         from app.main.core.services.api_tests_service import ApiTestsService
 
-        return ApiTestsService(rest_client=RestClient())
+        return ApiTestsService(rest_client=RestClientImpl())
 
     @staticmethod
     def a_discussion_service():
@@ -54,4 +55,4 @@ class ServicesInitializer:
             ApiSubscriptionService,
         )
 
-        return ApiSubscriptionService(chargily_api=ChargilyApi(RestClient()))
+        return ApiSubscriptionService(chargily_api=ChargilyApiImpl(RestClientImpl()))

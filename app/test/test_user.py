@@ -105,12 +105,11 @@ def test_create_supplier(test_db):
         "firstname": "New supplier",
         "lastname": "New supplier",
     }
-    UserService.create_supplier(data)
 
-    users = User.query.all()
-    assert len(users) == 6
-    new_supplier = users[-1]
-    assert new_supplier.role == Role.SUPPLIER
+    user_id = UserService.create_supplier(data)
+    user = User.query.filter_by(id=user_id).first()
+    assert user.email == data["email"]
+    assert user.role == Role.SUPPLIER
 
 
 def test_create_supplier_with_user_already_exists(test_db):

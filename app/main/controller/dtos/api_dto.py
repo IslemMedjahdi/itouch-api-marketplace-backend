@@ -387,6 +387,61 @@ class ApiDto:
         },
     )
 
+    subscriptions_list_response = api.model(
+        "subscriptions_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "subscriptions_list_data",
+                        {
+                            "id": fields.Integer(),
+                            "api_id": fields.Integer(),
+                            "api": fields.Nested(
+                                api.model(
+                                    "api_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "name": fields.String(),
+                                        "supplier_id": fields.Integer(),
+                                    },
+                                )
+                            ),
+                            "api_plan": fields.String(),
+                            "user_id": fields.Integer(),
+                            "user": fields.Nested(
+                                api.model(
+                                    "user_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "firstname": fields.String(),
+                                        "lastname": fields.String(),
+                                    },
+                                )
+                            ),
+                            "start_date": fields.DateTime(),
+                            "end_date": fields.DateTime(),
+                            "remaining_requests": fields.Integer(),
+                            "status": fields.String(),
+                            "expired": fields.Boolean(),
+                            "price": fields.Float(),
+                        },
+                    )
+                )
+            ),
+            "pagination": fields.Nested(
+                api.model(
+                    "subscriptions_list_pagination",
+                    {
+                        "page": fields.Integer(),
+                        "per_page": fields.Integer(),
+                        "total": fields.Integer(),
+                        "total_pages": fields.Integer(),
+                    },
+                )
+            ),
+        },
+    )
     # ------------------- UN REFACTORED -------------------
 
     discussions_response = api.model(

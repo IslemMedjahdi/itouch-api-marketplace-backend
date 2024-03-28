@@ -25,7 +25,7 @@ class UserService:
             "lastname": user.lastname,
             "role": user.role,
             "status": user.status,
-            "avatar:": self.media_manager.get_media_url_by_id(
+            "avatar": self.media_manager.get_media_url_by_id(
                 user.id
             ),  # TODO: this will be user.avatar_id
             "created_at": user.created_at.isoformat(),
@@ -35,8 +35,8 @@ class UserService:
         }
 
     def get_users(self, query_params: Dict):
-        page = query_params.get("page", 1)
-        per_page = query_params.get("per_page", 10)
+        page = int(query_params.get("page", 1))
+        per_page = int(query_params.get("per_page", 10))
         status = query_params.get("status", None)
         roles = query_params.get("role", None)
 
@@ -48,7 +48,7 @@ class UserService:
         if roles:
             query = query.filter(User.role.in_(roles))
 
-        users = query.paginate(page=page, per_page=per_page)
+        users = query.paginate(page=page, per_page=per_page, error_out=False)
 
         return (
             [
@@ -59,7 +59,7 @@ class UserService:
                     "lastname": user.lastname,
                     "role": user.role,
                     "status": user.status,
-                    "avatar:": self.media_manager.get_media_url_by_id(user.id),
+                    "avatar": self.media_manager.get_media_url_by_id(user.id),
                     "created_at": user.created_at.isoformat(),
                     "updated_at": user.updated_at.isoformat(),
                     "phone_number": user.phone_number,
@@ -95,7 +95,7 @@ class UserService:
         # user.save()
         db.session.commit()
 
-    def create_supplier(self, data: Dict):
+    def create_supplier(self, data: Dict) -> int:
         email = data.get("email", "")
         password = data.get("password", "")
         firstname = data.get("firstname", "")
@@ -118,6 +118,8 @@ class UserService:
 
         db.session.add(new_user)
         db.session.commit()
+
+        return new_user.id
 
     def edit_user(self, user_id: int, data: Dict):
         user = User.query.filter_by(id=user_id).first()

@@ -1,26 +1,15 @@
-import requests
-import json
 from typing import Dict, Tuple
 
 
 class RestClient:
     def get(self, url, headers) -> Tuple[Dict, int]:
-        response = requests.get(url, headers=headers, timeout=10)
-        return response.json(), response.status_code
+        raise Exception("You must implement this method in a subclass.")
 
     def post(self, url, headers, data) -> Tuple[Dict, int]:
-        if not isinstance(data, str):
-            data = json.dumps(data)
-        response = requests.post(url, headers=headers, data=data, timeout=10)
-
-        return response.json(), response.status_code
+        raise Exception("You must implement this method in a subclass.")
 
     def delete(self, url, headers) -> Tuple[Dict, int]:
-        response = requests.delete(url, headers=headers, timeout=10)
-        return response.json(), response.status_code
+        raise Exception("You must implement this method in a subclass.")
 
     def patch(self, url, headers, data) -> Tuple[Dict, int]:
-        if not isinstance(data, str):
-            data = json.dumps(data)
-        response = requests.patch(url, headers=headers, data=data, timeout=10)
-        return response.json(), response.status_code
+        raise Exception("You must implement this method in a subclass.")

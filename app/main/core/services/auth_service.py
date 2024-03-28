@@ -26,7 +26,7 @@ class AuthService:
 
         return auth_token
 
-    def register(self, data: Dict):
+    def register(self, data: Dict) -> int:
         email = data.get("email", "")
         password = data.get("password", "")
         firstname = data.get("firstname", "")
@@ -45,3 +45,5 @@ class AuthService:
 
         db.session.add(new_user)
         db.session.commit()
+
+        return new_user.id
