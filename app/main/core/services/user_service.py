@@ -48,7 +48,7 @@ class UserService:
         if roles:
             query = query.filter(User.role.in_(roles))
 
-        users = query.paginate(page, per_page)
+        users = query.paginate(page=page, per_page=per_page)
 
         return (
             [
@@ -82,7 +82,8 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "active"
-        user.save()
+        # user.save()
+        db.session.commit()
 
     def suspend_user(self, user_id: int):
         user = User.query.filter_by(id=user_id).first()
@@ -91,7 +92,8 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "suspended"
-        user.save()
+        # user.save()
+        db.session.commit()
 
     def create_supplier(self, data: Dict):
         email = data.get("email", "")
