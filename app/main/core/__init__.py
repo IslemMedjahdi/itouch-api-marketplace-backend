@@ -1,6 +1,6 @@
 from app.main.core.lib.impl.media_manager_impl import MediaManagerImpl
 from app.main.core.lib.impl.rest_client_impl import RestClientImpl
-from app.main.core.lib.chargily_api import ChargilyApi
+from app.main.core.lib.impl.chargily_api_impl import ChargilyApiImpl
 
 
 class ServicesInitializer:
@@ -21,7 +21,8 @@ class ServicesInitializer:
         from app.main.core.services.api_service import ApiService
 
         return ApiService(
-            media_manager=MediaManagerImpl(), chargily_api=ChargilyApi(RestClientImpl())
+            media_manager=MediaManagerImpl(),
+            chargily_api=ChargilyApiImpl(RestClientImpl()),
         )
 
     @staticmethod
@@ -54,4 +55,4 @@ class ServicesInitializer:
             ApiSubscriptionService,
         )
 
-        return ApiSubscriptionService(chargily_api=ChargilyApi(RestClientImpl()))
+        return ApiSubscriptionService(chargily_api=ChargilyApiImpl(RestClientImpl()))
