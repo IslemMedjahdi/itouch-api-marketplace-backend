@@ -92,6 +92,11 @@ class ApiService:
         per_page = int(query_params.get("per_page", 10))
         status = query_params.get("status", None)
         category_ids = query_params.get("categoryIds", [])
+        if isinstance(category_ids, str):
+            category_ids = category_ids.strip("[]").split(",")
+            category_ids = [
+                int(category_id) for category_id in category_ids if category_id.strip()
+            ]
         supplier_id = query_params.get("supplierId", None)
 
         query = (

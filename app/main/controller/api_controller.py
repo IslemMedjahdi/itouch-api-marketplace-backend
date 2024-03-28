@@ -66,8 +66,9 @@ class GetApis(Resource):
     @api.doc("get apis")
     @api.param("page", "The page number")
     @api.param("per_page", "The number of items per page")
-    @api.param("category_ids", "The category ID", type="array")
+    @api.param("categoryIds", "The category ID", type="array")
     @api.param("status", "The status of the apis")
+    @api.param("supplierId", "The supplier id")
     @api.response(HTTPStatus.OK, "Success", ApiDto.apis_list_response)
     def get(self):
         apis, pagination = ServicesInitializer.an_api_service().get_apis(request.args)
