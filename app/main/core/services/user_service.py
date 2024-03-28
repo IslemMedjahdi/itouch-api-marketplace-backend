@@ -95,7 +95,7 @@ class UserService:
         # user.save()
         db.session.commit()
 
-    def create_supplier(self, data: Dict):
+    def create_supplier(self, data: Dict) -> int:
         email = data.get("email", "")
         password = data.get("password", "")
         firstname = data.get("firstname", "")
@@ -118,6 +118,8 @@ class UserService:
 
         db.session.add(new_user)
         db.session.commit()
+
+        return new_user.id
 
     def edit_user(self, user_id: int, data: Dict):
         user = User.query.filter_by(id=user_id).first()
