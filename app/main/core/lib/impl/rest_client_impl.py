@@ -1,9 +1,10 @@
 import requests
 import json
 from typing import Dict, Tuple
+from app.main.core.lib.rest_client import RestClient
 
 
-class RestClientImpl:
+class RestClientImpl(RestClient):
     def get(self, url, headers) -> Tuple[Dict, int]:
         response = requests.get(url, headers=headers, timeout=10)
         return response.json(), response.status_code
