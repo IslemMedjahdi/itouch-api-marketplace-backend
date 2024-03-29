@@ -411,7 +411,7 @@ class ApiDto:
                             "user_id": fields.Integer(),
                             "user": fields.Nested(
                                 api.model(
-                                    "user_info_data",
+                                    "api_user_info_data",
                                     {
                                         "id": fields.Integer(),
                                         "firstname": fields.String(),
