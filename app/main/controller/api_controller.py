@@ -21,6 +21,7 @@ api_tests = ApiDto.api_tests
 api_version = ApiDto.api_version
 api_discussions = ApiDto.api_discussions
 api_subscription = ApiDto.api_subscription
+api_keys = ApiDto.api_keys
 
 
 @api_category.route("/categories/create")
@@ -286,11 +287,54 @@ class GetSubscriptions(Resource):
             data,
             pagination,
         ) = ServicesInitializer.an_api_subscription_service().get_subscriptions(
-            request.args,
-            supplier_id=top_g.user.get("id"),
+            {**request.args, "supplier_id": top_g.user.get("id")},
             role=top_g.user.get("role"),
         )
         return {"data": data, "pagination": pagination}
+
+
+@api_subscription.route("/subscriptions/mine")
+class GetMySubscriptions(Resource):
+    @api_subscription.doc("get my subscriptions")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscriptions_list_response
+    )
+    @role_token_required([Role.USER])
+    @api_subscription.param("page", "The page number")
+    @api_subscription.param("per_page", "The per page number")
+    @api_subscription.param("api_id", "The API ID")
+    @api_subscription.param("plan_name", "The plan name")
+    @api_subscription.param("start_date", "The start date")
+    @api_subscription.param("end_date", "The end date")
+    @api_subscription.param("expired", "true or false")
+    @api_subscription.param("supplier_id", "The supplier ID")
+    def get(self):
+        (
+            data,
+            pagination,
+        ) = ServicesInitializer.an_api_subscription_service().get_subscriptions(
+            {
+                **request.args,
+                "user_id": top_g.user.get("id"),
+            },
+            role=top_g.user.get("role"),
+        )
+        return {"data": data, "pagination": pagination}
+
+
+@api_subscription.route("/subscriptions/<int:id>")
+class GetSubscription(Resource):
+    @api_subscription.doc("get subscription")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscription_info_response
+    )
+    @role_token_required([Role.SUPPLIER, Role.ADMIN, Role.USER])
+    def get(self, id):
+        return ServicesInitializer.an_api_subscription_service().get_subscription(
+            subscription_id=id,
+            user_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
+        )
 
 
 @api_subscription.route("/webhook/chargily")
@@ -301,6 +345,18 @@ class ChargilyWebhook(Resource):
             request
         )
         return HTTPStatus.OK
+
+
+@api_keys.route("/subscriptions/<int:id>/api-keys/create")
+class CreateApiKey(Resource):
+    @api_keys.doc("create api key")
+    @api_keys.response(HTTPStatus.CREATED, "Success")
+    @role_token_required([Role.USER])
+    def post(self, id):
+        ServicesInitializer.an_api_key_service().create_api_key(
+            subscription_id=id, user_id=top_g.user.get("id")
+        )
+        return HTTPStatus.CREATED
 
 
 @api_tests.route("/test/<int:id>/<string:version>/<path:params>")

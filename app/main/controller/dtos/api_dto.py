@@ -21,6 +21,8 @@ class ApiDto:
         "Api Subscription", description="api subscription related operations"
     )
 
+    api_keys = Namespace("Api Keys", description="api keys related operations")
+
     create_category_request = api.model(
         "create_category_request",
         {
@@ -384,6 +386,49 @@ class ApiDto:
         "create_charigly_checkout_response",
         {
             "checkout_url": fields.String(),
+        },
+    )
+
+    subscription_info_response = api.model(
+        "subscription_info",
+        {
+            "data": fields.Nested(
+                api.model(
+                    "subscription_info_data",
+                    {
+                        "id": fields.Integer(),
+                        "api_id": fields.Integer(),
+                        "api": fields.Nested(
+                            api.model(
+                                "api_info_data",
+                                {
+                                    "id": fields.Integer(),
+                                    "name": fields.String(),
+                                    "supplier_id": fields.Integer(),
+                                },
+                            )
+                        ),
+                        "api_plan": fields.String(),
+                        "user_id": fields.Integer(),
+                        "user": fields.Nested(
+                            api.model(
+                                "api_user_info_data",
+                                {
+                                    "id": fields.Integer(),
+                                    "firstname": fields.String(),
+                                    "lastname": fields.String(),
+                                },
+                            )
+                        ),
+                        "start_date": fields.DateTime(),
+                        "end_date": fields.DateTime(),
+                        "remaining_requests": fields.Integer(),
+                        "status": fields.String(),
+                        "expired": fields.Boolean(),
+                        "price": fields.Float(),
+                    },
+                )
+            ),
         },
     )
 
