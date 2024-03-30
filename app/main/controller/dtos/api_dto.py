@@ -400,7 +400,7 @@ class ApiDto:
                         "api_id": fields.Integer(),
                         "api": fields.Nested(
                             api.model(
-                                "api_info_data",
+                                "subscription_api_info_data",
                                 {
                                     "id": fields.Integer(),
                                     "name": fields.String(),
@@ -444,7 +444,7 @@ class ApiDto:
                             "api_id": fields.Integer(),
                             "api": fields.Nested(
                                 api.model(
-                                    "api_info_data",
+                                    "subscription_api_info_data",
                                     {
                                         "id": fields.Integer(),
                                         "name": fields.String(),

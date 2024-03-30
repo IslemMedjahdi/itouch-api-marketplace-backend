@@ -201,7 +201,7 @@ class GetVersion(Resource):
 
 @api_version.route("/mine/<int:id>/versions/<string:version>")
 class GetMyApiVersion(Resource):
-    @api_version.doc("get version")
+    @api_version.doc("get my version")
     @api_version.response(
         HTTPStatus.OK, "Success", ApiDto.full_api_version_info_response
     )
@@ -362,24 +362,28 @@ class CreateApiKey(Resource):
 @api_tests.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
     @api_tests.doc("test GET Endpoint")
+    @require_authentication
     def get(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_get(
             api_id=id, version=version, params=params
         )
 
     @api_tests.doc("test POST Endpoint")
+    @require_authentication
     def post(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_post(
             api_id=id, version=version, params=params, data=api_tests.payload
         )
 
     @api_tests.doc("Test PATCH Endpoint")
+    @require_authentication
     def patch(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_patch(
             api_id=id, version=version, params=params, data=api_tests.payload
         )
 
     @api_tests.doc("Test DELETE Endpoint")
+    @require_authentication
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params
