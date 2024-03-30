@@ -40,7 +40,149 @@ class ApiCallService:
 
         request_body = ""
 
-        response_body = response
+        response_body = str(response)
+
+        new_request = ApiRequest(
+            api_id=api_id,
+            user_id=user_id,
+            api_key=api_key,
+            subscription_id=subscription_id,
+            request_url=request_url,
+            request_method=request_method,
+            request_body=request_body,
+            response_body=response_body,
+            request_at=request_at,
+            response_at=response_at,
+            http_status=status,
+        )
+
+        db.session.add(new_request)
+        db.session.commit()
+
+        self.decrement_subscription_requests(subscription_id)
+
+        return response, status
+
+    def call_post(
+        self, api_id: int, version: str, params: str, api_key: str, body: str
+    ):
+        subscription_id = self.verify_api_key(api_key)
+
+        subscription = self.verify_subscription(subscription_id, api_id)
+
+        base_url = self.__get_api_version_base_url(api_id, version)
+
+        headers = self.__get_api_version_headers(api_id, version)
+
+        request_url = f"{base_url}/{params}"
+
+        request_at = datetime.now()
+
+        response, status = self.rest_client.post(request_url, headers, body)
+
+        response_at = datetime.now()
+
+        request_method = "POST"
+
+        user_id = subscription.user_id
+
+        request_body = str(body)
+
+        response_body = str(response)
+
+        new_request = ApiRequest(
+            api_id=api_id,
+            user_id=user_id,
+            api_key=api_key,
+            subscription_id=subscription_id,
+            request_url=request_url,
+            request_method=request_method,
+            request_body=request_body,
+            response_body=response_body,
+            request_at=request_at,
+            response_at=response_at,
+            http_status=status,
+        )
+
+        db.session.add(new_request)
+        db.session.commit()
+
+        self.decrement_subscription_requests(subscription_id)
+
+        return response, status
+
+    def call_patch(
+        self, api_id: int, version: str, params: str, api_key: str, body: str
+    ):
+        subscription_id = self.verify_api_key(api_key)
+
+        subscription = self.verify_subscription(subscription_id, api_id)
+
+        base_url = self.__get_api_version_base_url(api_id, version)
+
+        headers = self.__get_api_version_headers(api_id, version)
+
+        request_url = f"{base_url}/{params}"
+
+        request_at = datetime.now()
+
+        response, status = self.rest_client.patch(request_url, headers, body)
+
+        response_at = datetime.now()
+
+        request_method = "PATCH"
+
+        user_id = subscription.user_id
+
+        request_body = str(body)
+
+        response_body = str(response)
+
+        new_request = ApiRequest(
+            api_id=api_id,
+            user_id=user_id,
+            api_key=api_key,
+            subscription_id=subscription_id,
+            request_url=request_url,
+            request_method=request_method,
+            request_body=request_body,
+            response_body=response_body,
+            request_at=request_at,
+            response_at=response_at,
+            http_status=status,
+        )
+
+        db.session.add(new_request)
+        db.session.commit()
+
+        self.decrement_subscription_requests(subscription_id)
+
+        return response, status
+
+    def call_delete(self, api_id: int, version: str, params: str, api_key: str):
+        subscription_id = self.verify_api_key(api_key)
+
+        subscription = self.verify_subscription(subscription_id, api_id)
+
+        base_url = self.__get_api_version_base_url(api_id, version)
+
+        headers = self.__get_api_version_headers(api_id, version)
+
+        request_url = f"{base_url}/{params}"
+
+        request_at = datetime.now()
+
+        response, status = self.rest_client.delete(request_url, headers)
+
+        response_at = datetime.now()
+
+        request_method = "DELETE"
+
+        user_id = subscription.user_id
+
+        request_body = ""
+
+        response_body = str(response)
 
         new_request = ApiRequest(
             api_id=api_id,
@@ -64,25 +206,25 @@ class ApiCallService:
         return response, status
 
     def verify_api_key(self, api_key: str):
-        api_key_data = ApiKey.query.filter_by(api_key=api_key).first()
+        api_key_data = ApiKey.query.filter_by(key=api_key).first()
 
         if api_key_data is None:
             raise BadRequestError("Invalid API key")
 
-        if not api_key_data.active:
+        if api_key_data.status != "active":
             raise BadRequestError("API key is not active")
 
         return api_key_data.subscription_id
 
     def verify_subscription(self, subscription_id: int, api_id: int):
         subscription = ApiSubscription.query.filter_by(
-            subscription_id=subscription_id, api_id=api_id
+            id=subscription_id, api_id=api_id
         ).first()
 
         if subscription is None:
             raise BadRequestError("Invalid subscription")
 
-        if not subscription.active:
+        if subscription.status != "active":
             raise BadRequestError("Subscription is not active")
 
         expired = subscription.end_date < datetime.now()
@@ -130,9 +272,7 @@ class ApiCallService:
         return headers_dict
 
     def decrement_subscription_requests(self, subscription_id: int):
-        subscription = ApiSubscription.query.filter_by(
-            subscription_id=subscription_id
-        ).first()
+        subscription = ApiSubscription.query.filter_by(id=subscription_id).first()
 
         subscription.max_requests -= 1
 

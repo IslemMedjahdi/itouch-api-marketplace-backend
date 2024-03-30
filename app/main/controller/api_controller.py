@@ -22,6 +22,7 @@ api_version = ApiDto.api_version
 api_discussions = ApiDto.api_discussions
 api_subscription = ApiDto.api_subscription
 api_keys = ApiDto.api_keys
+api_calls = ApiDto.api_calls
 
 
 @api_category.route("/categories/create")
@@ -426,6 +427,47 @@ class TestEndpoint(Resource):
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params
+        )
+
+
+@api_calls.route("/call/<int:id>/<string:version>/<path:params>")
+class CallEndpoint(Resource):
+    @api_calls.doc("Call GET Endpoint")
+    def get(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_get(
+            api_id=id, version=version, params=params, api_key=api_key
+        )
+
+    @api_calls.doc("Call POST Endpoint")
+    def post(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_post(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call PATCH Endpoint")
+    def patch(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_patch(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call DELETE Endpoint")
+    def delete(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_delete(
+            api_id=id, version=version, params=params, api_key=api_key
         )
 
 

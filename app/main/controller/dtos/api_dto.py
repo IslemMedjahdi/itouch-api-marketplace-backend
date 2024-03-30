@@ -23,6 +23,8 @@ class ApiDto:
 
     api_keys = Namespace("Api Keys", description="api keys related operations")
 
+    api_calls = Namespace("Api Calls", description="api calls related operations")
+
     api_keys_list_response = api_keys.model(
         "api_keys_list_response",
         {
