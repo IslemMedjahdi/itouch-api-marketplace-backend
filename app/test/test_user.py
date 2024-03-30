@@ -107,6 +107,7 @@ def test_create_supplier(test_db):
         "lastname": "New supplier",
     }
     user_id = user_service.create_supplier(data)
+
     user = User.query.filter_by(id=user_id).first()
     assert user.email == data["email"]
     assert user.role == Role.SUPPLIER

@@ -20,6 +20,7 @@ def test_register(test_db):
         "lastname": "New User",
     }
     user_id = AuthService.register(data)
+
     user = User.query.filter_by(id=user_id).first()
     assert user.email == data["email"]
 

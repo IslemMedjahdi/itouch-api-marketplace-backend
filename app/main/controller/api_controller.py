@@ -576,3 +576,17 @@ class Votes(Resource):
             answer_id, top_g.user.get("id")
         )
         return Response(status=HTTPStatus.NO_CONTENT)
+
+    @api_discussions.doc(description="get user vote for answer")
+    @api_discussions.marshal_with(
+        ApiDto.user_vote_response, envelope="data", code=HTTPStatus.OK
+    )
+    @api_discussions.response(HTTPStatus.NOT_FOUND, "User haven't voted on this answer")
+    @require_authentication
+    def get(self, answer_id, **_):
+        return (
+            ServicesInitializer.a_discussion_service().get_user_vote(
+                answer_id, top_g.user.get("id")
+            ),
+            HTTPStatus.OK,
+        )
