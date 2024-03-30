@@ -188,6 +188,7 @@ class ApiCallService:
             api_id=api_id,
             user_id=user_id,
             api_key=api_key,
+            api_version=version,
             subscription_id=subscription_id,
             request_url=request_url,
             request_method=request_method,
