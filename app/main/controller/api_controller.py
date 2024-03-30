@@ -359,6 +359,45 @@ class CreateApiKey(Resource):
         return HTTPStatus.CREATED
 
 
+@api_keys.route("/api-keys/deactivate")
+class DeactivateApiKey(Resource):
+    @api_keys.doc("deactivate api key")
+    @api_keys.expect(ApiDto.deactivate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().deactivate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return HTTPStatus.OK
+
+
+@api_keys.route("/api-keys/activate")
+class ActivateApiKey(Resource):
+    @api_keys.doc("activate api key")
+    @api_keys.expect(ApiDto.activate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().activate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return HTTPStatus.OK
+
+
+@api_keys.route("/subscriptions/<int:id>/api-keys")
+class GetApiKeys(Resource):
+    @api_keys.doc("get api keys")
+    @api_keys.response(HTTPStatus.OK, "Success", ApiDto.api_keys_list_response)
+    @role_token_required([Role.USER])
+    def get(self, id):
+        return {
+            "data": ServicesInitializer.an_api_key_service().get_api_keys(
+                subscription_id=id, user_id=top_g.user.get("id")
+            )
+        }, HTTPStatus.OK
+
+
 @api_tests.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
     @api_tests.doc("test GET Endpoint")

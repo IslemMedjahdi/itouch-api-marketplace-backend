@@ -23,6 +23,25 @@ class ApiDto:
 
     api_keys = Namespace("Api Keys", description="api keys related operations")
 
+    api_keys_list_response = api_keys.model(
+        "api_keys_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api_keys.model(
+                        "api_keys_list_data",
+                        {
+                            "key": fields.String(),
+                            "subscription_id": fields.Integer(),
+                            "status": fields.String(),
+                            "created_at": fields.DateTime(),
+                        },
+                    )
+                )
+            ),
+        },
+    )
+
     create_category_request = api.model(
         "create_category_request",
         {
@@ -484,6 +503,24 @@ class ApiDto:
                         "total_pages": fields.Integer(),
                     },
                 )
+            ),
+        },
+    )
+
+    activate_api_key_request = api.model(
+        "activate_api_key_request",
+        {
+            "key": fields.String(
+                required=True,
+            ),
+        },
+    )
+
+    deactivate_api_key_request = api.model(
+        "deactivate_api_key_request",
+        {
+            "key": fields.String(
+                required=True,
             ),
         },
     )
