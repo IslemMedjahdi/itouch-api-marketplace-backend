@@ -22,6 +22,7 @@ api_version = ApiDto.api_version
 api_discussions = ApiDto.api_discussions
 api_subscription = ApiDto.api_subscription
 api_keys = ApiDto.api_keys
+api_calls = ApiDto.api_calls
 
 
 @api_category.route("/categories/create")
@@ -34,7 +35,7 @@ class CreateCategory(Resource):
         ServicesInitializer.an_api_category_service().create_category(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_category.route("/categories")
@@ -59,7 +60,7 @@ class CreateApi(Resource):
         ServicesInitializer.an_api_service().create_api(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api.route("/")
@@ -108,7 +109,7 @@ class UpdateApi(Resource):
         ServicesInitializer.an_api_service().update_api(
             id, top_g.user.get("id"), request.json
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>")
@@ -143,7 +144,7 @@ class ActivateApi(Resource):
         ServicesInitializer.an_api_service().activate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>/deactivate")
@@ -155,7 +156,7 @@ class DeactivateApi(Resource):
         ServicesInitializer.an_api_service().deactivate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/create")
@@ -168,7 +169,7 @@ class CreateVersion(Resource):
         ServicesInitializer.an_api_version_service().create_api_version(
             api_id=id, data=request.json, supplier_id=top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_version.route("/<int:id>/versions")
@@ -230,7 +231,7 @@ class ActivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/<string:version>/deactivate")
@@ -245,7 +246,7 @@ class DeactivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_subscription.route("/<int:id>/<string:plan_name>/chargily/checkout")
@@ -344,7 +345,7 @@ class ChargilyWebhook(Resource):
         ServicesInitializer.an_api_subscription_service().handle_chargily_webhook(
             request
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
@@ -356,7 +357,46 @@ class CreateApiKey(Resource):
         ServicesInitializer.an_api_key_service().create_api_key(
             subscription_id=id, user_id=top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
+
+
+@api_keys.route("/api-keys/deactivate")
+class DeactivateApiKey(Resource):
+    @api_keys.doc("deactivate api key")
+    @api_keys.expect(ApiDto.deactivate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().deactivate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return Response(status=HTTPStatus.OK)
+
+
+@api_keys.route("/api-keys/activate")
+class ActivateApiKey(Resource):
+    @api_keys.doc("activate api key")
+    @api_keys.expect(ApiDto.activate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().activate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return Response(status=HTTPStatus.OK)
+
+
+@api_keys.route("/subscriptions/<int:id>/api-keys")
+class GetApiKeys(Resource):
+    @api_keys.doc("get api keys")
+    @api_keys.response(HTTPStatus.OK, "Success", ApiDto.api_keys_list_response)
+    @role_token_required([Role.USER])
+    def get(self, id):
+        return {
+            "data": ServicesInitializer.an_api_key_service().get_api_keys(
+                subscription_id=id, user_id=top_g.user.get("id")
+            )
+        }, HTTPStatus.OK
 
 
 @api_tests.route("/test/<int:id>/<string:version>/<path:params>")
@@ -387,6 +427,47 @@ class TestEndpoint(Resource):
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params
+        )
+
+
+@api_calls.route("/call/<int:id>/<string:version>/<path:params>")
+class CallEndpoint(Resource):
+    @api_calls.doc("Call GET Endpoint")
+    def get(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_get(
+            api_id=id, version=version, params=params, api_key=api_key
+        )
+
+    @api_calls.doc("Call POST Endpoint")
+    def post(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_post(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call PATCH Endpoint")
+    def patch(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_patch(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call DELETE Endpoint")
+    def delete(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_delete(
+            api_id=id, version=version, params=params, api_key=api_key
         )
 
 

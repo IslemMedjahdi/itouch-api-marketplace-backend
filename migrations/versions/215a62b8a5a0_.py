@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 825cc061c303
+Revision ID: 215a62b8a5a0
 Revises: 
-Create Date: 2024-03-30 01:06:26.174199
+Create Date: 2024-03-30 03:55:09.274342
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '825cc061c303'
+revision = '215a62b8a5a0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -154,12 +154,14 @@ def upgrade():
     sa.Column('key', sa.String(), nullable=False),
     sa.Column('subscription_id', sa.Integer(), nullable=True),
     sa.Column('status', sa.String(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.ForeignKeyConstraint(['subscription_id'], ['api_subscription.id'], ),
     sa.PrimaryKeyConstraint('key')
     )
     op.create_table('api_request',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('api_id', sa.Integer(), nullable=True),
+    sa.Column('api_version', sa.String(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('api_key', sa.String(), nullable=True),
     sa.Column('subscription_id', sa.Integer(), nullable=True),
@@ -172,6 +174,7 @@ def upgrade():
     sa.Column('http_status', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['api_id'], ['api.id'], ),
     sa.ForeignKeyConstraint(['api_key'], ['api_key.key'], ),
+    sa.ForeignKeyConstraint(['api_version'], ['api_version.version'], ),
     sa.ForeignKeyConstraint(['subscription_id'], ['api_subscription.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
