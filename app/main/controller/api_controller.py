@@ -288,11 +288,54 @@ class GetSubscriptions(Resource):
             data,
             pagination,
         ) = ServicesInitializer.an_api_subscription_service().get_subscriptions(
-            request.args,
-            supplier_id=top_g.user.get("id"),
+            {**request.args, "supplier_id": top_g.user.get("id")},
             role=top_g.user.get("role"),
         )
         return {"data": data, "pagination": pagination}
+
+
+@api_subscription.route("/subscriptions/mine")
+class GetMySubscriptions(Resource):
+    @api_subscription.doc("get my subscriptions")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscriptions_list_response
+    )
+    @role_token_required([Role.USER])
+    @api_subscription.param("page", "The page number")
+    @api_subscription.param("per_page", "The per page number")
+    @api_subscription.param("api_id", "The API ID")
+    @api_subscription.param("plan_name", "The plan name")
+    @api_subscription.param("start_date", "The start date")
+    @api_subscription.param("end_date", "The end date")
+    @api_subscription.param("expired", "true or false")
+    @api_subscription.param("supplier_id", "The supplier ID")
+    def get(self):
+        (
+            data,
+            pagination,
+        ) = ServicesInitializer.an_api_subscription_service().get_subscriptions(
+            {
+                **request.args,
+                "user_id": top_g.user.get("id"),
+            },
+            role=top_g.user.get("role"),
+        )
+        return {"data": data, "pagination": pagination}
+
+
+@api_subscription.route("/subscriptions/<int:id>")
+class GetSubscription(Resource):
+    @api_subscription.doc("get subscription")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscription_info_response
+    )
+    @role_token_required([Role.SUPPLIER, Role.ADMIN, Role.USER])
+    def get(self, id):
+        return ServicesInitializer.an_api_subscription_service().get_subscription(
+            subscription_id=id,
+            user_id=top_g.user.get("id"),
+            role=top_g.user.get("role"),
+        )
 
 
 @api_subscription.route("/webhook/chargily")
