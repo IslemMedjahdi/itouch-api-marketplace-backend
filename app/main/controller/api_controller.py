@@ -1,4 +1,4 @@
-from flask import request, g as top_g
+from flask import request, g as top_g, Response
 from flask_restx import Resource
 
 from app.main.controller.dtos.api_dto import ApiDto
@@ -372,7 +372,7 @@ class DiscussionDetails(Resource):
     @check_delete_discussion_permission
     def delete(self, discussion_id, **_):
         ServicesInitializer.a_discussion_service().delete_discussion(discussion_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_discussions.route("/<int:api_id>/discussions/<int:discussion_id>/answers")
@@ -410,7 +410,7 @@ class AnswerDetails(Resource):
     @check_delete_answer_permission
     def delete(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().delete_answer(answer_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_discussions.route(
@@ -419,19 +419,19 @@ class AnswerDetails(Resource):
 class Votes(Resource):
     @api_discussions.doc("vote on an answer")
     @api_discussions.expect(ApiDto.create_vote_request, validate=True)
-    @api_discussions.response(HTTPStatus.OK, "Success")
+    @api_discussions.response(HTTPStatus.NO_CONTENT, "Success")
     @require_authentication
     def post(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().vote_on_answer(
             answer_id, top_g.user.get("id"), api_discussions.payload["vote"]
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.NO_CONTENT)
 
     @api_discussions.doc("remove vote from an answer")
-    @api_discussions.response(HTTPStatus.OK, "Success")
+    @api_discussions.response(HTTPStatus.NO_CONTENT, "Success")
     @require_authentication
     def delete(self, answer_id, **_):
-        ServicesInitializer.a_discussion_service().vote_on_answer(
-            answer_id, top_g.user.get("id"), None
+        ServicesInitializer.a_discussion_service().remove_vote(
+            answer_id, top_g.user.get("id")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.NO_CONTENT)
