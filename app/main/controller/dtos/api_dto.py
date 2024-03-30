@@ -621,3 +621,12 @@ class ApiDto:
             ),
         },
     )
+
+    user_vote_response = api.model(
+        "user vote response",
+        {
+            "user_id": fields.Integer(),
+            "answer_id": fields.Integer(),
+            "vote": fields.String(),
+        },
+    )
