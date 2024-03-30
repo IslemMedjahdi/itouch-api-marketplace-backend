@@ -91,12 +91,7 @@ class ApiService:
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
         status = query_params.get("status", None)
-        category_ids = query_params.get("categoryIds", [])
-        if isinstance(category_ids, str):
-            category_ids = category_ids.strip("[]").split(",")
-            category_ids = [
-                int(category_id) for category_id in category_ids if category_id.strip()
-            ]
+        category_ids = query_params.get("categoryIds", None)
         supplier_id = query_params.get("supplierId", None)
 
         query = (
@@ -109,6 +104,7 @@ class ApiService:
             query = query.filter(ApiModel.status == status)
 
         if category_ids:
+            category_ids = [int(category_id) for category_id in category_ids.split(",")]
             query = query.filter(ApiModel.category_id.in_(category_ids))
 
         if supplier_id is not None:
@@ -203,6 +199,7 @@ class ApiService:
             "id": api.id,
             "name": api.name,
             "description": api.description,
+            "status": api.status,
             "category_id": api.category_id,
             "category": {
                 "id": category.id,

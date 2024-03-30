@@ -56,3 +56,18 @@ class ServicesInitializer:
         )
 
         return ApiSubscriptionService(chargily_api=ChargilyApiImpl(RestClientImpl()))
+<<<<<<< HEAD
+=======
+
+    @staticmethod
+    def an_api_key_service():
+        from app.main.core.services.api_key_service import ApiKeyService
+
+        return ApiKeyService()
+
+    @staticmethod
+    def an_api_call_service():
+        from app.main.core.services.api_call_service import ApiCallService
+
+        return ApiCallService(rest_client=RestClientImpl())
+>>>>>>> b0c2e2bddd54d084e09bba3a8aae1af4cc464f3b

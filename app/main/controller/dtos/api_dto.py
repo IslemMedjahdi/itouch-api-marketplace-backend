@@ -21,6 +21,29 @@ class ApiDto:
         "Api Subscription", description="api subscription related operations"
     )
 
+    api_keys = Namespace("Api Keys", description="api keys related operations")
+
+    api_calls = Namespace("Api Calls", description="api calls related operations")
+
+    api_keys_list_response = api_keys.model(
+        "api_keys_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api_keys.model(
+                        "api_keys_list_data",
+                        {
+                            "key": fields.String(),
+                            "subscription_id": fields.Integer(),
+                            "status": fields.String(),
+                            "created_at": fields.DateTime(),
+                        },
+                    )
+                )
+            ),
+        },
+    )
+
     create_category_request = api.model(
         "create_category_request",
         {
@@ -387,6 +410,49 @@ class ApiDto:
         },
     )
 
+    subscription_info_response = api.model(
+        "subscription_info",
+        {
+            "data": fields.Nested(
+                api.model(
+                    "subscription_info_data",
+                    {
+                        "id": fields.Integer(),
+                        "api_id": fields.Integer(),
+                        "api": fields.Nested(
+                            api.model(
+                                "subscription_api_info_data",
+                                {
+                                    "id": fields.Integer(),
+                                    "name": fields.String(),
+                                    "supplier_id": fields.Integer(),
+                                },
+                            )
+                        ),
+                        "api_plan": fields.String(),
+                        "user_id": fields.Integer(),
+                        "user": fields.Nested(
+                            api.model(
+                                "api_user_info_data",
+                                {
+                                    "id": fields.Integer(),
+                                    "firstname": fields.String(),
+                                    "lastname": fields.String(),
+                                },
+                            )
+                        ),
+                        "start_date": fields.DateTime(),
+                        "end_date": fields.DateTime(),
+                        "remaining_requests": fields.Integer(),
+                        "status": fields.String(),
+                        "expired": fields.Boolean(),
+                        "price": fields.Float(),
+                    },
+                )
+            ),
+        },
+    )
+
     subscriptions_list_response = api.model(
         "subscriptions_list_response",
         {
@@ -399,7 +465,7 @@ class ApiDto:
                             "api_id": fields.Integer(),
                             "api": fields.Nested(
                                 api.model(
-                                    "api_info_data",
+                                    "subscription_api_info_data",
                                     {
                                         "id": fields.Integer(),
                                         "name": fields.String(),
@@ -411,7 +477,7 @@ class ApiDto:
                             "user_id": fields.Integer(),
                             "user": fields.Nested(
                                 api.model(
-                                    "user_info_data",
+                                    "api_user_info_data",
                                     {
                                         "id": fields.Integer(),
                                         "firstname": fields.String(),
@@ -442,6 +508,24 @@ class ApiDto:
             ),
         },
     )
+
+    activate_api_key_request = api.model(
+        "activate_api_key_request",
+        {
+            "key": fields.String(
+                required=True,
+            ),
+        },
+    )
+
+    deactivate_api_key_request = api.model(
+        "deactivate_api_key_request",
+        {
+            "key": fields.String(
+                required=True,
+            ),
+        },
+    )
     # ------------------- UN REFACTORED -------------------
 
     discussions_response = api.model(
@@ -453,7 +537,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the discussion",
-                model=UserDto.user_info_response,
+                model=UserDto.nested_user_info_response,
             ),
             "created_at": fields.DateTime(
                 description="The date and time when the discussion was created"
@@ -485,7 +569,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the answer",
-                model=UserDto.user_info_response,
+                model=UserDto.nested_user_info_response,
             ),
             "answer": fields.String(description="The answer of the discussion"),
             "created_at": fields.DateTime(
@@ -508,7 +592,7 @@ class ApiDto:
             ),
             "user": fields.Nested(
                 description="The user who created the answer",
-                model=UserDto.user_info_response,
+                model=UserDto.nested_user_info_response,
             ),
             "created_at": fields.DateTime(
                 description="The date and time when the discussion was created"

@@ -1,4 +1,4 @@
-from flask import request
+from flask import request, Response
 from flask_restx import Resource
 
 from app.main.controller.dtos.user_dto import UserDto
@@ -46,7 +46,7 @@ class SuspendUser(Resource):
     @role_token_required([Role.ADMIN])
     def patch(self, user_id: int):
         ServicesInitializer.a_user_service().suspend_user(user_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:user_id>/activate")
@@ -56,7 +56,7 @@ class ActivateUser(Resource):
     @role_token_required([Role.ADMIN])
     def patch(self, user_id: int):
         ServicesInitializer.a_user_service().activate_user(user_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/suppliers")
@@ -67,4 +67,4 @@ class NewSupplier(Resource):
     @role_token_required([Role.ADMIN])
     def post(self):
         ServicesInitializer.a_user_service().create_supplier(request.json)
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)

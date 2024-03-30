@@ -1,4 +1,4 @@
-from flask import request, g as top_g
+from flask import request, g as top_g, Response
 from flask_restx import Resource
 
 
@@ -32,7 +32,7 @@ class UserRegister(Resource):
     @api.response(HTTPStatus.CREATED, "Success", AuthDto.user_register_request)
     def post(self):
         ServicesInitializer.an_auth_service().register(request.json)
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api.route("/me")
@@ -53,4 +53,4 @@ class UserInfo(Resource):
         ServicesInitializer.a_user_service().edit_user(
             top_g.user.get("id"), request.json
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)

@@ -27,6 +27,21 @@ class UserDto:
             ),
         },
     )
+    # dont touch it
+    nested_user_info_response = api.model(
+        "single_user_info",
+        {
+            "id": fields.Integer(),
+            "email": fields.String(),
+            "role": fields.String(),
+            "firstname": fields.String(),
+            "lastname": fields.String(),
+            "status": fields.String(),
+            "created_at": fields.DateTime(),
+            "updated_at": fields.DateTime(),
+            "avatar": fields.String(nullable=True),
+        },
+    )
 
     users_list_response = api.model(
         "users_list_response",

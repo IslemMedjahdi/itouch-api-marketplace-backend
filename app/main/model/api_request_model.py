@@ -7,6 +7,10 @@ class ApiRequest(db.Model):  # type: ignore
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     api_id = db.Column(db.Integer, db.ForeignKey("api.id"))
+    api_version = db.Column(
+        db.String,
+        db.ForeignKey("api_version.version"),
+    )
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     api_key = db.Column(db.String, db.ForeignKey("api_key.key"))
     subscription_id = db.Column(db.Integer, db.ForeignKey("api_subscription.id"))
