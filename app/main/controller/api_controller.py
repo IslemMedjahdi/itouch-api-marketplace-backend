@@ -35,7 +35,7 @@ class CreateCategory(Resource):
         ServicesInitializer.an_api_category_service().create_category(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_category.route("/categories")
@@ -60,7 +60,7 @@ class CreateApi(Resource):
         ServicesInitializer.an_api_service().create_api(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api.route("/")
@@ -109,7 +109,7 @@ class UpdateApi(Resource):
         ServicesInitializer.an_api_service().update_api(
             id, top_g.user.get("id"), request.json
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>")
@@ -144,7 +144,7 @@ class ActivateApi(Resource):
         ServicesInitializer.an_api_service().activate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>/deactivate")
@@ -156,7 +156,7 @@ class DeactivateApi(Resource):
         ServicesInitializer.an_api_service().deactivate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/create")
@@ -169,7 +169,7 @@ class CreateVersion(Resource):
         ServicesInitializer.an_api_version_service().create_api_version(
             api_id=id, data=request.json, supplier_id=top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_version.route("/<int:id>/versions")
@@ -231,7 +231,7 @@ class ActivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/<string:version>/deactivate")
@@ -246,7 +246,7 @@ class DeactivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_subscription.route("/<int:id>/<string:plan_name>/chargily/checkout")
@@ -345,7 +345,7 @@ class ChargilyWebhook(Resource):
         ServicesInitializer.an_api_subscription_service().handle_chargily_webhook(
             request
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
@@ -357,7 +357,7 @@ class CreateApiKey(Resource):
         ServicesInitializer.an_api_key_service().create_api_key(
             subscription_id=id, user_id=top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_keys.route("/api-keys/deactivate")
@@ -370,7 +370,7 @@ class DeactivateApiKey(Resource):
         ServicesInitializer.an_api_key_service().deactivate_api_key(
             user_id=top_g.user.get("id"), key=api_keys.payload["key"]
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_keys.route("/api-keys/activate")
@@ -383,7 +383,7 @@ class ActivateApiKey(Resource):
         ServicesInitializer.an_api_key_service().activate_api_key(
             user_id=top_g.user.get("id"), key=api_keys.payload["key"]
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_keys.route("/subscriptions/<int:id>/api-keys")
