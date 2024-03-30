@@ -82,7 +82,6 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "active"
-        # user.save()
         db.session.commit()
 
     def suspend_user(self, user_id: int):
@@ -92,7 +91,6 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "suspended"
-        # user.save()
         db.session.commit()
 
     def create_supplier(self, data: Dict) -> int:
