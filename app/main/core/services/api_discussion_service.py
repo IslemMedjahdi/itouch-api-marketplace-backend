@@ -105,3 +105,16 @@ class ApiDiscussionService:
         db.session.delete(vote)
         db.session.commit()
         return
+
+    def get_user_vote(self, answer_id: int, user_id: int) -> AnswerVote:
+        if DiscussionAnswer.query.filter_by(id=answer_id).first() is None:
+            raise NotFoundError("No answer found with id: {}".format(answer_id))
+
+        vote = AnswerVote.query.filter_by(answer_id=answer_id, user_id=user_id).first()
+        if not vote:
+            raise NotFoundError(
+                "No vote found for user_id: {} and answer_id: {}".format(
+                    user_id, answer_id
+                )
+            )
+        return vote
