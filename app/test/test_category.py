@@ -1,12 +1,9 @@
-# import pytest
-from app.main.core import ServicesInitializer
 from app.main.model.api_category_model import ApiCategory
 from .fixtures.category.add_category import add_category
+from app.main.core.services.api_category_service import ApiCategoryService
 
 
-# from app.main.utils.exceptions import NotFoundError
-
-ApiCategoryService = ServicesInitializer.an_api_category_service()
+ApiCategoryService = ApiCategoryService()
 
 
 def test_get_all_categories(test_db):

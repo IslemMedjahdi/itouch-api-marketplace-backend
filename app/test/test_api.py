@@ -35,7 +35,13 @@ def api_service(test_db, test_category):
     mock_chargily_api = Mock()
     mock_chargily_api.create_product.return_value = "product_id"
     mock_chargily_api.create_price.side_effect = ["price_id_1", "price_id_2"]
-    return ApiService(media_manager=MediaManagerImpl(), chargily_api=mock_chargily_api)
+
+    mock_media_manager = Mock(spec=MediaManagerImpl)
+    mock_media_manager.get_media_url_by_id.side_effect = (
+        lambda media_id: f"https://example.com/media_{media_id}.jpg"
+    )
+
+    return ApiService(media_manager=mock_media_manager, chargily_api=mock_chargily_api)
 
 
 def test_create_api(api_service, test_category):
