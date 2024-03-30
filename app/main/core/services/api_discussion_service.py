@@ -88,7 +88,7 @@ class ApiDiscussionService:
             db.session.commit()
             return
 
-        vote = AnswerVote(self, answer_id=answer_id, user_id=user_id, vote=vote)
+        vote = AnswerVote(answer_id=answer_id, user_id=user_id, vote=vote)
         db.session.add(vote)
         db.session.commit()
         return
