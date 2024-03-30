@@ -1,4 +1,4 @@
-from flask import request, g as top_g
+from flask import request, g as top_g, Response
 from flask_restx import Resource
 
 from app.main.controller.dtos.api_dto import ApiDto
@@ -21,6 +21,8 @@ api_tests = ApiDto.api_tests
 api_version = ApiDto.api_version
 api_discussions = ApiDto.api_discussions
 api_subscription = ApiDto.api_subscription
+api_keys = ApiDto.api_keys
+api_calls = ApiDto.api_calls
 
 
 @api_category.route("/categories/create")
@@ -33,7 +35,7 @@ class CreateCategory(Resource):
         ServicesInitializer.an_api_category_service().create_category(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_category.route("/categories")
@@ -58,7 +60,7 @@ class CreateApi(Resource):
         ServicesInitializer.an_api_service().create_api(
             request.json, top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api.route("/")
@@ -107,7 +109,7 @@ class UpdateApi(Resource):
         ServicesInitializer.an_api_service().update_api(
             id, top_g.user.get("id"), request.json
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>")
@@ -142,7 +144,7 @@ class ActivateApi(Resource):
         ServicesInitializer.an_api_service().activate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api.route("/<int:id>/deactivate")
@@ -154,7 +156,7 @@ class DeactivateApi(Resource):
         ServicesInitializer.an_api_service().deactivate_api(
             api_id=id, user_id=top_g.user.get("id"), role=top_g.user.get("role")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/create")
@@ -167,7 +169,7 @@ class CreateVersion(Resource):
         ServicesInitializer.an_api_version_service().create_api_version(
             api_id=id, data=request.json, supplier_id=top_g.user.get("id")
         )
-        return HTTPStatus.CREATED
+        return Response(status=HTTPStatus.CREATED)
 
 
 @api_version.route("/<int:id>/versions")
@@ -200,7 +202,7 @@ class GetVersion(Resource):
 
 @api_version.route("/mine/<int:id>/versions/<string:version>")
 class GetMyApiVersion(Resource):
-    @api_version.doc("get version")
+    @api_version.doc("get my version")
     @api_version.response(
         HTTPStatus.OK, "Success", ApiDto.full_api_version_info_response
     )
@@ -229,7 +231,7 @@ class ActivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_version.route("/<int:id>/versions/<string:version>/deactivate")
@@ -244,7 +246,7 @@ class DeactivateVersion(Resource):
             supplier_id=top_g.user.get("id"),
             role=top_g.user.get("role"),
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_subscription.route("/<int:id>/<string:plan_name>/chargily/checkout")
@@ -300,33 +302,129 @@ class ChargilyWebhook(Resource):
         ServicesInitializer.an_api_subscription_service().handle_chargily_webhook(
             request
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
+
+
+@api_keys.route("/subscriptions/<int:id>/api-keys/create")
+class CreateApiKey(Resource):
+    @api_keys.doc("create api key")
+    @api_keys.response(HTTPStatus.CREATED, "Success")
+    @role_token_required([Role.USER])
+    def post(self, id):
+        ServicesInitializer.an_api_key_service().create_api_key(
+            subscription_id=id, user_id=top_g.user.get("id")
+        )
+        return Response(status=HTTPStatus.CREATED)
+
+
+@api_keys.route("/api-keys/deactivate")
+class DeactivateApiKey(Resource):
+    @api_keys.doc("deactivate api key")
+    @api_keys.expect(ApiDto.deactivate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().deactivate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return Response(status=HTTPStatus.OK)
+
+
+@api_keys.route("/api-keys/activate")
+class ActivateApiKey(Resource):
+    @api_keys.doc("activate api key")
+    @api_keys.expect(ApiDto.activate_api_key_request, validate=True)
+    @api_keys.response(HTTPStatus.OK, "Success")
+    @role_token_required([Role.USER])
+    def patch(self):
+        ServicesInitializer.an_api_key_service().activate_api_key(
+            user_id=top_g.user.get("id"), key=api_keys.payload["key"]
+        )
+        return Response(status=HTTPStatus.OK)
+
+
+@api_keys.route("/subscriptions/<int:id>/api-keys")
+class GetApiKeys(Resource):
+    @api_keys.doc("get api keys")
+    @api_keys.response(HTTPStatus.OK, "Success", ApiDto.api_keys_list_response)
+    @role_token_required([Role.USER])
+    def get(self, id):
+        return {
+            "data": ServicesInitializer.an_api_key_service().get_api_keys(
+                subscription_id=id, user_id=top_g.user.get("id")
+            )
+        }, HTTPStatus.OK
 
 
 @api_tests.route("/test/<int:id>/<string:version>/<path:params>")
 class TestEndpoint(Resource):
     @api_tests.doc("test GET Endpoint")
+    @require_authentication
     def get(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_get(
             api_id=id, version=version, params=params
         )
 
     @api_tests.doc("test POST Endpoint")
+    @require_authentication
     def post(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_post(
             api_id=id, version=version, params=params, data=api_tests.payload
         )
 
     @api_tests.doc("Test PATCH Endpoint")
+    @require_authentication
     def patch(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_patch(
             api_id=id, version=version, params=params, data=api_tests.payload
         )
 
     @api_tests.doc("Test DELETE Endpoint")
+    @require_authentication
     def delete(self, id, version, params):
         return ServicesInitializer.an_api_tests_service().test_delete(
             api_id=id, version=version, params=params
+        )
+
+
+@api_calls.route("/call/<int:id>/<string:version>/<path:params>")
+class CallEndpoint(Resource):
+    @api_calls.doc("Call GET Endpoint")
+    def get(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_get(
+            api_id=id, version=version, params=params, api_key=api_key
+        )
+
+    @api_calls.doc("Call POST Endpoint")
+    def post(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_post(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call PATCH Endpoint")
+    def patch(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_patch(
+            api_id=id,
+            version=version,
+            params=params,
+            data=api_calls.payload,
+            api_key=api_key,
+            body=api_calls.payload,
+        )
+
+    @api_calls.doc("Call DELETE Endpoint")
+    def delete(self, id, version, params=""):
+        api_key = request.headers.get("X-itouch-key")
+        return ServicesInitializer.an_api_call_service().call_delete(
+            api_id=id, version=version, params=params, api_key=api_key
         )
 
 
@@ -372,7 +470,7 @@ class DiscussionDetails(Resource):
     @check_delete_discussion_permission
     def delete(self, discussion_id, **_):
         ServicesInitializer.a_discussion_service().delete_discussion(discussion_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_discussions.route("/<int:api_id>/discussions/<int:discussion_id>/answers")
@@ -410,7 +508,7 @@ class AnswerDetails(Resource):
     @check_delete_answer_permission
     def delete(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().delete_answer(answer_id)
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.OK)
 
 
 @api_discussions.route(
@@ -419,19 +517,19 @@ class AnswerDetails(Resource):
 class Votes(Resource):
     @api_discussions.doc("vote on an answer")
     @api_discussions.expect(ApiDto.create_vote_request, validate=True)
-    @api_discussions.response(HTTPStatus.OK, "Success")
+    @api_discussions.response(HTTPStatus.NO_CONTENT, "Success")
     @require_authentication
     def post(self, answer_id, **_):
         ServicesInitializer.a_discussion_service().vote_on_answer(
             answer_id, top_g.user.get("id"), api_discussions.payload["vote"]
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.NO_CONTENT)
 
     @api_discussions.doc("remove vote from an answer")
-    @api_discussions.response(HTTPStatus.OK, "Success")
+    @api_discussions.response(HTTPStatus.NO_CONTENT, "Success")
     @require_authentication
     def delete(self, answer_id, **_):
-        ServicesInitializer.a_discussion_service().vote_on_answer(
-            answer_id, top_g.user.get("id"), None
+        ServicesInitializer.a_discussion_service().remove_vote(
+            answer_id, top_g.user.get("id")
         )
-        return HTTPStatus.OK
+        return Response(status=HTTPStatus.NO_CONTENT)
