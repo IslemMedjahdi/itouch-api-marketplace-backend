@@ -73,18 +73,6 @@ def test_invalid_token(app):
 
 
 def test_valid_token_allowed_role_but_inactive_user(app, setup_test_user_id, test_db):
-    # Modify the setup to set up a user with inactive status
-    # password = fake.password()
-    # new_user = add_user(
-    #     db=test_db,
-    #     email="New_user@gmail.com",
-    #     firstname="New User",
-    #     lastname="New User",
-    #     password=password,
-    # )
-    # new_user.status = "suspended"
-    # new_user.role = Role.ADMIN
-    # new_user.commit
     suspend_user(test_db, setup_test_user_id)
     auth_token = User.encode_auth_token(setup_test_user_id)
 
@@ -95,5 +83,18 @@ def test_valid_token_allowed_role_but_inactive_user(app, setup_test_user_id, tes
             pass
 
         # Expect BadRequestError to be raised due to inactive user
+        with pytest.raises(BadRequestError):
+            view_function()
+
+
+def test_user_does_not_exist(app):
+    user_id = 99999
+    auth_token = User.encode_auth_token(user_id)
+    with app.test_request_context(headers={"Authorization": auth_token}):
+
+        @role_token_required(allowed_roles=[Role.ADMIN])
+        def view_function():
+            pass
+
         with pytest.raises(BadRequestError):
             view_function()
