@@ -101,7 +101,7 @@ class ApiSubscriptionService:
             db.session.add(subscription)
             db.session.commit()
 
-    def get_subscriptions(self, query_params: Dict, supplier_id: str, role: str):
+    def get_subscriptions(self, query_params: Dict, role: str):
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
         api_id = query_params.get("api_id")
@@ -110,6 +110,7 @@ class ApiSubscriptionService:
         start_date = query_params.get("start_date")
         end_date = query_params.get("end_date")
         expired = query_params.get("expired")
+        supplier_id = query_params.get("supplier_id")
 
         query = (
             db.session.query(ApiSubscription, ApiModel, User)
@@ -142,6 +143,8 @@ class ApiSubscriptionService:
                 query = query.filter(ApiSubscription.end_date >= datetime.now())
 
         if role == Role.SUPPLIER:
+            if supplier_id is None:
+                raise BadRequestError("Supplier ID is required for supplier role")
             query = query.filter(ApiModel.supplier_id == supplier_id)
 
         query = query.limit(per_page).offset((page - 1) * per_page)
@@ -178,4 +181,50 @@ class ApiSubscriptionService:
             "per_page": per_page,
             "total": total,
             "total_pages": total_pages,
+        }
+
+    def get_subscription(self, subscription_id: str, user_id: str, role: str):
+        query = (
+            db.session.query(ApiSubscription, ApiModel, User)
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .join(
+                User,
+                ApiSubscription.user_id == User.id,
+            )
+        )
+
+        query = query.filter(ApiSubscription.id == subscription_id)
+
+        item = query.first()
+
+        if item is None:
+            raise NotFoundError(f"No subscription found with id: {subscription_id}")
+
+        if role == Role.SUPPLIER and item.ApiModel.supplier_id != user_id:
+            raise BadRequestError("You are not allowed to view this subscription")
+
+        if role == Role.USER and item.User.id != user_id:
+            raise BadRequestError("You are not allowed to view this subscription")
+
+        return {
+            "id": item.ApiSubscription.id,
+            "api_id": item.ApiModel.id,
+            "api": {
+                "id": item.ApiModel.id,
+                "name": item.ApiModel.name,
+                "supplier_id": item.ApiModel.supplier_id,
+            },
+            "api_plan": item.ApiSubscription.plan_name,
+            "user_id": item.User.id,
+            "user": {
+                "id": item.User.id,
+                "firstname": item.User.firstname,
+                "lastname": item.User.lastname,
+            },
+            "start_date": item.ApiSubscription.start_date.isoformat(),
+            "end_date": item.ApiSubscription.end_date.isoformat(),
+            "remaining_requests": item.ApiSubscription.max_requests,
+            "status": item.ApiSubscription.status,
+            "expired": item.ApiSubscription.end_date < datetime.now(),
+            "price": item.ApiSubscription.price,
         }

@@ -38,7 +38,7 @@ class UserService:
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
         status = query_params.get("status", None)
-        roles = query_params.get("role", None)
+        roles = query_params.get("roles", None)
 
         query = User.query
 
@@ -46,6 +46,7 @@ class UserService:
             query = query.filter_by(status=status)
 
         if roles:
+            roles = roles.split(",")
             query = query.filter(User.role.in_(roles))
 
         users = query.paginate(page=page, per_page=per_page, error_out=False)
@@ -82,7 +83,6 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "active"
-        # user.save()
         db.session.commit()
 
     def suspend_user(self, user_id: int):
@@ -92,7 +92,6 @@ class UserService:
             raise NotFoundError("User does not exist")
 
         user.status = "suspended"
-        # user.save()
         db.session.commit()
 
     def create_supplier(self, data: Dict) -> int:

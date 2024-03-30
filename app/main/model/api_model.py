@@ -16,7 +16,7 @@ class ApiModel(db.Model):  # type: ignore
     updated_at = db.Column(
         db.DateTime(), server_default=db.func.now(), server_onupdate=db.func.now()
     )
-    status = db.Column(db.String(255), nullable=False, default="pending")
+    status = db.Column(db.String(255), nullable=False, default="active")
     chargily_product_id = db.Column(db.String(255), nullable=True)
 
     def __repr__(self):
