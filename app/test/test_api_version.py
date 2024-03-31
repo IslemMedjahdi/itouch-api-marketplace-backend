@@ -5,6 +5,7 @@ from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
 from app.main.model.user_model import User
 from app.main.model.api_version_model import ApiVersion
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
 from app.main.utils.roles import Role
 from app.main.core.services.api_version_service import ApiVersionService
 from faker import Faker
@@ -54,9 +55,37 @@ def mock_data(test_db):
     )
     test_db.session.add_all([api_version1, api_version2])
     test_db.session.commit()
-    yield supplier, category, api, [api_version1, api_version2]
+    endpoint1 = ApiVersionEndpoint(
+        api_id=api.id,
+        version=api_version1.version,
+        endpoint="/users",
+        method="GET",
+        description="Get users",
+        request_body="",
+        response_body="",
+    )
+    endpoint2 = ApiVersionEndpoint(
+        api_id=api.id,
+        version=api_version1.version,
+        endpoint="/users/{id}",
+        method="GET",
+        description="Get a user",
+        request_body="",
+        response_body="",
+    )
+    test_db.session.add_all([endpoint1, endpoint2])
+    test_db.session.commit()
+    yield supplier, category, api, [api_version1, api_version2], [endpoint1, endpoint2]
 
-    objects_to_delete = [supplier, category, api, api_version1, api_version2]
+    objects_to_delete = [
+        supplier,
+        category,
+        api,
+        api_version1,
+        api_version2,
+        endpoint1,
+        endpoint2,
+    ]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
     test_db.session.commit()
@@ -152,3 +181,38 @@ def test_create_api_version_already_exists(test_db, mock_data):
 
     with pytest.raises(BadRequestError, match=r"API version already exists"):
         api_version_service.create_api_version(api.id, supplier.id, data)
+
+
+def test_get_api_version(mock_data):
+    api, versions, endpoints = (mock_data[2], mock_data[3], mock_data[4])
+    api_version = versions[0]
+    expected_result = {
+        "version": api_version.version,
+        "status": api_version.status,
+        "created_at": api_version.created_at.isoformat(),
+        "updated_at": api_version.updated_at.isoformat(),
+        "api": {"id": api.id, "name": api.name},
+        "endpoints": [
+            {
+                "url": endpoint.endpoint,
+                "method": endpoint.method,
+                "description": endpoint.description,
+                "request_body": endpoint.request_body,
+                "response_body": endpoint.response_body,
+            }
+            for endpoint in endpoints
+        ],
+    }
+
+    result = api_version_service.get_api_version(api.id, api_version.version)
+    assert result == expected_result
+
+
+def test_get_api_version_not_found(mock_data):
+    api = mock_data[2]
+
+    with pytest.raises(
+        NotFoundError,
+        match=r"No API version found with id: \d+ and version: \d+\.\d+\.\d+",
+    ):
+        api_version_service.get_api_version(api.id, "10.0.0")
