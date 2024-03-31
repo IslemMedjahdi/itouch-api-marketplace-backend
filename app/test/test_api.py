@@ -1,13 +1,12 @@
 import pytest
-
-# import unittest
 from unittest.mock import Mock
-
-# from app.main.core import ServicesInitializer
 from app.main.model.api_category_model import ApiCategory
+from app.main.model.api_model import ApiModel
+from app.main.model.user_model import User
 
-# from app.main.model.api_model import ApiModel
-# from .fixtures.category.add_category import add_category
+# from .fixtures.user.add_user import add_user
+from faker import Faker
+from app.main.utils.roles import Role
 from app.main.core.services.api_service import ApiService
 from app.main.core.lib.impl.media_manager_impl import MediaManagerImpl
 from app.main.utils.exceptions import BadRequestError
@@ -15,7 +14,7 @@ from app.main.utils.exceptions import BadRequestError
 
 from app.main.utils.exceptions import NotFoundError
 
-# ApiService = ServicesInitializer.an_api_service()
+fake = Faker()
 
 
 @pytest.fixture(scope="module")
@@ -42,6 +41,148 @@ def api_service(test_db, test_category):
     )
 
     return ApiService(media_manager=mock_media_manager, chargily_api=mock_chargily_api)
+
+
+@pytest.fixture
+def mock_data(test_db):
+    password1 = fake.password()
+    supplier1 = User(
+        email="supplier1@gmail.com",
+        firstname="supplier1",
+        lastname="supplier1",
+        password=password1,
+        role=Role.SUPPLIER,
+    )
+    password2 = fake.password()
+    supplier2 = User(
+        email="supplier2@gmail.com",
+        firstname="supplier2",
+        lastname="supplier2",
+        password=password2,
+        role=Role.SUPPLIER,
+    )
+    category1 = ApiCategory(
+        name="Test category1", description="Test category1 Description", created_by=1
+    )
+    category2 = ApiCategory(
+        name="Test category2", description="Test category2 Description", created_by=1
+    )
+    category3 = ApiCategory(
+        name="Test category3", description="Test category3 Description", created_by=1
+    )
+    test_db.session.add_all([supplier1, supplier2, category1, category2, category3])
+    test_db.session.commit()
+
+    api1 = ApiModel(
+        name="API 1",
+        description="API 1 Description",
+        supplier_id=supplier1.id,
+        category_id=category1.id,
+        status="active",
+    )
+    api2 = ApiModel(
+        name="API 2",
+        description="API 2 Description",
+        supplier_id=supplier2.id,
+        category_id=category2.id,
+        status="inactive",
+    )
+    api3 = ApiModel(
+        name="API 3",
+        description="API 3 Description",
+        supplier_id=supplier1.id,
+        category_id=category3.id,
+        status="active",
+    )
+    test_db.session.add_all([api1, api2, api3])
+    test_db.session.commit()
+
+    yield supplier1, supplier2, category1, category2, category3, api1, api2, api3
+
+    objects_to_delete = [
+        supplier1,
+        supplier2,
+        category1,
+        category2,
+        category3,
+        api1,
+        api2,
+        api3,
+    ]
+    for obj in objects_to_delete:
+        test_db.session.delete(obj)
+    test_db.session.commit()
+
+
+def test_get_apis_default(api_service, mock_data):
+    supplier1, supplier2, category1, category2, category3, api1, api2, api3 = mock_data
+    expected_result = [
+        {
+            "id": api1.id,
+            "name": api1.name,
+            "description": api1.description,
+            "category_id": api1.category_id,
+            "category": {"id": category1.id, "name": category1.name},
+            "supplier_id": api1.supplier_id,
+            "supplier": {
+                "id": supplier1.id,
+                "firstname": supplier1.firstname,
+                "lastname": supplier1.lastname,
+            },  # Update supplier details
+            "status": api1.status,
+            "created_at": api1.created_at.isoformat(),
+            "updated_at": api1.updated_at.isoformat(),
+            "image": f"https://example.com/media_{api1.id}.jpg",
+        },
+        {
+            "id": api2.id,
+            "name": api2.name,
+            "description": api2.description,
+            "category_id": api2.category_id,
+            "category": {"id": category2.id, "name": category2.name},
+            "supplier_id": api2.supplier_id,
+            "supplier": {
+                "id": supplier2.id,
+                "firstname": supplier2.firstname,
+                "lastname": supplier2.lastname,
+            },
+            "status": api2.status,
+            "created_at": api2.created_at.isoformat(),
+            "updated_at": api2.updated_at.isoformat(),
+            "image": f"https://example.com/media_{api2.id}.jpg",
+        },
+        {
+            "id": api3.id,
+            "name": api3.name,
+            "description": api3.description,
+            "category_id": api3.category_id,
+            "category": {
+                "id": category3.id,
+                "name": category3.name,
+            },  # Update category details
+            "supplier_id": api3.supplier_id,
+            "supplier": {
+                "id": supplier1.id,
+                "firstname": supplier1.firstname,
+                "lastname": supplier1.lastname,
+            },
+            "status": api3.status,
+            "created_at": api3.created_at.isoformat(),
+            "updated_at": api3.updated_at.isoformat(),
+            "image": f"https://example.com/media_{api3.id}.jpg",
+        },
+    ]
+    expected_pagination = {
+        "total": 3,
+        "page": 1,
+        "per_page": 10,
+        "pages": 1,
+    }  # Update total and pages
+
+    result, pagination = api_service.get_apis({})
+
+    assert result == expected_result
+    assert pagination == expected_pagination
 
 
 def test_create_api(api_service, test_category):
@@ -248,3 +389,37 @@ def test_create_api_chargily_price_creation_failed(
         BadRequestError, match=r"Failed to create price in chargily API"
     ):
         api_service.create_api(data, user_id)
+
+
+def test_get_apis_with_filter(api_service, mock_data):
+    supplier1, supplier2, category1, category2, category3, api1, api2, api3 = mock_data
+    query_params = {
+        "status": "active",
+        "categoryIds": str(category1.id),
+        "supplierId": str(supplier1.id),
+    }
+    expected_result = [
+        {
+            "id": api1.id,
+            "name": api1.name,
+            "description": api1.description,
+            "category_id": api1.category_id,
+            "category": {"id": category1.id, "name": category1.name},
+            "supplier_id": api1.supplier_id,
+            "supplier": {
+                "id": supplier1.id,
+                "firstname": supplier1.firstname,
+                "lastname": supplier1.lastname,
+            },
+            "status": api1.status,
+            "created_at": api1.created_at.isoformat(),
+            "updated_at": api1.updated_at.isoformat(),
+            "image": f"https://example.com/media_{api1.id}.jpg",
+        }
+    ]
+    expected_pagination = {"total": 1, "page": 1, "per_page": 10, "pages": 1}
+
+    result, pagination = api_service.get_apis(query_params)
+
+    assert result == expected_result
+    assert pagination == expected_pagination
