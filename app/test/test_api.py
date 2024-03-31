@@ -3,6 +3,8 @@ from unittest.mock import Mock
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
 from app.main.model.user_model import User
+from app.main.model.api_plan_model import ApiPlan
+
 
 # from .fixtures.user.add_user import add_user
 from faker import Faker
@@ -18,19 +20,7 @@ fake = Faker()
 
 
 @pytest.fixture(scope="module")
-def test_category(test_db):
-    category = ApiCategory(
-        name="Test category", description="Test category Description", created_by=1
-    )
-    test_db.session.add(category)
-    test_db.session.commit()
-    yield category
-    test_db.session.delete(category)
-    test_db.session.commit()
-
-
-@pytest.fixture(scope="module")
-def api_service(test_db, test_category):
+def api_service(test_db):
     mock_chargily_api = Mock()
     mock_chargily_api.create_product.return_value = "product_id"
     mock_chargily_api.create_price.side_effect = ["price_id_1", "price_id_2"]
@@ -97,7 +87,27 @@ def mock_data(test_db):
     test_db.session.add_all([api1, api2, api3])
     test_db.session.commit()
 
-    yield supplier1, supplier2, category1, category2, category3, api1, api2, api3
+    plan1 = ApiPlan(
+        name="Basic Plan",
+        description="Basic plan description",
+        price=10,
+        max_requests=1000,
+        duration=30,
+        api_id=api1.id,
+    )
+    plan2 = ApiPlan(
+        name="Premium Plan",
+        description="Premium plan description",
+        price=20,
+        max_requests=5000,
+        duration=90,
+        api_id=api1.id,
+    )
+    test_db.session.add_all([plan1, plan2])
+    test_db.session.commit()
+    plans = [plan1, plan2]
+
+    yield supplier1, supplier2, category1, category2, category3, api1, api2, api3, plans
 
     objects_to_delete = [
         supplier1,
@@ -108,6 +118,8 @@ def mock_data(test_db):
         api1,
         api2,
         api3,
+        plan1,
+        plan2,
     ]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
@@ -115,7 +127,9 @@ def mock_data(test_db):
 
 
 def test_get_apis_default(api_service, mock_data):
-    supplier1, supplier2, category1, category2, category3, api1, api2, api3 = mock_data
+    supplier1, supplier2, category1, category2, category3, api1, api2, api3, *_ = (
+        mock_data
+    )
     expected_result = [
         {
             "id": api1.id,
@@ -185,8 +199,9 @@ def test_get_apis_default(api_service, mock_data):
     assert pagination == expected_pagination
 
 
-def test_create_api(api_service, test_category):
-    category_id = test_category.id
+def test_create_api(api_service, mock_data):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -240,8 +255,9 @@ def test_create_api_category_not_found(api_service):
         api_service.create_api(data, user_id)
 
 
-def test_create_api_duplicate_plan_names(api_service, test_category):
-    category_id = test_category.id
+def test_create_api_duplicate_plan_names(api_service, mock_data):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -270,8 +286,9 @@ def test_create_api_duplicate_plan_names(api_service, test_category):
         api_service.create_api(data, user_id)
 
 
-def test_create_api_negative_plan_price(api_service, test_category):
-    category_id = test_category.id
+def test_create_api_negative_plan_price(api_service, mock_data):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -293,8 +310,9 @@ def test_create_api_negative_plan_price(api_service, test_category):
         api_service.create_api(data, user_id)
 
 
-def test_create_api_negative_max_requests(api_service, test_category):
-    category_id = test_category.id
+def test_create_api_negative_max_requests(api_service, mock_data):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -316,8 +334,9 @@ def test_create_api_negative_max_requests(api_service, test_category):
         api_service.create_api(data, user_id)
 
 
-def test_create_api_negative_duration(api_service, test_category):
-    category_id = test_category.id
+def test_create_api_negative_duration(api_service, mock_data):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -340,9 +359,10 @@ def test_create_api_negative_duration(api_service, test_category):
 
 
 def test_create_api_chargily_product_creation_failed(
-    api_service, test_category, monkeypatch
+    api_service, mock_data, monkeypatch
 ):
-    category_id = test_category.id
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -361,10 +381,9 @@ def test_create_api_chargily_product_creation_failed(
         api_service.create_api(data, user_id)
 
 
-def test_create_api_chargily_price_creation_failed(
-    api_service, test_category, monkeypatch
-):
-    category_id = test_category.id
+def test_create_api_chargily_price_creation_failed(api_service, mock_data, monkeypatch):
+    category = mock_data[2]
+    category_id = category.id
     data = {
         "name": "Test API",
         "description": "This is a test API",
@@ -392,7 +411,7 @@ def test_create_api_chargily_price_creation_failed(
 
 
 def test_get_apis_with_filter(api_service, mock_data):
-    supplier1, supplier2, category1, category2, category3, api1, api2, api3 = mock_data
+    supplier1, _, category1, _, _, api1, *_ = mock_data
     query_params = {
         "status": "active",
         "categoryIds": str(category1.id),
@@ -423,3 +442,48 @@ def test_get_apis_with_filter(api_service, mock_data):
 
     assert result == expected_result
     assert pagination == expected_pagination
+
+
+def test_get_api_by_id(api_service, mock_data):
+    supplier1, category1, api1, plans = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[5],
+        mock_data[8],
+    )
+    expected_result = {
+        "id": api1.id,
+        "name": api1.name,
+        "description": api1.description,
+        "status": api1.status,
+        "category_id": api1.category_id,
+        "category": {"id": category1.id, "name": category1.name},
+        "supplier_id": api1.supplier_id,
+        "supplier": {
+            "id": supplier1.id,
+            "firstname": supplier1.firstname,
+            "lastname": supplier1.lastname,
+        },
+        "created_at": api1.created_at.isoformat(),
+        "updated_at": api1.updated_at.isoformat(),
+        "image": f"https://example.com/media_{api1.id}.jpg",
+        "plans": [
+            {
+                "name": plan.name,
+                "description": plan.description,
+                "price": plan.price,
+                "max_requests": plan.max_requests,
+                "duration": plan.duration,
+            }
+            for plan in plans
+        ],
+    }
+
+    result = api_service.get_api_by_id(api1.id)
+
+    assert result == expected_result
+
+
+def test_get_api_by_id_not_found(api_service):
+    with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
+        api_service.get_api_by_id(999)
