@@ -230,24 +230,24 @@ class ApiService:
 
         return api_dict
 
-    def activate_api(self, api_id: int, supplier_id: int, role: str):
+    def activate_api(self, api_id: int, user_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
-        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api.supplier_id != user_id:
             raise BadRequestError("You are not the owner of the API")
 
         api.status = "active"
 
         db.session.commit()
 
-    def deactivate_api(self, api_id: int, supplier_id: int, role: str):
+    def deactivate_api(self, api_id: int, user_id: int, role: str):
         api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
-        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api.supplier_id != user_id:
             raise BadRequestError("You are not the owner of the API")
 
         api.status = "inactive"
