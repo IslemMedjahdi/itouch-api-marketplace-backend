@@ -60,5 +60,6 @@ app.register_blueprint(blueprint)
 app.app_context().push()
 
 register_error_handlers(api)
+
 with app.app_context():
     User.create_default_admin()
