@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 215a62b8a5a0
+Revision ID: 7a4c38c513a0
 Revises: 
-Create Date: 2024-03-30 03:55:09.274342
+Create Date: 2024-03-31 06:36:38.950578
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '215a62b8a5a0'
+revision = '7a4c38c513a0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -85,8 +85,8 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('api_id', sa.Integer(), nullable=False),
-    sa.ForeignKeyConstraint(['api_id'], ['api.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['api_id'], ['api.id'], name='fk_discussion_api_id', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], name='fk_discussion_user_id', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('api_subscription',
@@ -135,8 +135,8 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('answer', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.ForeignKeyConstraint(['discussion_id'], ['discussion.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['discussion_id'], ['discussion.id'], name='fk_answer_discussion_id', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], name='fk_answer_user_id', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('answer_vote',
@@ -145,8 +145,8 @@ def upgrade():
     sa.Column('answer_id', sa.Integer(), nullable=False),
     sa.Column('vote', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
-    sa.ForeignKeyConstraint(['answer_id'], ['discussion_answer.id'], ),
-    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['answer_id'], ['discussion_answer.id'], name='fk_vote_answer_id', ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], name='fk_vote_user_id', ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('user_id', 'answer_id', name='user_answer_uc')
     )
