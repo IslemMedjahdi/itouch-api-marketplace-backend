@@ -154,7 +154,7 @@ class ApiService:
         return result, pagination
 
     def update_api(self, api_id, supplier_id, data):
-        api = ApiModel.query.filter_by(id=api_id, supplier_id=supplier_id).first()
+        api = ApiModel.query.filter_by(id=api_id).first()
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
