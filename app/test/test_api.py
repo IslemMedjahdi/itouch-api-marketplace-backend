@@ -537,3 +537,32 @@ def test_update_api_category_not_found(api_service, mock_data):
 
     with pytest.raises(NotFoundError, match=r"No API Category found with id: \d+"):
         api_service.update_api(api1.id, supplier1.id, data)
+
+
+def test_activate_api_valid(api_service, mock_data):
+    supplier1, api1 = (
+        mock_data[0],
+        mock_data[5],
+    )
+
+    api_service.activate_api(api1.id, supplier1.id, Role.SUPPLIER)
+
+    api1 = ApiModel.query.get(api1.id)
+    assert api1.status == "active"
+
+
+def test_activate_api_not_found(api_service, mock_data):
+    supplier1 = mock_data[0]
+
+    with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
+        api_service.activate_api(999, supplier1.id, Role.SUPPLIER)
+
+
+def test_activate_api_not_owner(api_service, mock_data):
+    supplier2, api1 = (
+        mock_data[1],
+        mock_data[5],
+    )
+
+    with pytest.raises(BadRequestError, match=r"You are not the owner of the API"):
+        api_service.activate_api(api1.id, supplier2.id, Role.SUPPLIER)
