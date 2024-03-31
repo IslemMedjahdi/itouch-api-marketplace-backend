@@ -39,19 +39,71 @@ def mock_data(test_db):
     )
     test_db.session.add(api)
     test_db.session.commit()
-    yield supplier, category, api
-    objects_to_delete = [
-        supplier,
-        category,
-        api,
-    ]
+
+    api_version1 = ApiVersion(
+        api_id=api.id,
+        version="3.0.0",
+        base_url="https://example.com/api/v1",
+        status="active",
+    )
+    api_version2 = ApiVersion(
+        api_id=api.id,
+        version="4.0.0",
+        base_url="https://example.com/api/v2",
+        status="inactive",
+    )
+    test_db.session.add_all([api_version1, api_version2])
+    test_db.session.commit()
+    yield supplier, category, api, [api_version1, api_version2]
+
+    objects_to_delete = [supplier, category, api, api_version1, api_version2]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
     test_db.session.commit()
 
 
+def test_get_api_versions(mock_data):
+    api, versions = (
+        mock_data[2],
+        mock_data[3],
+    )
+    expected_result = [
+        {
+            "version": version.version,
+            "status": version.status,
+            "created_at": version.created_at.isoformat(),
+            "updated_at": version.updated_at.isoformat(),
+        }
+        for version in versions
+    ]
+
+    result = api_version_service.get_api_versions(api.id, {})
+    assert result == expected_result
+
+
+def test_get_api_versions_with_status_filter(mock_data):
+    api, versions = (
+        mock_data[2],
+        mock_data[3],
+    )
+    expected_result = [
+        {
+            "version": versions[0].version,
+            "status": versions[0].status,
+            "created_at": versions[0].created_at.isoformat(),
+            "updated_at": versions[0].updated_at.isoformat(),
+        }
+    ]
+
+    result = api_version_service.get_api_versions(api.id, {"status": "active"})
+    assert result == expected_result
+
+
 def test_create_api_version_valid(mock_data):
-    supplier, category, api = mock_data
+    supplier, api = (
+        mock_data[0],
+        mock_data[2],
+    )
     data = {
         "version": "1.0.0",
         "base_url": "https://example.com/api/v1",
@@ -84,7 +136,10 @@ def test_create_api_version_not_found(mock_data):
 
 
 def test_create_api_version_already_exists(test_db, mock_data):
-    supplier, category, api = mock_data
+    supplier, api = (
+        mock_data[0],
+        mock_data[2],
+    )
     data = {"version": "2.0.0", "base_url": "https://example.com/api/v1"}
     api_version = ApiVersion(
         api_id=api.id,
