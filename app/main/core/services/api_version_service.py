@@ -195,7 +195,7 @@ class ApiVersionService:
                 )
             )
 
-        if role == Role.SUPPLIER and api_version.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
             raise BadRequestError("You are not authorized to activate this version")
 
         api_version.status = "active"

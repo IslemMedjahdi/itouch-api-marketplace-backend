@@ -84,10 +84,20 @@ def mock_data(test_db):
     )
     test_db.session.add(header1)
     test_db.session.commit()
+    password = fake.password()
+    another_user = User(
+        firstname="Jane",
+        lastname="Doe",
+        email="jane@example.com",
+        role=Role.SUPPLIER,
+        password=password,
+    )
+    test_db.session.add(another_user)
+    test_db.session.commit()
     yield supplier, category, api, [api_version1, api_version2], [
         endpoint1,
         endpoint2,
-    ], [header1]
+    ], [header1], another_user
 
     objects_to_delete = [
         supplier,
@@ -98,6 +108,7 @@ def mock_data(test_db):
         endpoint1,
         endpoint2,
         header1,
+        another_user,
     ]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
@@ -291,25 +302,78 @@ def test_get_full_api_version_not_found(mock_data):
 
 
 def test_get_full_api_version_not_authorized(test_db, mock_data):
-    api, versions = (
+    api, versions, another_user = (
         mock_data[2],
         mock_data[3],
+        mock_data[6],
     )
     api_version = versions[0]
-    password = fake.password()
-    another_user = User(
-        firstname="Jane",
-        lastname="Doe",
-        email="jane@example.com",
-        role=Role.SUPPLIER,
-        password=password,
-    )
-    test_db.session.add(another_user)
-    test_db.session.commit()
 
     with pytest.raises(
         BadRequestError, match=r"You are not authorized to view this version"
     ):
         api_version_service.get_full_api_version(
+            api.id, api_version.version, another_user.id, another_user.role
+        )
+
+
+def test_activate_version_valid(mock_data):
+    user, api, versions = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    api_version = versions[0]
+
+    api_version_service.activate_version(
+        api.id, api_version.version, user.id, user.role
+    )
+
+    api_version = ApiVersion.query.filter_by(
+        api_id=api.id, version=api_version.version
+    ).first()
+    assert api_version.status == "active"
+
+
+def test_activate_version_not_found_api(mock_data):
+    supplier, versions = (
+        mock_data[0],
+        mock_data[3],
+    )
+    api_version = versions[0]
+
+    with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
+        api_version_service.activate_version(
+            999, api_version.version, supplier.id, supplier.role
+        )
+
+
+def test_activate_version_not_found_version(mock_data):
+    supplier, api = (
+        mock_data[0],
+        mock_data[2],
+    )
+
+    with pytest.raises(
+        NotFoundError,
+        match=r"No API version found with id: \d+ and version: \d+\.\d+\.\d+",
+    ):
+        api_version_service.activate_version(
+            api.id, "10.0.0", supplier.id, supplier.role
+        )
+
+
+def test_activate_version_not_authorized(test_db, mock_data):
+    api, versions, another_user = (
+        mock_data[2],
+        mock_data[3],
+        mock_data[6],
+    )
+    api_version = versions[0]
+
+    with pytest.raises(
+        BadRequestError, match=r"You are not authorized to activate this version"
+    ):
+        api_version_service.activate_version(
             api.id, api_version.version, another_user.id, another_user.role
         )
