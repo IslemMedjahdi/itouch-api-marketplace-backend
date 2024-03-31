@@ -140,7 +140,7 @@ class ApiVersionService:
                 )
             )
 
-        if role == Role and version_data.ApiModel.supplier_id != supplier_id:
+        if role == Role.SUPPLIER and version_data.ApiModel.supplier_id != supplier_id:
             raise BadRequestError("You are not authorized to view this version")
 
         endpoints = ApiVersionEndpoint.query.filter_by(
