@@ -377,3 +377,65 @@ def test_activate_version_not_authorized(test_db, mock_data):
         api_version_service.activate_version(
             api.id, api_version.version, another_user.id, another_user.role
         )
+
+
+def test_deactivate_version_valid(mock_data):
+    user, api, versions = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    api_version = versions[0]
+
+    api_version_service.deactivate_version(
+        api.id, api_version.version, user.id, user.role
+    )
+
+    api_version = ApiVersion.query.filter_by(
+        api_id=api.id, version=api_version.version
+    ).first()
+    assert api_version.status == "disabled"
+
+
+def test_deactivate_version_not_found_api(mock_data):
+    supplier, versions = (
+        mock_data[0],
+        mock_data[3],
+    )
+    api_version = versions[0]
+
+    with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
+        api_version_service.deactivate_version(
+            999, api_version.version, supplier.id, supplier.role
+        )
+
+
+def test_deactivate_version_not_found_version(mock_data):
+    supplier, api = (
+        mock_data[0],
+        mock_data[2],
+    )
+
+    with pytest.raises(
+        NotFoundError,
+        match=r"No API version found with id: \d+ and version: \d+\.\d+\.\d+",
+    ):
+        api_version_service.deactivate_version(
+            api.id, "10.0.0", supplier.id, supplier.role
+        )
+
+
+def test_deactivate_version_not_authorized(test_db, mock_data):
+    api, versions, another_user = (
+        mock_data[2],
+        mock_data[3],
+        mock_data[6],
+    )
+    api_version = versions[0]
+
+    with pytest.raises(
+        BadRequestError, match=r"You are not authorized to disable this version"
+    ):
+        api_version_service.deactivate_version(
+            api.id, api_version.version, another_user.id, another_user.role
+        )

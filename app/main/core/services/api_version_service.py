@@ -217,8 +217,8 @@ class ApiVersionService:
                 )
             )
 
-        if role == Role.SUPPLIER and api_version.supplier_id != supplier_id:
-            raise BadRequestError("You are not authorized to activate this version")
+        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
+            raise BadRequestError("You are not authorized to disable this version")
 
         api_version.status = "disabled"
         db.session.commit()
