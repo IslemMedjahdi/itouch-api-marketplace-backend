@@ -78,7 +78,9 @@ class ApiService:
         names = []
         for plan in plans:
             if plan.get("name") in names:
-                raise BadRequestError("Duplicate plan name found: {}".format(plan.name))
+                raise BadRequestError(
+                    "Duplicate plan name found: {}".format(plan.get("name"))
+                )
             if plan.get("price") < 0:
                 raise BadRequestError("Price cannot be negative")
             if plan.get("max_requests") < 0:
