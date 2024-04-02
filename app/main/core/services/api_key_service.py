@@ -76,7 +76,7 @@ class ApiKeyService:
             raise NotFoundError("No subscription for this api key")
 
         if subscription.user_id != user_id:
-            raise NotFoundError("User does not own this api key")
+            raise BadRequestError("User does not own this api key")
 
         api_key.status = "inactive"
         db.session.commit()

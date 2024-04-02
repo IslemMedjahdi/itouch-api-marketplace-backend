@@ -187,3 +187,54 @@ def test_get_api_keys_subscription_not_found(mock_data):
         match=r"No subscription found with id: \d+",
     ):
         api_key_service.get_api_keys(subscription_id, supplier.id)
+
+
+def test_deactivate_api_key_success(mock_data):
+    supplier, api_key = (
+        mock_data[0],
+        mock_data[6],
+    )
+
+    api_key_service.deactivate_api_key(supplier.id, api_key.key)
+
+    api_key = ApiKey.query.filter_by(key=api_key.key).first()
+    assert api_key.status == "inactive"
+
+
+def test_deactivate_api_key_not_found(mock_data):
+    supplier = mock_data[0]
+
+    api_key = "Invalide api key"
+    with pytest.raises(
+        NotFoundError,
+        match=r"No api key found with key: .*",
+    ):
+        api_key_service.deactivate_api_key(supplier.id, api_key)
+
+
+def test_deactivate_api_key_subscription_not_found(test_db, mock_data):
+    supplier, api_key = (
+        mock_data[0],
+        mock_data[6],
+    )
+    api_key = ApiKey.query.filter_by(key=api_key.key).first()
+    api_key.subscription_id = 999
+    test_db.session.commit()
+    with pytest.raises(NotFoundError, match="No subscription for this api key"):
+        api_key_service.deactivate_api_key(supplier.id, api_key.key)
+
+
+def test_deactivate_api_key_user_not_owner(test_db, mock_data):
+    supplier, api, subscription, api_key = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[5],
+        mock_data[6],
+    )
+    subscription = ApiSubscription.query.filter_by(
+        id=subscription.id, api_id=api.id
+    ).first()
+    subscription.user_id = 999
+    test_db.session.commit()
+    with pytest.raises(BadRequestError, match="User does not own this api key"):
+        api_key_service.deactivate_api_key(supplier.id, api_key.key)
