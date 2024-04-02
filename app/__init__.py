@@ -32,6 +32,8 @@ from app.main.model.api_version_endpoint_model import ApiVersionEndpoint  # noqa
 from app.main.model.api_key_model import ApiKey  # noqa: F401
 from app.main.model.api_subscription_model import ApiSubscription  # noqa: F401
 from app.main.model.api_request_model import ApiRequest  # noqa: F401
+from logtail import LogtailHandler
+import logging
 
 blueprint = Blueprint("api", __name__)
 authorizations = {"apikey": {"type": "apiKey", "in": "header", "name": "Authorization"}}
@@ -67,6 +69,17 @@ register_error_handlers(api)
 with app.app_context():
     User.create_default_admin()
 
+handler = LogtailHandler(source_token=os.getenv("SOURCE_TOKEN", "my_source_token"))
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.handlers = []
+logger.addHandler(handler)
+# logger.error("Something bad happened.")
+# logger.info(
+#     "Log message with structured logging.",
+#     extra={"item": "Orange Soda", "price": 100.00},
+# )
+
 
 @app.after_request
 def after_request(response: Response):
@@ -75,10 +88,24 @@ def after_request(response: Response):
             "HTTP Request",
             {"status_code": response.status_code, "response": response.get_json()},
         )
+        logger.error(
+            "HTTP Request Error",
+            extra={
+                "status_code": response.status_code,
+                "response": response.get_json(),
+            },
+        )
     else:
         file_logger.info(
             "HTTP Request",
             {"status_code": response.status_code, "response": response.get_json()},
+        )
+        logger.info(
+            "HTTP Request Success",
+            extra={
+                "status_code": response.status_code,
+                "response": response.get_json(),
+            },
         )
 
     return response
