@@ -2,7 +2,7 @@ import os
 from app.main import create_app
 
 from flask_restx import Api
-from flask import Blueprint
+from flask import Blueprint, Response
 from flask_cors import CORS
 
 from app.main.controller.auth_controller import api as auth_ns
@@ -19,6 +19,8 @@ from app.main.controller.api_controller import api_calls as api_calls_ns
 
 from app.main.utils.error_handlers import register_error_handlers
 
+from app.main.core.lib.impl.file_logger import FileLogger
+
 # import models to let the migrate tool know
 from app.main.model.user_model import User
 from app.main.model.api_model import ApiModel  # noqa: F401
@@ -33,6 +35,7 @@ from app.main.model.api_request_model import ApiRequest  # noqa: F401
 
 blueprint = Blueprint("api", __name__)
 authorizations = {"apikey": {"type": "apiKey", "in": "header", "name": "Authorization"}}
+file_logger = FileLogger()
 
 api = Api(
     blueprint,
@@ -63,3 +66,19 @@ register_error_handlers(api)
 
 with app.app_context():
     User.create_default_admin()
+
+
+@app.after_request
+def after_request(response: Response):
+    if response.status_code >= 400:
+        file_logger.error(
+            "HTTP Request",
+            {"status_code": response.status_code, "response": response.get_json()},
+        )
+    else:
+        file_logger.info(
+            "HTTP Request",
+            {"status_code": response.status_code, "response": response.get_json()},
+        )
+
+    return response
