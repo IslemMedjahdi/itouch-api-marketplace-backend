@@ -68,6 +68,7 @@ types-requests = "==2.31.0.20240311"
 typing-extensions = "==4.10.0"
 urllib3 = "==2.2.1"
 werkzeug = "==3.0.1"
+logtail = "*"
 
 [dev-packages]
 
