@@ -2,7 +2,7 @@ import os
 from app.main import create_app
 
 from flask_restx import Api
-from flask import Blueprint, Response
+from flask import Blueprint, Response, request
 from flask_cors import CORS
 
 from app.main.controller.auth_controller import api as auth_ns
@@ -69,16 +69,13 @@ register_error_handlers(api)
 with app.app_context():
     User.create_default_admin()
 
-handler = LogtailHandler(source_token=os.getenv("SOURCE_TOKEN", "my_source_token"))
+handler = LogtailHandler(
+    source_token=os.getenv("SOURCE_TOKEN", "WhMxdjaNXfNUVQtHSvWbx9iq")
+)
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.handlers = []
 logger.addHandler(handler)
-# logger.error("Something bad happened.")
-# logger.info(
-#     "Log message with structured logging.",
-#     extra={"item": "Orange Soda", "price": 100.00},
-# )
 
 
 @app.after_request
@@ -86,25 +83,35 @@ def after_request(response: Response):
     if response.status_code >= 400:
         file_logger.error(
             "HTTP Request",
-            {"status_code": response.status_code, "response": response.get_json()},
+            {
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
         )
         logger.error(
             "HTTP Request Error",
             extra={
+                "path": request.path,
+                "method": request.method,
                 "status_code": response.status_code,
-                "response": response.get_json(),
             },
         )
     else:
         file_logger.info(
             "HTTP Request",
-            {"status_code": response.status_code, "response": response.get_json()},
+            {
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
         )
         logger.info(
             "HTTP Request Success",
             extra={
+                "path": request.path,
+                "method": request.method,
                 "status_code": response.status_code,
-                "response": response.get_json(),
             },
         )
 
