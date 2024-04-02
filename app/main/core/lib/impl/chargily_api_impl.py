@@ -1,7 +1,6 @@
 import hmac
 import hashlib
-
-# flake8: noqa
+import os
 
 from app.main.core.lib.rest_client import RestClient
 from app.main.core.lib.chargily_api import ChargilyApi
@@ -10,7 +9,9 @@ from app.main.core.lib.chargily_api import ChargilyApi
 class ChargilyApiImpl(ChargilyApi):
     def __init__(self, rest_client: RestClient):
         self.api_url = "https://pay.chargily.net/test/api/v2"
-        self.secret_key = "test_sk_fCFpkasB82ryTSEGrQKgowjJn2YfgGlrZZ8lsQFU"  # TODO: add this to env variables
+        self.secret_key = os.getenv(
+            "CHARGILY_SECRET_KEY", "test_sk_fCFpkasB82ryTSEGrQKgowjJn2YfgGlrZZ8lsQFU"
+        )
         self.rest_client = rest_client
 
     def create_product(self, product_name: str, product_description: str) -> str | None:
@@ -27,7 +28,7 @@ class ChargilyApiImpl(ChargilyApi):
             )
 
             return response.get("id")
-        except Exception as e:
+        except Exception:
             return None
 
     def create_price(self, product_id: str, amount: int) -> str | None:
@@ -68,7 +69,7 @@ class ChargilyApiImpl(ChargilyApi):
                 data=data,
             )
             return response.get("checkout_url")
-        except Exception as e:
+        except Exception:
             return None
 
     def verify_webhook_signature(self, payload: str, signature: str) -> bool:
