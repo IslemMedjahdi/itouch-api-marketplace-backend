@@ -87,6 +87,7 @@ def after_request(response: Response):
                 "path": request.path,
                 "method": request.method,
                 "status_code": response.status_code,
+                "response": response.get_json(),
             },
         )
         logger.error(
@@ -95,6 +96,7 @@ def after_request(response: Response):
                 "path": request.path,
                 "method": request.method,
                 "status_code": response.status_code,
+                "response": response.get_json(),
             },
         )
     else:
@@ -104,6 +106,7 @@ def after_request(response: Response):
                 "path": request.path,
                 "method": request.method,
                 "status_code": response.status_code,
+                "response": response.get_json(),
             },
         )
         logger.info(
@@ -112,6 +115,7 @@ def after_request(response: Response):
                 "path": request.path,
                 "method": request.method,
                 "status_code": response.status_code,
+                "response": response.get_json(),
             },
         )
 
