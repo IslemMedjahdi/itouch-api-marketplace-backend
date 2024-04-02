@@ -2,7 +2,7 @@ import os
 from app.main import create_app
 
 from flask_restx import Api
-from flask import Blueprint, Response
+from flask import Blueprint, Response, request
 from flask_cors import CORS
 
 from app.main.controller.auth_controller import api as auth_ns
@@ -32,6 +32,8 @@ from app.main.model.api_version_endpoint_model import ApiVersionEndpoint  # noqa
 from app.main.model.api_key_model import ApiKey  # noqa: F401
 from app.main.model.api_subscription_model import ApiSubscription  # noqa: F401
 from app.main.model.api_request_model import ApiRequest  # noqa: F401
+from logtail import LogtailHandler
+import logging
 
 blueprint = Blueprint("api", __name__)
 authorizations = {"apikey": {"type": "apiKey", "in": "header", "name": "Authorization"}}
@@ -67,18 +69,50 @@ register_error_handlers(api)
 with app.app_context():
     User.create_default_admin()
 
+handler = LogtailHandler(
+    source_token=os.getenv("SOURCE_TOKEN", "WhMxdjaNXfNUVQtHSvWbx9iq")
+)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.handlers = []
+logger.addHandler(handler)
+
 
 @app.after_request
 def after_request(response: Response):
     if response.status_code >= 400:
         file_logger.error(
             "HTTP Request",
-            {"status_code": response.status_code, "response": response.get_json()},
+            {
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
+        )
+        logger.error(
+            "HTTP Request Error",
+            extra={
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
         )
     else:
         file_logger.info(
             "HTTP Request",
-            {"status_code": response.status_code, "response": response.get_json()},
+            {
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
+        )
+        logger.info(
+            "HTTP Request Success",
+            extra={
+                "path": request.path,
+                "method": request.method,
+                "status_code": response.status_code,
+            },
         )
 
     return response
