@@ -80,8 +80,11 @@ def mock_data(test_db):
 
     test_db.session.add(subscription)
     test_db.session.commit()
+    api_key = ApiKey(key="Api key", subscription_id=subscription.id)
+    test_db.session.add(api_key)
+    test_db.session.commit()
 
-    yield supplier, category, api, plan, api_version, subscription
+    yield supplier, category, api, plan, api_version, subscription, api_key
 
     objects_to_delete = [
         supplier,
@@ -90,6 +93,7 @@ def mock_data(test_db):
         plan,
         api_version,
         subscription,
+        api_key,
     ]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
@@ -101,7 +105,7 @@ def test_create_api_key_success(mock_data):
 
     api_key_service.create_api_key(subscription.id, supplier.id)
     api_key = ApiKey.query.filter_by(subscription_id=subscription.id).all()
-    assert len(api_key) == 1
+    assert len(api_key) == 2
     assert api_key[0].subscription_id == subscription.id
 
 
@@ -150,3 +154,36 @@ def test_create_api_expired_subscription(test_db, mock_data):
 
     with pytest.raises(BadRequestError, match="Subscription has expired"):
         api_key_service.create_api_key(subscription.id, supplier.id)
+
+
+def test_get_api_keys_success(mock_data):
+    supplier, subscription, api_key = (
+        mock_data[0],
+        mock_data[5],
+        mock_data[6],
+    )
+    expected_result = [
+        {
+            "key": api_key.key,
+            "subscription_id": api_key.subscription_id,
+            "status": api_key.status,
+            "created_at": api_key.created_at.isoformat(),
+        }
+    ]
+    result = api_key_service.get_api_keys(subscription.id, supplier.id)
+    # Filter the result to include only the API key we created in the mock_data fixture
+    filtered_result = [item for item in result if item["key"] == api_key.key]
+
+    assert filtered_result == expected_result
+
+
+def test_get_api_keys_subscription_not_found(mock_data):
+    supplier = mock_data[0]
+
+    subscription_id = 999
+
+    with pytest.raises(
+        NotFoundError,
+        match=r"No subscription found with id: \d+",
+    ):
+        api_key_service.get_api_keys(subscription_id, supplier.id)
