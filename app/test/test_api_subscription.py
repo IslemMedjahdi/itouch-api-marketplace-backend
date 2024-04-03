@@ -1,6 +1,5 @@
 import pytest
-
-# from datetime import datetime, timedelta
+from datetime import datetime, timedelta
 from unittest.mock import Mock
 from app.main.model.api_model import ApiModel
 from app.main.model.user_model import User
@@ -260,3 +259,48 @@ def test_handle_chargily_webhook_no_json(mock_data, api_subscription_service):
 
     with pytest.raises(BadRequestError):
         api_subscription_service.handle_chargily_webhook(request)
+
+
+# Tests for get_subscriptions
+def test_get_subscriptions_success(test_db, mock_data, api_subscription_service):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    subscription = ApiSubscription(
+        api_id=api.id,
+        plan_name=plan.name,
+        user_id=supplier.id,
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(days=30),
+        max_requests=plan.max_requests,
+        status="active",
+        price=plan.price,
+    )
+    test_db.session.add(subscription)
+    test_db.session.commit()
+
+    query_params = {
+        "api_id": api.id,
+        "plan_name": plan.name,
+        "supplier_id": supplier.id,
+    }
+    result, meta = api_subscription_service.get_subscriptions(
+        query_params, role=supplier.role
+    )
+    test_db.session.delete(subscription)
+    test_db.session.commit()
+
+    assert len(result) == 2
+    assert result[1]["api_id"] == api.id
+    assert result[1]["api_plan"] == plan.name
+    assert result[1]["user_id"] == supplier.id
+
+
+def test_get_subscriptions_supplier_role_missing_supplier_id(api_subscription_service):
+    query_params = {}
+    with pytest.raises(
+        BadRequestError, match="Supplier ID is required for supplier role"
+    ):
+        api_subscription_service.get_subscriptions(query_params, role=Role.SUPPLIER)
