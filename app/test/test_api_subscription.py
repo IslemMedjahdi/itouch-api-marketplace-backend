@@ -216,12 +216,12 @@ def test_handle_chargily_webhook_success(
 
 
 def test_handle_chargily_webhook_no_signature(mock_data, api_subscription_service):
-    with pytest.raises(BadRequestError):
+    with pytest.raises(BadRequestError, match="No signature found in headers"):
         api_subscription_service.handle_chargily_webhook(Mock(headers={}))
 
 
 def test_handle_chargily_webhook_no_body(mock_data, api_subscription_service):
-    with pytest.raises(BadRequestError):
+    with pytest.raises(BadRequestError, match="No body found in request"):
         api_subscription_service.handle_chargily_webhook(Mock(data=None))
 
 
@@ -248,7 +248,9 @@ def test_handle_chargily_webhook_invalid_signature(
     request.headers = {"signature": "invalid_signature"}
     mock_chargily_api.verify_webhook_signature.return_value = False
 
-    with pytest.raises(BadRequestError):
+    with pytest.raises(
+        BadRequestError, match="Invalid signature, STOP TRYING TO HACK US"
+    ):
         api_subscription_service.handle_chargily_webhook(request)
 
 
@@ -257,7 +259,50 @@ def test_handle_chargily_webhook_no_json(mock_data, api_subscription_service):
     request.headers = {"signature": "valid_signature"}
     request.json = None
 
-    with pytest.raises(BadRequestError):
+    with pytest.raises(BadRequestError, match="No JSON found in request"):
+        api_subscription_service.handle_chargily_webhook(request)
+
+
+def test_handle_chargily_webhook_api_not_found(mock_data, api_subscription_service):
+    supplier, plan = (
+        mock_data[0],
+        mock_data[3],
+    )
+    request = Mock()
+    request.json = {
+        "type": "checkout.paid",
+        "data": {
+            "metadata": {
+                "api_id": 999,
+                "plan_name": plan.name,
+                "user_id": supplier.id,
+                "amount": plan.price,
+            }
+        },
+    }
+    with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
+        api_subscription_service.handle_chargily_webhook(request)
+
+
+def test_handle_chargily_webhook_plan_not_found(mock_data, api_subscription_service):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    request = Mock()
+    request.json = {
+        "type": "checkout.paid",
+        "data": {
+            "metadata": {
+                "api_id": api.id,
+                "plan_name": "Invalide plan name",
+                "user_id": supplier.id,
+                "amount": plan.price,
+            }
+        },
+    }
+    with pytest.raises(NotFoundError, match=r"No plan found with name: .*"):
         api_subscription_service.handle_chargily_webhook(request)
 
 
