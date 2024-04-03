@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 from app.main.model.api_subscription_model import ApiSubscription
 from app.main.model.api_key_model import ApiKey
+from app.main.utils.exceptions import BadRequestError
 from app.main.utils.exceptions import NotFoundError
 
 from app.main import db
@@ -18,18 +19,18 @@ class ApiKeyService:
             raise NotFoundError(f"No subscription found with id: {subscription_id}")
 
         if subscription.max_requests <= 0:
-            raise NotFoundError(
+            raise BadRequestError(
                 "Subscription has no requests left, Please Renew Subscription"
             )
 
         is_active = subscription.status == "active"
         if not is_active:
-            raise NotFoundError("Subscription is not active")
+            raise BadRequestError("Subscription is not active")
 
         expired = subscription.end_date < datetime.now()
 
         if expired:
-            raise NotFoundError("Subscription has expired")
+            raise BadRequestError("Subscription has expired")
 
         key = f"itouch-{uuid4()}"
 
@@ -75,7 +76,7 @@ class ApiKeyService:
             raise NotFoundError("No subscription for this api key")
 
         if subscription.user_id != user_id:
-            raise NotFoundError("User does not own this api key")
+            raise BadRequestError("User does not own this api key")
 
         api_key.status = "inactive"
         db.session.commit()
@@ -94,7 +95,7 @@ class ApiKeyService:
             raise NotFoundError("No subscription for this api key")
 
         if subscription.user_id != user_id:
-            raise NotFoundError("User does not own this api key")
+            raise BadRequestError("User does not own this api key")
 
         api_key.status = "active"
         db.session.commit()
