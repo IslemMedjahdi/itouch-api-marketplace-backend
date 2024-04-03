@@ -1,5 +1,6 @@
 import pytest
-from datetime import datetime, timedelta
+
+# from datetime import datetime, timedelta
 from unittest.mock import Mock
 from app.main.model.api_model import ApiModel
 from app.main.model.user_model import User
@@ -7,7 +8,8 @@ from app.main.model.api_version_model import ApiVersion
 from app.main.model.api_subscription_model import ApiSubscription
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_plan_model import ApiPlan
-from app.main.model.api_key_model import ApiKey
+
+# from app.main.model.api_key_model import ApiKey
 from app.main.utils.roles import Role
 from app.main.core.services.api_subscription_service import ApiSubscriptionService
 from app.main.utils.exceptions import BadRequestError
@@ -66,24 +68,25 @@ def mock_data(test_db):
     )
     test_db.session.add_all([plan])
     test_db.session.commit()
-    subscription = ApiSubscription(
-        api_id=api.id,
-        plan_name=plan.name,
-        user_id=supplier.id,
-        start_date=datetime.now(),
-        end_date=datetime.now() + timedelta(seconds=3600),
-        max_requests=plan.max_requests,
-        status="active",
-        price=100,
-    )
+    # subscription = ApiSubscription(
+    #     api_id=api.id,
+    #     plan_name=plan.name,
+    #     user_id=supplier.id,
+    #     start_date=datetime.now(),
+    #     end_date=datetime.now() + timedelta(seconds=3600),
+    #     max_requests=plan.max_requests,
+    #     status="active",
+    #     price=100,
+    # )
 
-    test_db.session.add(subscription)
-    test_db.session.commit()
-    api_key = ApiKey(key="Api key", subscription_id=subscription.id)
-    test_db.session.add(api_key)
-    test_db.session.commit()
+    # test_db.session.add(subscription)
+    # test_db.session.commit()
+    # api_key = ApiKey(key="Api key", subscription_id=subscription.id)
+    # test_db.session.add(api_key)
+    # test_db.session.commit()
 
-    yield supplier, category, api, plan, api_version, subscription, api_key
+    yield supplier, category, api, plan, api_version
+    # , subscription, api_key
 
     objects_to_delete = [
         supplier,
@@ -91,8 +94,8 @@ def mock_data(test_db):
         api,
         plan,
         api_version,
-        subscription,
-        api_key,
+        # subscription,
+        # api_key,
     ]
     for obj in objects_to_delete:
         test_db.session.delete(obj)
@@ -183,3 +186,77 @@ def test_create_chargily_checkout_failed(
         api_subscription_service.create_charigly_checkout(
             api.id, plan.name, supplier.id, redirect_url
         )
+
+
+# Tests for handle_chargily_webhook
+def test_handle_chargily_webhook_success(
+    mock_data, api_subscription_service, monkeypatch
+):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    request = Mock()
+    request.json = {
+        "type": "checkout.paid",
+        "data": {
+            "metadata": {
+                "api_id": api.id,
+                "plan_name": plan.name,
+                "user_id": supplier.id,
+                "amount": plan.price,
+            }
+        },
+    }
+    api_subscription_service.handle_chargily_webhook(request)
+    subscription = ApiSubscription.query.filter_by(
+        api_id=api.id, plan_name=plan.name, user_id=supplier.id
+    ).first()
+    assert subscription is not None
+
+
+def test_handle_chargily_webhook_no_signature(mock_data, api_subscription_service):
+    with pytest.raises(BadRequestError):
+        api_subscription_service.handle_chargily_webhook(Mock(headers={}))
+
+
+def test_handle_chargily_webhook_no_body(mock_data, api_subscription_service):
+    with pytest.raises(BadRequestError):
+        api_subscription_service.handle_chargily_webhook(Mock(data=None))
+
+
+def test_handle_chargily_webhook_invalid_signature(
+    mock_data, mock_chargily_api, api_subscription_service
+):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    request = Mock()
+    request.json = {
+        "type": "checkout.paid",
+        "data": {
+            "metadata": {
+                "api_id": api.id,
+                "plan_name": plan.name,
+                "user_id": supplier.id,
+                "amount": plan.price,
+            }
+        },
+    }
+    request.headers = {"signature": "invalid_signature"}
+    mock_chargily_api.verify_webhook_signature.return_value = False
+
+    with pytest.raises(BadRequestError):
+        api_subscription_service.handle_chargily_webhook(request)
+
+
+def test_handle_chargily_webhook_no_json(mock_data, api_subscription_service):
+    request = Mock()
+    request.headers = {"signature": "valid_signature"}
+    request.json = None
+
+    with pytest.raises(BadRequestError):
+        api_subscription_service.handle_chargily_webhook(request)
