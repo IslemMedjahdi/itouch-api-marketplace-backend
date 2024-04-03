@@ -349,3 +349,95 @@ def test_get_subscriptions_supplier_role_missing_supplier_id(api_subscription_se
         BadRequestError, match="Supplier ID is required for supplier role"
     ):
         api_subscription_service.get_subscriptions(query_params, role=Role.SUPPLIER)
+
+
+def test_get_subscription_success(test_db, mock_data, api_subscription_service):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    subscription = ApiSubscription(
+        api_id=api.id,
+        plan_name=plan.name,
+        user_id=supplier.id,
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(days=30),
+        max_requests=plan.max_requests,
+        status="active",
+        price=plan.price,
+    )
+    test_db.session.add(subscription)
+    test_db.session.commit()
+
+    result = api_subscription_service.get_subscription(
+        subscription.id, supplier.id, role=Role.USER
+    )
+    assert result["id"] == subscription.id
+    assert result["api_id"] == api.id
+    assert result["user_id"] == supplier.id
+
+
+def test_get_subscription_not_found(mock_data, api_subscription_service):
+    supplier = mock_data[0]
+
+    with pytest.raises(NotFoundError, match=r"No subscription found with id: \d+"):
+        api_subscription_service.get_subscription(999, supplier.id, role=Role.USER)
+
+
+def test_get_subscription_supplier_not_allowed(
+    test_db, mock_data, api_subscription_service
+):
+    supplier, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    subscription = ApiSubscription(
+        api_id=api.id,
+        plan_name=plan.name,
+        user_id=supplier.id,
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(days=30),
+        max_requests=plan.max_requests,
+        status="active",
+        price=plan.price,
+    )
+    test_db.session.add(subscription)
+    test_db.session.commit()
+
+    with pytest.raises(
+        BadRequestError, match="You are not allowed to view this subscription"
+    ):
+        api_subscription_service.get_subscription(
+            subscription.id, "another_supplier_id", role=Role.SUPPLIER
+        )
+
+
+def test_get_subscription_user_not_allowed(
+    test_db, mock_data, api_subscription_service
+):
+    user, api, plan = (
+        mock_data[0],
+        mock_data[2],
+        mock_data[3],
+    )
+    subscription = ApiSubscription(
+        api_id=api.id,
+        plan_name=plan.name,
+        user_id=user.id,
+        start_date=datetime.now(),
+        end_date=datetime.now() + timedelta(days=30),
+        max_requests=plan.max_requests,
+        status="active",
+        price=plan.price,
+    )
+    test_db.session.add(subscription)
+    test_db.session.commit()
+
+    with pytest.raises(
+        BadRequestError, match="You are not allowed to view this subscription"
+    ):
+        api_subscription_service.get_subscription(
+            subscription.id, "another_user_id", role=Role.USER
+        )
