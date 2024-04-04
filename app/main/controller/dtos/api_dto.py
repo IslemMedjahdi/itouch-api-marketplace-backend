@@ -77,6 +77,36 @@ class ApiDto:
         },
     )
 
+    category_info_response = api.model(
+        "category_info",
+        {
+            "data": fields.Nested(
+                api.model(
+                    "category_info_data",
+                    {
+                        "id": fields.Integer(),
+                        "name": fields.String(),
+                        "description": fields.String(),
+                        "created_by_id": fields.Integer(),
+                        "created_by": fields.Nested(
+                            api.model(
+                                "category_creator_info_data",
+                                {
+                                    "id": fields.Integer(),
+                                    "firstname": fields.String(),
+                                    "lastname": fields.String(),
+                                },
+                            )
+                        ),
+                        "created_at": fields.DateTime(),
+                        "updated_at": fields.DateTime(),
+                        "image": fields.String(),
+                    },
+                ),
+            ),
+        },
+    )
+
     create_api_request = api.model(
         "create_api_request",
         {
