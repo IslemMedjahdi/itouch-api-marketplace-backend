@@ -51,7 +51,7 @@ class GetCategories(Resource):
 
 
 @api_category.route("/categories/<int:id>")
-class GetCategorieById(Resource):
+class GetCategoryById(Resource):
     @api_category.doc("get categorie by id")
     @api_category.response(HTTPStatus.OK, "Success", ApiDto.category_info_response)
     def get(self, id):
