@@ -6,7 +6,7 @@ class ApiRequest(db.Model):  # type: ignore
     __tablename__ = "api_request"
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    api_id = db.Column(db.Integer, db.ForeignKey("api.id"))
+    api_id = db.Column(db.Integer, db.ForeignKey("api_version.api_id"))
     api_version = db.Column(
         db.String,
         db.ForeignKey("api_version.version"),
