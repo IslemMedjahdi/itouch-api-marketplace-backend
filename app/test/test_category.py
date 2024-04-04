@@ -28,7 +28,7 @@ def test_get_all_categories(test_db, api_category_service):
     )
     categories = api_category_service.get_all_categories()
     assert len(categories) == 1
-    assert categories[0].id == new_category.id
+    assert categories[0]["id"] == new_category.id
 
 
 def test_get_categorie_by_id(test_db, api_category_service):
