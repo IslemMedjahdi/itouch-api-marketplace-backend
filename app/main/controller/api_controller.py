@@ -50,6 +50,20 @@ class GetCategories(Resource):
         }, HTTPStatus.OK
 
 
+@api_category.route("/categories/<int:id>")
+class GetCategorieById(Resource):
+    @api_category.doc("get categorie by id")
+    @api_category.response(HTTPStatus.OK, "Success", ApiDto.category_info_response)
+    def get(self, id):
+        categorie_data = (
+            ServicesInitializer.an_api_category_service().get_category_by_id(id)
+        )
+
+        return {
+            "data": categorie_data,
+        }, HTTPStatus.OK
+
+
 @api.route("/create")
 class CreateApi(Resource):
     @api.doc("create api")
