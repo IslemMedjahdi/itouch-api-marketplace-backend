@@ -46,7 +46,7 @@ class GetCategories(Resource):
         categories = ServicesInitializer.an_api_category_service().get_all_categories()
 
         return {
-            "data": [category.to_dict() for category in categories],
+            "data": categories,
         }, HTTPStatus.OK
 
 

@@ -70,6 +70,7 @@ class ApiDto:
                             "created_by": fields.Integer(),
                             "created_at": fields.DateTime(),
                             "updated_at": fields.DateTime(),
+                            "image": fields.String(),
                         },
                     )
                 )

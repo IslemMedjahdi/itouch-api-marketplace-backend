@@ -1,4 +1,6 @@
-from typing import Dict, List
+from typing import Dict
+
+# , List
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.user_model import User
 from app.main import db
@@ -20,8 +22,21 @@ class ApiCategoryService:
         db.session.commit()
         return new_category
 
-    def get_all_categories(self) -> List[ApiCategory]:
-        return ApiCategory.query.all()
+    def get_all_categories(self):
+        categories = ApiCategory.query.all()
+        result = []
+        for category in categories:
+            category_dict = {
+                "id": category.id,
+                "name": category.name,
+                "description": category.description,
+                "created_by": category.created_by,
+                "created_at": category.created_at.isoformat(),
+                "updated_at": category.updated_at.isoformat(),
+                "image": self.media_manager.get_media_url_by_id(category.id),
+            }
+            result.append(category_dict)
+        return result
 
     def get_category_by_id(self, category_id):
         query = db.session.query(ApiCategory, User).join(
