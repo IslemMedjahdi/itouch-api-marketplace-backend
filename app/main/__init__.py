@@ -29,7 +29,7 @@ def create_app(config_name):
 
     migrate.init_app(app, db, render_as_batch=True)
 
-    # Enforce FOREIGN KEYS for sqlite3
+    """ # Enforce FOREIGN KEYS for sqlite3
     if "sqlite" in app.config["SQLALCHEMY_DATABASE_URI"] and config_name != "test":
 
         def _fk_pragma_on_connect(dbapi_con, con_record):  # noqa
@@ -38,5 +38,5 @@ def create_app(config_name):
         with app.app_context():
             from sqlalchemy import event
 
-            event.listen(db.engine, "connect", _fk_pragma_on_connect)
+            event.listen(db.engine, "connect", _fk_pragma_on_connect) """
     return app

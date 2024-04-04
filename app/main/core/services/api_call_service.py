@@ -44,6 +44,7 @@ class ApiCallService:
 
         new_request = ApiRequest(
             api_id=api_id,
+            api_version=version,
             user_id=user_id,
             api_key=api_key,
             subscription_id=subscription_id,
@@ -92,6 +93,7 @@ class ApiCallService:
 
         new_request = ApiRequest(
             api_id=api_id,
+            api_version=version,
             user_id=user_id,
             api_key=api_key,
             subscription_id=subscription_id,
@@ -143,6 +145,7 @@ class ApiCallService:
             user_id=user_id,
             api_key=api_key,
             subscription_id=subscription_id,
+            api_version=version,
             request_url=request_url,
             request_method=request_method,
             request_body=request_body,
