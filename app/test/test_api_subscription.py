@@ -204,8 +204,8 @@ def test_handle_chargily_webhook_success(
                 "api_id": api.id,
                 "plan_name": plan.name,
                 "user_id": supplier.id,
-                "amount": plan.price,
-            }
+            },
+            "amount": plan.price,
         },
     }
     api_subscription_service.handle_chargily_webhook(request)
@@ -241,8 +241,8 @@ def test_handle_chargily_webhook_invalid_signature(
                 "api_id": api.id,
                 "plan_name": plan.name,
                 "user_id": supplier.id,
-                "amount": plan.price,
-            }
+            },
+            "amount": plan.price,
         },
     }
     request.headers = {"signature": "invalid_signature"}
@@ -276,8 +276,8 @@ def test_handle_chargily_webhook_api_not_found(mock_data, api_subscription_servi
                 "api_id": 999,
                 "plan_name": plan.name,
                 "user_id": supplier.id,
-                "amount": plan.price,
-            }
+            },
+            "amount": plan.price,
         },
     }
     with pytest.raises(NotFoundError, match=r"No API found with id: \d+"):
@@ -298,8 +298,8 @@ def test_handle_chargily_webhook_plan_not_found(mock_data, api_subscription_serv
                 "api_id": api.id,
                 "plan_name": "Invalide plan name",
                 "user_id": supplier.id,
-                "amount": plan.price,
-            }
+            },
+            "amount": plan.price,
         },
     }
     with pytest.raises(NotFoundError, match=r"No plan found with name: .*"):

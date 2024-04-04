@@ -75,7 +75,7 @@ class ApiSubscriptionService:
             api_id = checkout["metadata"]["api_id"]
             plan_name = checkout["metadata"]["plan_name"]
             user_id = checkout["metadata"]["user_id"]
-            amount = checkout["metadata"]["amount"]
+            amount = checkout["amount"]
 
             api = ApiModel.query.filter_by(id=api_id).first()
             if api is None:
