@@ -85,6 +85,7 @@ def api_tests_service():
 
     mock_rest_client = Mock()
     mock_rest_client.get.return_value = ({"data": "mock_response"}, 200)
+    mock_rest_client.post.return_value = ({"data": "mock_response"}, 201)
     return ApiTestsService(rest_client=mock_rest_client)
 
 
@@ -122,3 +123,12 @@ def test_get_version_inactive(mock_data, test_db, api_tests_service):
     test_db.session.commit()
     with pytest.raises(BadRequestError):
         api_tests_service.test_get(api.id, api_version.version, "users")
+
+
+def test_post_success(mock_data, api_tests_service):
+    api, api_version = (mock_data[2], mock_data[3])
+    data = {"name": "John Doe"}
+    response, status = api_tests_service.test_post(
+        api.id, api_version.version, "users", data
+    )
+    assert status == 201
