@@ -87,6 +87,7 @@ def api_tests_service():
     mock_rest_client.get.return_value = ({"data": "mock_response"}, 200)
     mock_rest_client.post.return_value = ({"data": "mock_response"}, 201)
     mock_rest_client.patch.return_value = ({"data": "mock_response"}, 200)
+    mock_rest_client.delete.return_value = ({"data": "mock_response"}, 204)
     return ApiTestsService(rest_client=mock_rest_client)
 
 
@@ -142,3 +143,11 @@ def test_patch_success(mock_data, api_tests_service):
         api.id, api_version.version, "users/1", data
     )
     assert status == 200
+
+
+def test_delete_success(mock_data, api_tests_service):
+    api, api_version = (mock_data[2], mock_data[3])
+    response, status = api_tests_service.test_delete(
+        api.id, api_version.version, "users/1"
+    )
+    assert status == 204
