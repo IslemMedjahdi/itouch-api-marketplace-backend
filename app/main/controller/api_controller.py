@@ -85,6 +85,7 @@ class GetApis(Resource):
     @api.param("categoryIds", "The category ID", type="array")
     @api.param("status", "The status of the apis")
     @api.param("supplierId", "The supplier id")
+    @api.param("search", "The search query")
     @api.response(HTTPStatus.OK, "Success", ApiDto.apis_list_response)
     def get(self):
         apis, pagination = ServicesInitializer.an_api_service().get_apis(request.args)
@@ -101,6 +102,7 @@ class GetMyApis(Resource):
     @api.param("per_page", "The number of items per page")
     @api.param("category_ids", "The category ID", type="array")
     @api.param("status", "The status of the apis")
+    @api.param("search", "The search query")
     @api.response(HTTPStatus.OK, "Success", ApiDto.apis_list_response)
     @role_token_required([Role.SUPPLIER])
     def get(self):

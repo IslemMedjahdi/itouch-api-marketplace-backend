@@ -95,6 +95,7 @@ class ApiService:
         status = query_params.get("status", None)
         category_ids = query_params.get("categoryIds", None)
         supplier_id = query_params.get("supplierId", None)
+        search = query_params.get("search", None)
 
         query = (
             db.session.query(ApiModel, User, ApiCategory)
@@ -111,6 +112,9 @@ class ApiService:
 
         if supplier_id is not None:
             query = query.filter(ApiModel.supplier_id == supplier_id)
+
+        if search is not None:
+            query = query.filter(ApiModel.name.ilike("%{}%".format(search)))
 
         total = query.count()
 
