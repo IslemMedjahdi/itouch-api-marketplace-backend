@@ -1,11 +1,13 @@
 from app.main.model.api_version_model import ApiVersion
 from app.main.model.api_model import ApiModel
+from app.main.model.api_request_model import ApiRequest
 from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
 from app.main.model.api_header_model import ApiVersionHeader
 from app.main import db
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from typing import Dict
 from app.main.utils.roles import Role
+from sqlalchemy import func
 
 
 class ApiVersionService:
@@ -99,9 +101,16 @@ class ApiVersionService:
             api_id=api_id, version=version
         ).all()
 
+        average_response_time = (
+            db.session.query(func.avg(ApiRequest.response_time))
+            .filter(ApiRequest.api_id == api_id)
+            .scalar()
+        )
+
         return {
             "version": version_data.ApiVersion.version,
             "status": version_data.ApiVersion.status,
+            "average_response_time": average_response_time,
             "created_at": version_data.ApiVersion.created_at.isoformat(),
             "updated_at": version_data.ApiVersion.updated_at.isoformat(),
             "api": {
@@ -149,10 +158,17 @@ class ApiVersionService:
 
         headers = ApiVersionHeader.query.filter_by(api_id=api_id, api_version=version)
 
+        average_response_time = (
+            db.session.query(func.avg(ApiRequest.response_time))
+            .filter(ApiRequest.api_id == api_id)
+            .scalar()
+        )
+
         return {
             "version": version_data.ApiVersion.version,
             "base_url": version_data.ApiVersion.base_url,
             "status": version_data.ApiVersion.status,
+            "average_response_time": average_response_time,
             "created_at": version_data.ApiVersion.created_at.isoformat(),
             "updated_at": version_data.ApiVersion.updated_at.isoformat(),
             "api": {

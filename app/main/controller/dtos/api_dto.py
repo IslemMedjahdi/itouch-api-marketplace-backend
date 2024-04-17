@@ -221,6 +221,7 @@ class ApiDto:
                         "id": fields.Integer(),
                         "name": fields.String(),
                         "description": fields.String(),
+                        "average_response_time": fields.Float(),
                         "category_id": fields.Integer(),
                         "category": fields.Nested(
                             api.model(
@@ -347,6 +348,7 @@ class ApiDto:
                     {
                         "version": fields.String(),
                         "status": fields.String(),
+                        "average_response_time": fields.Float(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),
                         "api": fields.Nested(
@@ -387,6 +389,7 @@ class ApiDto:
                     {
                         "version": fields.String(),
                         "status": fields.String(),
+                        "average_response_time": fields.Float(),
                         "base_url": fields.String(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),

@@ -3,6 +3,7 @@ import pytest
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
+from app.main.model.api_request_model import ApiRequest
 from app.main.model.user_model import User
 from app.main.model.api_version_model import ApiVersion
 from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
@@ -10,6 +11,7 @@ from app.main.model.api_header_model import ApiVersionHeader
 from app.main.utils.roles import Role
 from app.main.core.services.api_version_service import ApiVersionService
 from faker import Faker
+from sqlalchemy import func
 
 
 fake = Faker()
@@ -207,12 +209,18 @@ def test_create_api_version_already_exists(test_db, mock_data):
         api_version_service.create_api_version(api.id, supplier.id, data)
 
 
-def test_get_api_version(mock_data):
+def test_get_api_version(test_db, mock_data):
     api, versions, endpoints = (mock_data[2], mock_data[3], mock_data[4])
     api_version = versions[0]
+    average_response_time = (
+        test_db.session.query(func.avg(ApiRequest.response_time))
+        .filter(ApiRequest.api_id == api.id)
+        .scalar()
+    )
     expected_result = {
         "version": api_version.version,
         "status": api_version.status,
+        "average_response_time": average_response_time,
         "created_at": api_version.created_at.isoformat(),
         "updated_at": api_version.updated_at.isoformat(),
         "api": {"id": api.id, "name": api.name},
@@ -242,7 +250,7 @@ def test_get_api_version_not_found(mock_data):
         api_version_service.get_api_version(api.id, "10.0.0")
 
 
-def test_get_full_api_version(mock_data):
+def test_get_full_api_version(test_db, mock_data):
     supplier, api, versions, endpoints, headers = (
         mock_data[0],
         mock_data[2],
@@ -251,10 +259,16 @@ def test_get_full_api_version(mock_data):
         mock_data[5],
     )
     api_version = versions[0]
+    average_response_time = (
+        test_db.session.query(func.avg(ApiRequest.response_time))
+        .filter(ApiRequest.api_id == api.id)
+        .scalar()
+    )
     expected_result = {
         "version": api_version.version,
         "base_url": api_version.base_url,
         "status": api_version.status,
+        "average_response_time": average_response_time,
         "created_at": api_version.created_at.isoformat(),
         "updated_at": api_version.updated_at.isoformat(),
         "api": {"id": api.id, "name": api.name},
