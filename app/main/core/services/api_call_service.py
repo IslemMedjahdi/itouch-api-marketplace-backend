@@ -34,6 +34,8 @@ class ApiCallService:
 
         response_at = datetime.now()
 
+        response_time = response_at - request_at
+
         request_method = "GET"
 
         user_id = subscription.user_id
@@ -54,6 +56,7 @@ class ApiCallService:
             response_body=response_body,
             request_at=request_at,
             response_at=response_at,
+            response_time=response_time,
             http_status=status,
         )
 
@@ -83,6 +86,8 @@ class ApiCallService:
 
         response_at = datetime.now()
 
+        response_time = response_at - request_at
+
         request_method = "POST"
 
         user_id = subscription.user_id
@@ -103,6 +108,7 @@ class ApiCallService:
             response_body=response_body,
             request_at=request_at,
             response_at=response_at,
+            response_time=response_time,
             http_status=status,
         )
 
@@ -132,6 +138,8 @@ class ApiCallService:
 
         response_at = datetime.now()
 
+        response_time = response_at - request_at
+
         request_method = "PATCH"
 
         user_id = subscription.user_id
@@ -152,6 +160,7 @@ class ApiCallService:
             response_body=response_body,
             request_at=request_at,
             response_at=response_at,
+            response_time=response_time,
             http_status=status,
         )
 
@@ -179,6 +188,8 @@ class ApiCallService:
 
         response_at = datetime.now()
 
+        response_time = response_at - request_at
+
         request_method = "DELETE"
 
         user_id = subscription.user_id
@@ -199,6 +210,7 @@ class ApiCallService:
             response_body=response_body,
             request_at=request_at,
             response_at=response_at,
+            response_time=response_time,
             http_status=status,
         )
 
