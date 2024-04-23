@@ -5,6 +5,7 @@ from app.main import db
 from app.main.utils.validators import is_email_valid
 from app.main.utils.roles import Role
 from typing import Dict
+from sqlalchemy import func
 
 
 class UserService:
@@ -131,3 +132,18 @@ class UserService:
         user.phone_number = data.get("phone_number", user.phone_number)
 
         db.session.commit()
+
+    def get_users_statistics(self, query_params: Dict):
+        role = query_params.get("role")
+
+        query = db.session.query(func.count(User.id))
+
+        if not Role.role_exists(role):
+            raise BadRequestError("Role does not exist")
+
+        if role:
+            num_users = query.filter(User.role == role).scalar()
+        else:
+            num_users = query.scalar()
+
+        return {"users_number": num_users}

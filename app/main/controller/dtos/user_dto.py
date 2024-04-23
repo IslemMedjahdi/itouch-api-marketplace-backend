@@ -91,3 +91,7 @@ class UserDto:
             "lastname": fields.String(required=True, description="The user lastname"),
         },
     )
+
+    user_statistics_response = api.model(
+        "user_statistics_response", {"users_number": fields.Integer()}
+    )
