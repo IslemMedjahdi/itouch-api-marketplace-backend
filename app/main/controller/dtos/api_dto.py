@@ -543,6 +543,23 @@ class ApiDto:
         },
     )
 
+    subscriptions_per_day_list_response = api.model(
+        "subscriptions_per_day_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "subscriptions_per_day_list_data",
+                        {
+                            "date": fields.DateTime(),
+                            "count": fields.Integer(),
+                        },
+                    )
+                )
+            ),
+        },
+    )
+
     activate_api_key_request = api.model(
         "activate_api_key_request",
         {

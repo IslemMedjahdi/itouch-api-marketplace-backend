@@ -4,6 +4,7 @@ import math
 from typing import Dict
 
 from flask import Request
+from sqlalchemy import func
 
 from app.main import db
 
@@ -228,3 +229,29 @@ class ApiSubscriptionService:
             "expired": item.ApiSubscription.end_date < datetime.now(),
             "price": item.ApiSubscription.price,
         }
+
+    def get_subscriptions_per_day(self, api_id: int, role: str, supplier_id: str):
+        api = ApiModel.query.filter_by(id=api_id).first()
+
+        if api is None:
+            raise NotFoundError("No API found with id: {}".format(api_id))
+
+        if role == Role.SUPPLIER and api.supplier_id != supplier_id:
+            raise BadRequestError("You are not allowed to view this informations")
+
+        # Query to group subscriptions by start_date and count the number of subscriptions per day
+        subscriptions_per_day = (
+            db.session.query(
+                func.date(ApiSubscription.start_date), func.count(ApiSubscription.id)
+            )
+            .filter(ApiSubscription.api_id == api_id)
+            .group_by(func.date(ApiSubscription.start_date))
+            .all()
+        )
+
+        # Construct a list of dictionaries containing date and count
+        subscriptions_per_day_list = []
+        for date, count in subscriptions_per_day:
+            subscriptions_per_day_list.append({"date": date, "count": count})
+
+        return {"subscriptions_per_day_list": subscriptions_per_day_list}
