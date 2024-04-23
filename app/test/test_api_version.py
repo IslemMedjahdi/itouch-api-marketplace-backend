@@ -261,7 +261,7 @@ def test_get_full_api_version(test_db, mock_data):
     api_version = versions[0]
     average_response_time = (
         test_db.session.query(func.avg(ApiRequest.response_time))
-        .filter(ApiRequest.api_id == api.id)
+        .filter(ApiRequest.api_version == api_version.version)
         .scalar()
     )
     expected_result = {
