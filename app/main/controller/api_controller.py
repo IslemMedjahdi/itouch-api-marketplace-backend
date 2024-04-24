@@ -23,6 +23,7 @@ api_discussions = ApiDto.api_discussions
 api_subscription = ApiDto.api_subscription
 api_keys = ApiDto.api_keys
 api_calls = ApiDto.api_calls
+api_resquests = ApiDto.api_resquests
 
 
 @api_category.route("/categories/create")
@@ -624,3 +625,23 @@ class Votes(Resource):
             ),
             HTTPStatus.OK,
         )
+
+    @api_resquests.route("/<int:api_id>/requests")
+    class GetRequests(Resource):
+        @api_resquests.doc("get requests")
+        @api_resquests.response(HTTPStatus.OK, "Success", ApiDto.requests_list_response)
+        @role_token_required([Role.SUPPLIER])
+        @api_resquests.param("page", "The page number")
+        @api_resquests.param("per_page", "The per page number")
+        @api_resquests.param("api_id", "The API ID")
+        @api_resquests.param("http_status", "The http status of the request")
+        @api_resquests.param("start_date", "The start date")
+        @api_resquests.param("end_date", "The end date")
+        def get(self, id):
+            (
+                data,
+                pagination,
+            ) = ServicesInitializer.an_api_request_service.get_api_requests(
+                {**request.args, "supplier_id": top_g.user.get("id"), "api_id": id},
+            )
+            return {"data": data, "pagination": pagination}

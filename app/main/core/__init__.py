@@ -68,3 +68,9 @@ class ServicesInitializer:
         from app.main.core.services.api_call_service import ApiCallService
 
         return ApiCallService(rest_client=RestClientImpl())
+
+    @staticmethod
+    def an_api_request_service():
+        from app.main.core.services.api_request_service import ApiRequestService
+
+        return ApiRequestService()

@@ -24,6 +24,9 @@ class ApiDto:
     api_keys = Namespace("Api Keys", description="api keys related operations")
 
     api_calls = Namespace("Api Calls", description="api calls related operations")
+    api_resquests = Namespace(
+        "Api Requests", description="api requests related operations"
+    )
 
     api_keys_list_response = api_keys.model(
         "api_keys_list_response",
@@ -719,6 +722,7 @@ class ApiDto:
                             "http_status": fields.Integer(),
                             "request_at": fields.DateTime(),
                             "response_at": fields.DateTime(),
+                            "response_time": fields.Integer(),
                         },
                     )
                 )
