@@ -681,3 +681,58 @@ class ApiDto:
             "vote": fields.String(),
         },
     )
+
+    requests_list_response = api.model(
+        "requests_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "requests_list_data",
+                        {
+                            "id": fields.Integer(),
+                            "api_id": fields.Integer(),
+                            "api": fields.Nested(
+                                api.model(
+                                    "api_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "name": fields.String(),
+                                        "supplier_id": fields.Integer(),
+                                    },
+                                )
+                            ),
+                            "api_version": fields.String(),
+                            "user_id": fields.Integer(),
+                            "user": fields.Nested(
+                                api.model(
+                                    "api_user_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "firstname": fields.String(),
+                                        "lastname": fields.String(),
+                                    },
+                                )
+                            ),
+                            "request_url": fields.String(),
+                            "request_method": fields.String(),
+                            "http_status": fields.Integer(),
+                            "request_at": fields.DateTime(),
+                            "response_at": fields.DateTime(),
+                        },
+                    )
+                )
+            ),
+            "pagination": fields.Nested(
+                api.model(
+                    "requests_list_pagination",
+                    {
+                        "page": fields.Integer(),
+                        "per_page": fields.Integer(),
+                        "total": fields.Integer(),
+                        "pages": fields.Integer(),
+                    },
+                )
+            ),
+        },
+    )
