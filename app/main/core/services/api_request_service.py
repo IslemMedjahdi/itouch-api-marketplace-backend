@@ -9,7 +9,7 @@ from app.main.utils.exceptions import NotFoundError, BadRequestError
 
 class ApiRequestService:
 
-    def get_api_requests(self, query_params: Dict, api_id: int, supplier_id: str):
+    def get_api_requests(self, query_params: Dict, api_id: int, user_id: str):
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
         http_status = query_params.get("status", None)
@@ -22,7 +22,7 @@ class ApiRequestService:
             .join(ApiModel, ApiRequest.api_id == ApiModel.id)
             .join(
                 User,
-                ApiRequest.supplier_id == User.id,
+                ApiRequest.user_id == User.id,
             )
         )
 
@@ -31,7 +31,7 @@ class ApiRequestService:
         if api is None:
             raise NotFoundError("No API found with id: {}".format(api_id))
 
-        if api.supplier_id != supplier_id:
+        if api.supplier_id != user_id:
             raise BadRequestError("You are not allowed to view this requests")
 
         query = query.filter(ApiRequest.api_id == api_id)

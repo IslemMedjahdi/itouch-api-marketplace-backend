@@ -65,6 +65,19 @@ class GetCategoryById(Resource):
         }, HTTPStatus.OK
 
 
+@api_category.route("/categories/<int:id>/update")
+class UpdateCategory(Resource):
+    @api_category.doc("create category")
+    @api_category.expect(ApiDto.update_category_request, validate=True)
+    @api_category.response(HTTPStatus.OK, "success")
+    @role_token_required([Role.ADMIN])
+    def patch(self, id):
+        ServicesInitializer.an_api_category_service().update_category(
+            request.json, category_id=id
+        )
+        return Response(status=HTTPStatus.OK)
+
+
 @api.route("/create")
 class CreateApi(Resource):
     @api.doc("create api")

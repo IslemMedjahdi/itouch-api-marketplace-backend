@@ -59,6 +59,18 @@ class ApiDto:
         },
     )
 
+    update_category_request = api.model(
+        "update_category_request",
+        {
+            "name": fields.String(
+                required=True,
+            ),
+            "description": fields.String(
+                required=True,
+            ),
+        },
+    )
+
     categories_list_response = api.model(
         "categories_list_response",
         {

@@ -73,11 +73,8 @@ class NewSupplier(Resource):
 @api.route("/statistics")
 class GetUsersStatistics(Resource):
     @api.doc("Get Users Number")
-    @api.param("role", "The role of the user")
     @api.response(HTTPStatus.OK, "success", UserDto.user_statistics_response)
     @role_token_required([Role.ADMIN])
     def get(self):
-        users_number = ServicesInitializer.a_user_service().get_users_statistics(
-            request.args
-        )
+        users_number = ServicesInitializer.a_user_service().get_users_statistics()
         return {"data": users_number}, HTTPStatus.OK
