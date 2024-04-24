@@ -34,7 +34,7 @@ class ApiCallService:
 
         response_at = datetime.now()
 
-        response_time = response_at - request_at
+        response_time = (response_at - request_at).seconds
 
         request_method = "GET"
 
@@ -86,7 +86,7 @@ class ApiCallService:
 
         response_at = datetime.now()
 
-        response_time = response_at - request_at
+        response_time = (response_at - request_at).seconds
 
         request_method = "POST"
 
@@ -138,7 +138,7 @@ class ApiCallService:
 
         response_at = datetime.now()
 
-        response_time = response_at - request_at
+        response_time = (response_at - request_at).seconds
 
         request_method = "PATCH"
 
@@ -188,7 +188,7 @@ class ApiCallService:
 
         response_at = datetime.now()
 
-        response_time = response_at - request_at
+        response_time = (response_at - request_at).seconds
 
         request_method = "DELETE"
 
