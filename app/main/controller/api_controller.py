@@ -364,6 +364,24 @@ class ChargilyWebhook(Resource):
         return Response(status=HTTPStatus.OK)
 
 
+@api_subscription.route("/<int:id>/subscriptions/statistics")
+class GetSubscriptionsNumberPerDay(Resource):
+    @api_subscription.doc("get subscriptions per day")
+    @api_subscription.response(
+        HTTPStatus.OK, "Success", ApiDto.subscriptions_per_day_list_response
+    )
+    @role_token_required([Role.SUPPLIER, Role.ADMIN])
+    def get(self, id):
+        data = (
+            ServicesInitializer.an_api_subscription_service().get_subscriptions_per_day(
+                api_id=id,
+                supplier_id=top_g.user.get("id"),
+                role=top_g.user.get("role"),
+            )
+        )
+        return {"data": data}, HTTPStatus.OK
+
+
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
 class CreateApiKey(Resource):
     @api_keys.doc("create api key")

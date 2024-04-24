@@ -1,4 +1,5 @@
 from app.main import db
+from sqlalchemy import Interval
 
 
 class ApiRequest(db.Model):  # type: ignore
@@ -20,6 +21,7 @@ class ApiRequest(db.Model):  # type: ignore
     response_body = db.Column(db.String, nullable=False)
     request_at = db.Column(db.DateTime, nullable=False)
     response_at = db.Column(db.DateTime, nullable=False)
+    response_time = db.Column(Interval)
     http_status = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):

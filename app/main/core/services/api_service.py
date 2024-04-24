@@ -2,6 +2,7 @@ import math
 from typing import Dict
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
+from app.main.model.api_request_model import ApiRequest
 from app.main.model.api_plan_model import ApiPlan
 from app.main.model.user_model import User
 from app.main import db
@@ -9,6 +10,7 @@ from app.main.utils.exceptions import NotFoundError, BadRequestError
 from app.main.core.lib.media_manager import MediaManager
 from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.utils.roles import Role
+from sqlalchemy import func
 
 
 class ApiService:
@@ -201,11 +203,18 @@ class ApiService:
 
         plans = ApiPlan.query.filter_by(api_id=api.id).all()
 
+        average_response_time = (
+            db.session.query(func.avg(ApiRequest.response_time))
+            .filter(ApiRequest.api_id == api_id)
+            .scalar()
+        )
+
         api_dict = {
             "id": api.id,
             "name": api.name,
             "description": api.description,
             "status": api.status,
+            "average_response_time": average_response_time,
             "category_id": api.category_id,
             "category": {
                 "id": category.id,

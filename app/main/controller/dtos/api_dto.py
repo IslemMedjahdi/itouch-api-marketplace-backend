@@ -221,6 +221,7 @@ class ApiDto:
                         "id": fields.Integer(),
                         "name": fields.String(),
                         "description": fields.String(),
+                        "average_response_time": fields.Float(),
                         "category_id": fields.Integer(),
                         "category": fields.Nested(
                             api.model(
@@ -347,6 +348,7 @@ class ApiDto:
                     {
                         "version": fields.String(),
                         "status": fields.String(),
+                        "average_response_time": fields.Float(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),
                         "api": fields.Nested(
@@ -387,6 +389,7 @@ class ApiDto:
                     {
                         "version": fields.String(),
                         "status": fields.String(),
+                        "average_response_time": fields.Float(),
                         "base_url": fields.String(),
                         "created_at": fields.DateTime(),
                         "updated_at": fields.DateTime(),
@@ -540,6 +543,23 @@ class ApiDto:
         },
     )
 
+    subscriptions_per_day_list_response = api.model(
+        "subscriptions_per_day_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "subscriptions_per_day_list_data",
+                        {
+                            "date": fields.DateTime(),
+                            "count": fields.Integer(),
+                        },
+                    )
+                )
+            ),
+        },
+    )
+
     activate_api_key_request = api.model(
         "activate_api_key_request",
         {
@@ -659,5 +679,60 @@ class ApiDto:
             "user_id": fields.Integer(),
             "answer_id": fields.Integer(),
             "vote": fields.String(),
+        },
+    )
+
+    requests_list_response = api.model(
+        "requests_list_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "requests_list_data",
+                        {
+                            "id": fields.Integer(),
+                            "api_id": fields.Integer(),
+                            "api": fields.Nested(
+                                api.model(
+                                    "api_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "name": fields.String(),
+                                        "supplier_id": fields.Integer(),
+                                    },
+                                )
+                            ),
+                            "api_version": fields.String(),
+                            "user_id": fields.Integer(),
+                            "user": fields.Nested(
+                                api.model(
+                                    "api_user_info_data",
+                                    {
+                                        "id": fields.Integer(),
+                                        "firstname": fields.String(),
+                                        "lastname": fields.String(),
+                                    },
+                                )
+                            ),
+                            "request_url": fields.String(),
+                            "request_method": fields.String(),
+                            "http_status": fields.Integer(),
+                            "request_at": fields.DateTime(),
+                            "response_at": fields.DateTime(),
+                        },
+                    )
+                )
+            ),
+            "pagination": fields.Nested(
+                api.model(
+                    "requests_list_pagination",
+                    {
+                        "page": fields.Integer(),
+                        "per_page": fields.Integer(),
+                        "total": fields.Integer(),
+                        "pages": fields.Integer(),
+                    },
+                )
+            ),
         },
     )

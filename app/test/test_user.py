@@ -15,6 +15,28 @@ fake = Faker()
 user_service = UserService(media_manager=MediaManagerMock())
 
 
+def test_get_users_statistics(test_db):
+
+    query_params = {"role": None}
+    users_number = user_service.get_users_statistics(query_params)["users_number"]
+    assert users_number == 1
+
+
+def test_get_users_statistics_with_role_filter(test_db):
+
+    query_params = {"role": Role.ADMIN}
+    users_number = user_service.get_users_statistics(query_params)["users_number"]
+    assert users_number == 1
+
+
+def test_get_users_statistics_with_non_existent_role(test_db):
+
+    query_params = {"role": "non existent role"}
+
+    with pytest.raises(BadRequestError):
+        user_service.get_users_statistics(query_params)["users_number"]
+
+
 def test_get_users(test_db):
     password = fake.password()
     new_user = add_user(

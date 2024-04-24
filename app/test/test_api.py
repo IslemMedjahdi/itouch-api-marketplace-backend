@@ -2,8 +2,10 @@ import pytest
 from unittest.mock import Mock
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
+from app.main.model.api_request_model import ApiRequest
 from app.main.model.user_model import User
 from app.main.model.api_plan_model import ApiPlan
+from sqlalchemy import func
 
 
 # from .fixtures.user.add_user import add_user
@@ -444,18 +446,24 @@ def test_get_apis_with_filter(api_service, mock_data):
     assert pagination == expected_pagination
 
 
-def test_get_api_by_id(api_service, mock_data):
+def test_get_api_by_id(test_db, api_service, mock_data):
     supplier1, category1, api1, plans = (
         mock_data[0],
         mock_data[2],
         mock_data[5],
         mock_data[8],
     )
+    average_response_time = (
+        test_db.session.query(func.avg(ApiRequest.response_time))
+        .filter(ApiRequest.api_id == api1.id)
+        .scalar()
+    )
     expected_result = {
         "id": api1.id,
         "name": api1.name,
         "description": api1.description,
         "status": api1.status,
+        "average_response_time": average_response_time,
         "category_id": api1.category_id,
         "category": {"id": category1.id, "name": category1.name},
         "supplier_id": api1.supplier_id,
