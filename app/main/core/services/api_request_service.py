@@ -81,8 +81,9 @@ class ApiRequestService:
                 "request_url": request.request_url,
                 "request_method": request.request_method,
                 "http_status": request.http_status,
-                "request_at": api.request_at.isoformat(),
-                "response_at": api.response_at.isoformat(),
+                "request_at": request.request_at.isoformat(),
+                "response_at": request.response_at.isoformat(),
+                "response_time": request.response_time,
             }
             result.append(request_dict)
 
