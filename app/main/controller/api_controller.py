@@ -639,14 +639,13 @@ class Votes(Resource):
             HTTPStatus.OK,
         )
 
-    @api_resquests.route("/<int:api_id>/requests")
+    @api_resquests.route("/<int:id>/requests")
     class GetRequests(Resource):
         @api_resquests.doc("get requests")
         @api_resquests.response(HTTPStatus.OK, "Success", ApiDto.requests_list_response)
         @role_token_required([Role.SUPPLIER])
         @api_resquests.param("page", "The page number")
         @api_resquests.param("per_page", "The per page number")
-        @api_resquests.param("api_id", "The API ID")
         @api_resquests.param("http_status", "The http status of the request")
         @api_resquests.param("start_date", "The start date")
         @api_resquests.param("end_date", "The end date")
@@ -654,7 +653,7 @@ class Votes(Resource):
             (
                 data,
                 pagination,
-            ) = ServicesInitializer.an_api_request_service.get_api_requests(
-                {**request.args, "supplier_id": top_g.user.get("id"), "api_id": id},
+            ) = ServicesInitializer.an_api_request_service().get_api_requests(
+                query_params=request.args, user_id=top_g.user.get("id"), api_id=id
             )
             return {"data": data, "pagination": pagination}

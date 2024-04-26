@@ -9,7 +9,7 @@ from app.main.utils.exceptions import NotFoundError, BadRequestError
 
 class ApiRequestService:
 
-    def get_api_requests(self, query_params: Dict, api_id: int, user_id: str):
+    def get_api_requests(self, query_params: Dict, user_id: str, api_id: int):
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
         http_status = query_params.get("status", None)
