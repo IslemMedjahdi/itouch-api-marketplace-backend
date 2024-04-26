@@ -647,6 +647,7 @@ class Votes(Resource):
         @api_resquests.param("page", "The page number")
         @api_resquests.param("per_page", "The per page number")
         @api_resquests.param("http_status", "The http status of the request")
+        @api_resquests.param("version", "The api version")
         @api_resquests.param("start_date", "The start date")
         @api_resquests.param("end_date", "The end date")
         def get(self, id):

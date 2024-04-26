@@ -12,7 +12,7 @@ class ApiRequestService:
     def get_api_requests(self, query_params: Dict, user_id: str, api_id: int):
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
-        http_status = query_params.get("status", None)
+        http_status = query_params.get("http_status", None)
         api_version = query_params.get("version")
         start_date = query_params.get("start_date")
         end_date = query_params.get("end_date")
