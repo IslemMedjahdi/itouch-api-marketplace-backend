@@ -40,6 +40,7 @@ class ApiRequestService:
             query = query.filter(ApiRequest.http_status == http_status)
 
         if api_version is not None:
+            api_version = api_version.lower()
             query = query.filter(ApiRequest.api_version == api_version)
 
         if start_date is not None:
@@ -71,7 +72,7 @@ class ApiRequestService:
                     "name": api.name,
                     "supplier_id": api.supplier_id,
                 },
-                "api_version": api_version,
+                "api_version": request.api_version,
                 "user_id": user.id,
                 "user": {
                     "id": user.id,

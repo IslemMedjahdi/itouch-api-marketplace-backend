@@ -96,7 +96,7 @@ class UserDto:
         "user_statistics_response",
         {
             "users_number": fields.Integer(),
-            "supplier_numbers": fields.Integer(),
-            "admin_numbers": fields.Integer,
+            "suppliers_number": fields.Integer(),
+            "admins_number": fields.Integer,
         },
     )
