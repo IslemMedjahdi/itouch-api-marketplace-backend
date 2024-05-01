@@ -143,6 +143,6 @@ class UserService:
 
         return {
             "users_number": num_users,
-            "supplier_number": num_supplier,
-            "admin_number": num_admin,
+            "suppliers_number": num_supplier,
+            "admins_number": num_admin,
         }

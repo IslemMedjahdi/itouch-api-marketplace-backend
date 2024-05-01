@@ -103,7 +103,8 @@ class ApiVersionService:
 
         average_response_time = (
             db.session.query(func.avg(ApiRequest.response_time))
-            .filter(ApiRequest.api_version == api_id)
+            .filter(ApiRequest.api_version == version)
+            .filter(ApiRequest.api_id == api_id)
             .scalar()
         )
 
@@ -161,6 +162,7 @@ class ApiVersionService:
         average_response_time = (
             db.session.query(func.avg(ApiRequest.response_time))
             .filter(ApiRequest.api_version == version)
+            .filter(ApiRequest.api_id == api_id)
             .scalar()
         )
 

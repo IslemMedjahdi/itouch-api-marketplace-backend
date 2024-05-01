@@ -16,25 +16,12 @@ user_service = UserService(media_manager=MediaManagerMock())
 
 
 def test_get_users_statistics(test_db):
-
-    query_params = {"role": None}
-    users_number = user_service.get_users_statistics(query_params)["users_number"]
-    assert users_number == 1
-
-
-def test_get_users_statistics_with_role_filter(test_db):
-
-    query_params = {"role": Role.ADMIN}
-    users_number = user_service.get_users_statistics(query_params)["users_number"]
-    assert users_number == 1
-
-
-def test_get_users_statistics_with_non_existent_role(test_db):
-
-    query_params = {"role": "non existent role"}
-
-    with pytest.raises(BadRequestError):
-        user_service.get_users_statistics(query_params)["users_number"]
+    users_number = user_service.get_users_statistics()["users_number"]
+    suppliers_number = user_service.get_users_statistics()["suppliers_number"]
+    admins_number = user_service.get_users_statistics()["admins_number"]
+    assert users_number == 0
+    assert suppliers_number == 0
+    assert admins_number == 1
 
 
 def test_get_users(test_db):
