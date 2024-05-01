@@ -24,6 +24,9 @@ class ApiDto:
     api_keys = Namespace("Api Keys", description="api keys related operations")
 
     api_calls = Namespace("Api Calls", description="api calls related operations")
+    api_resquests = Namespace(
+        "Api Requests", description="api requests related operations"
+    )
 
     api_keys_list_response = api_keys.model(
         "api_keys_list_response",
@@ -46,6 +49,18 @@ class ApiDto:
 
     create_category_request = api.model(
         "create_category_request",
+        {
+            "name": fields.String(
+                required=True,
+            ),
+            "description": fields.String(
+                required=True,
+            ),
+        },
+    )
+
+    update_category_request = api.model(
+        "update_category_request",
         {
             "name": fields.String(
                 required=True,
@@ -719,6 +734,7 @@ class ApiDto:
                             "http_status": fields.Integer(),
                             "request_at": fields.DateTime(),
                             "response_at": fields.DateTime(),
+                            "response_time": fields.Integer(),
                         },
                     )
                 )

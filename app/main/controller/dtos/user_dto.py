@@ -93,5 +93,10 @@ class UserDto:
     )
 
     user_statistics_response = api.model(
-        "user_statistics_response", {"users_number": fields.Integer()}
+        "user_statistics_response",
+        {
+            "users_number": fields.Integer(),
+            "supplier_numbers": fields.Integer(),
+            "admin_numbers": fields.Integer,
+        },
     )

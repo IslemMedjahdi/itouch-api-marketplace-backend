@@ -9,10 +9,10 @@ from app.main.utils.exceptions import NotFoundError, BadRequestError
 
 class ApiRequestService:
 
-    def get_api_requests(self, query_params: Dict, api_id: int, user_id: str):
+    def get_api_requests(self, query_params: Dict, user_id: str, api_id: int):
         page = int(query_params.get("page", 1))
         per_page = int(query_params.get("per_page", 10))
-        http_status = query_params.get("status", None)
+        http_status = query_params.get("http_status", None)
         api_version = query_params.get("version")
         start_date = query_params.get("start_date")
         end_date = query_params.get("end_date")
@@ -81,8 +81,9 @@ class ApiRequestService:
                 "request_url": request.request_url,
                 "request_method": request.request_method,
                 "http_status": request.http_status,
-                "request_at": api.request_at.isoformat(),
-                "response_at": api.response_at.isoformat(),
+                "request_at": request.request_at.isoformat(),
+                "response_at": request.response_at.isoformat(),
+                "response_time": request.response_time,
             }
             result.append(request_dict)
 

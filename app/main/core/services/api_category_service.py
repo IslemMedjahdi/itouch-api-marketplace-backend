@@ -66,3 +66,18 @@ class ApiCategoryService:
         }
 
         return category_dict
+
+    def update_category(self, data: Dict, category_id):
+
+        category = ApiCategory.query.filter_by(id=category_id).first()
+
+        if category is None:
+            raise NotFoundError("No category found with id: {}".format(category_id))
+
+        if data.get("name", None) is not None:
+            category.name = data.get("name", None)
+
+        if data.get("description", None) is not None:
+            category.description = data.get("description", None)
+
+        db.session.commit()
