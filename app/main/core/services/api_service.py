@@ -286,6 +286,7 @@ class ApiService:
             db.session.query(ApiModel, ApiSubscription)
             .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
             .filter(ApiModel.supplier_id == supplier_id)
+            .filter(ApiSubscription.max_requests > 0)
         )
 
         num_users = query.distinct(ApiSubscription.user_id).count()
