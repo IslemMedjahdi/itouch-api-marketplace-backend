@@ -189,6 +189,20 @@ class DeactivateApi(Resource):
         return Response(status=HTTPStatus.OK)
 
 
+@api.route("/mine/count")
+class GetMyApisCount(Resource):
+    @api.doc("get my apis count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        api_count = ServicesInitializer.an_api_service().get_apis_count(
+            supplier_id=top_g.user.get("id")
+        )
+        return {
+            "data": api_count,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

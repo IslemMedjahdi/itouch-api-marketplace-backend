@@ -266,3 +266,15 @@ class ApiService:
         api.status = "inactive"
 
         db.session.commit()
+
+    def get_apis_count(self, supplier_id):
+
+        num_apis = (
+            db.session.query(func.count(ApiModel.id))
+            .filter(ApiModel.supplier_id == supplier_id)
+            .scalar()
+        )
+
+        return {
+            "apis_number": num_apis,
+        }
