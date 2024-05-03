@@ -192,14 +192,28 @@ class DeactivateApi(Resource):
 @api.route("/mine/count")
 class GetMyApisCount(Resource):
     @api.doc("get my apis count")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.api_count_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_count_response)
     @role_token_required([Role.SUPPLIER])
     def get(self):
-        api_count = ServicesInitializer.an_api_service().get_apis_count(
+        apis_count = ServicesInitializer.an_api_service().get_apis_count(
             supplier_id=top_g.user.get("id")
         )
         return {
-            "data": api_count,
+            "data": apis_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/users/count")
+class GetMyApisUsersCount(Resource):
+    @api.doc("get my apis  users count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_users_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        users_count = ServicesInitializer.an_api_service().get_users_count(
+            supplier_id=top_g.user.get("id")
+        )
+        return {
+            "data": users_count,
         }, HTTPStatus.OK
 
 

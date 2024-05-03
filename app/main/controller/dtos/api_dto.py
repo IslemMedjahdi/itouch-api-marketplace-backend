@@ -282,10 +282,17 @@ class ApiDto:
         },
     )
 
-    api_count_response = api.model(
+    apis_count_response = api.model(
         "api_count_response",
         {
             "apis_number": fields.Integer(),
+        },
+    )
+
+    apis_users_count_response = api.model(
+        "apis_users_count_response",
+        {
+            "users_number": fields.Integer(),
         },
     )
 

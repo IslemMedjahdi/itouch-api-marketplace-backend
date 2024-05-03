@@ -3,6 +3,7 @@ from typing import Dict
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
 from app.main.model.api_request_model import ApiRequest
+from app.main.model.api_subscription_model import ApiSubscription
 from app.main.model.api_plan_model import ApiPlan
 from app.main.model.user_model import User
 from app.main import db
@@ -277,4 +278,18 @@ class ApiService:
 
         return {
             "apis_number": num_apis,
+        }
+
+    def get_users_count(self, supplier_id):
+
+        query = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(ApiModel.supplier_id == supplier_id)
+        )
+
+        num_users = query.distinct(ApiSubscription.user_id).count()
+
+        return {
+            "users_number": num_users,
         }
