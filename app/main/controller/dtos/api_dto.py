@@ -296,6 +296,13 @@ class ApiDto:
         },
     )
 
+    apis_active_subscriptions_count_response = api.model(
+        "apis_active_subscriptions_count_response",
+        {
+            "active_subscription_number": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {

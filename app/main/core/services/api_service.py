@@ -12,6 +12,7 @@ from app.main.core.lib.media_manager import MediaManager
 from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.utils.roles import Role
 from sqlalchemy import func
+from datetime import datetime
 
 
 class ApiService:
@@ -281,11 +282,14 @@ class ApiService:
         }
 
     def get_users_count(self, supplier_id):
+        current_date = datetime.now()
 
         query = (
             db.session.query(ApiModel, ApiSubscription)
             .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
             .filter(ApiModel.supplier_id == supplier_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.end_date > current_date)
             .filter(ApiSubscription.max_requests > 0)
         )
 
@@ -293,4 +297,22 @@ class ApiService:
 
         return {
             "users_number": num_users,
+        }
+
+    def get_active_subscriptions_count(self, supplier_id):
+        current_date = datetime.now()
+
+        query = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.end_date > current_date)
+            .filter(ApiSubscription.max_requests > 0)
+        )
+
+        num_users = query.count()
+
+        return {
+            "active_subscription_number": num_users,
         }

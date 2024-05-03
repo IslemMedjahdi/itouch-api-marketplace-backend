@@ -217,6 +217,24 @@ class GetMyApisUsersCount(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/subscriptions/count")
+class GetMyApisActiveSubscriptionsCount(Resource):
+    @api.doc("get my apis  users count")
+    @api.response(
+        HTTPStatus.OK, "Success", ApiDto.apis_active_subscriptions_count_response
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        subscription_count = (
+            ServicesInitializer.an_api_service().get_active_subscriptions_count(
+                supplier_id=top_g.user.get("id")
+            )
+        )
+        return {
+            "data": subscription_count,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")
