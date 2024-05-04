@@ -291,6 +291,22 @@ class GetMyApiPopularity(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/revenue")
+class GetMyApiMonthlyRevenue(Resource):
+    @api.doc("get my api monthly revenue")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_revenue_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        revenue = ServicesInitializer.an_api_service().get_api_monthly_revenue(
+            {**request.args}, api_id=id
+        )
+        return {
+            "data": revenue,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

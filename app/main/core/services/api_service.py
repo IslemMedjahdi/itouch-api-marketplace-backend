@@ -406,3 +406,25 @@ class ApiService:
         return {
             "popularity": popularity,
         }
+
+    def get_api_monthly_revenue(self, query_params: Dict, api_id):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
+        # Query to sum up the prices of active subscriptions for the API within the specified period
+        total_revenue = (
+            db.session.query(func.sum(ApiSubscription.price))
+            .filter(ApiSubscription.api_id == api_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.start_date <= end_date)
+            .filter(ApiSubscription.end_date >= start_date)
+            .scalar()
+            or 0  # Return 0 if there are no active subscriptions
+        )
+
+        return {"total_revenue": total_revenue}

@@ -331,6 +331,13 @@ class ApiDto:
         },
     )
 
+    api_total_revenue_response = api.model(
+        "api_total_revenue_response",
+        {
+            "total_revenue": fields.Float(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
