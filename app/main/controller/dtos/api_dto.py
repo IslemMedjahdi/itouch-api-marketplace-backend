@@ -317,6 +317,13 @@ class ApiDto:
         },
     )
 
+    api_service_level_response = api.model(
+        "api_service_level_response",
+        {
+            "service_level": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {

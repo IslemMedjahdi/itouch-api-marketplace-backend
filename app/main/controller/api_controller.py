@@ -265,6 +265,20 @@ class GetMyApiEndpointsCount(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/service-level")
+class GetMyApiServiceLevel(Resource):
+    @api.doc("get my api service level")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_service_level_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        service_level = ServicesInitializer.an_api_service().get_api_service_level(
+            api_id=id
+        )
+        return {
+            "data": service_level,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

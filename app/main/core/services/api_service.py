@@ -358,3 +358,22 @@ class ApiService:
         return {
             "endpoints_number": endpoints,
         }
+
+    def get_api_service_level(self, api_id):
+
+        query = db.session.query(ApiRequest.id).filter(
+            ApiRequest.api_id == api_id,
+        )
+        total_requests = query.count()
+        successful_requests = query.filter(
+            ApiRequest.http_status >= 200, ApiRequest.http_status < 300
+        ).count()
+
+        if total_requests > 0:
+            service_level = (successful_requests / total_requests) * 100
+        else:
+            service_level = 0
+
+        return {
+            "service_level": service_level,
+        }
