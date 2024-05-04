@@ -377,3 +377,32 @@ class ApiService:
         return {
             "service_level": service_level,
         }
+
+    def get_api_popularity(self, api_id):
+        current_date = datetime.now()
+
+        api_users = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(ApiModel.id == api_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.end_date > current_date)
+            .filter(ApiSubscription.max_requests > 0)
+            .distinct()
+            .count()
+        )
+
+        total_users = (
+            db.session.query(func.count(User.id))
+            .filter(User.role == Role.USER)
+            .scalar()
+        )
+
+        if total_users > 0:
+            popularity = (api_users / total_users) * 9 + 1
+        else:
+            popularity = 0
+
+        return {
+            "popularity": popularity,
+        }

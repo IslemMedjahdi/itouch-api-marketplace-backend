@@ -279,6 +279,18 @@ class GetMyApiServiceLevel(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/popularity")
+class GetMyApiPopularity(Resource):
+    @api.doc("get my api popularity")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_popularity_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        popularity = ServicesInitializer.an_api_service().get_api_popularity(api_id=id)
+        return {
+            "data": popularity,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

@@ -324,6 +324,13 @@ class ApiDto:
         },
     )
 
+    api_popularity_response = api.model(
+        "api_popularity_response",
+        {
+            "popularity": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
