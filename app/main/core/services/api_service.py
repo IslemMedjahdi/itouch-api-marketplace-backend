@@ -428,3 +428,29 @@ class ApiService:
         )
 
         return {"total_revenue": total_revenue}
+
+    def get_api_average_successfully_response_time(self, api_id):
+        # Query to get the total time responses and the number of requests passed successfully.
+        result = (
+            db.session.query(
+                func.sum(ApiRequest.response_time),  # Total time responses
+                func.count(ApiRequest.id),  # Number of requests
+            )
+            .filter(ApiRequest.api_id == api_id)
+            .filter(ApiRequest.http_status >= 200)
+            .filter(ApiRequest.http_status < 300)
+            .first()  # Retrieve the first result tuple
+        )
+
+        total_time_responses, num_requests = result or (
+            0,
+            0,
+        )  # Set default values 0 if result is None
+
+        # Calculate average time
+        if num_requests > 0:
+            average_time = total_time_responses / num_requests
+        else:
+            average_time = 0
+
+        return {"average_successfully_response_time": average_time}

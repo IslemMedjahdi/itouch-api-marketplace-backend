@@ -307,6 +307,22 @@ class GetMyApiMonthlyRevenue(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/avg-succ-response-time")
+class GetMyApiAverageSuccessfullyResponseTime(Resource):
+    @api.doc("get my api monthly revenue")
+    @api.response(
+        HTTPStatus.OK, "Success", ApiDto.api_average_successfully_response_time_response
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        average_time = ServicesInitializer.an_api_service().get_api_average_successfully_response_time(
+            api_id=id
+        )
+        return {
+            "data": average_time,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

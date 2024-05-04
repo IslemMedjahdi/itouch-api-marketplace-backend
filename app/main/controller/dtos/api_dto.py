@@ -338,6 +338,13 @@ class ApiDto:
         },
     )
 
+    api_average_successfully_response_time_response = api.model(
+        "api_average_successfully_response_time_response",
+        {
+            "average_successfully_response_time": fields.Float(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
