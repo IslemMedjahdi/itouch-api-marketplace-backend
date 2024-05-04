@@ -2,6 +2,7 @@ import math
 from typing import Dict
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
 from app.main.model.api_request_model import ApiRequest
 from app.main.model.api_subscription_model import ApiSubscription
 from app.main.model.api_plan_model import ApiPlan
@@ -342,4 +343,18 @@ class ApiService:
 
         return {
             "monthly_subscribers": subscribers,
+        }
+
+    def get_endpoints_count(self, api_id):
+
+        endpoints = (
+            db.session.query(ApiVersionEndpoint.id)
+            .filter(
+                ApiVersionEndpoint.api_id == api_id,
+            )
+            .count()
+        )
+
+        return {
+            "endpoints_number": endpoints,
         }

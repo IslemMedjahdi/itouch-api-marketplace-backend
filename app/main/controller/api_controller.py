@@ -251,6 +251,20 @@ class GetMyApiMonthlySubscribers(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/endpoints/count")
+class GetMyApiEndpointsCount(Resource):
+    @api.doc("get my api endpoints count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_endpoints_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        endpoints_count = ServicesInitializer.an_api_service().get_endpoints_count(
+            api_id=id
+        )
+        return {
+            "data": endpoints_count,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

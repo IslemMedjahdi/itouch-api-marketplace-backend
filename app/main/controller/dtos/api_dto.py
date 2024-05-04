@@ -310,6 +310,13 @@ class ApiDto:
         },
     )
 
+    api_endpoints_count_response = api.model(
+        "api_endpoints_count_response",
+        {
+            "endpoints_number": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
