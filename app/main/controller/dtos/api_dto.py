@@ -352,6 +352,63 @@ class ApiDto:
         },
     )
 
+    api_total_transactions_by_month_response = api.model(
+        "api_total_transactions_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "monthly_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "total_transactions": fields.Integer(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_transactions_by_day_response = api.model(
+        "api_total_transactions_by_day_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "dayly_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "total_transactions": fields.Integer(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_transactions_by_hour_response = api.model(
+        "api_total_transactions_by_hour_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "by_hour_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "hour": fields.Integer(),
+                            "total_transactions": fields.Integer(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {

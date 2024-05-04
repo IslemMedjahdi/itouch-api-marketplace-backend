@@ -803,4 +803,43 @@ class Votes(Resource):
             ) = ServicesInitializer.an_api_request_service().get_api_requests(
                 query_params=request.args, user_id=top_g.user.get("id"), api_id=id
             )
-            return {"data": data, "pagination": pagination}
+            return {"data": data, "pagination": pagination}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/month")
+    class GetRequestsByMonth(Resource):
+        @api_resquests.doc("get total requests by month")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_month_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_month()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/day")
+    class GetRequestsByDay(Resource):
+        @api_resquests.doc("get total requests by day")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_day_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_day()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/hour")
+    class GetRequestsByHour(Resource):
+        @api_resquests.doc("get total requests by hour")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_hour_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_hour()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK
