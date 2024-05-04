@@ -345,6 +345,13 @@ class ApiDto:
         },
     )
 
+    api_total_apis_count_response = api.model(
+        "api_total_apis_count_response",
+        {
+            "total_apis_count": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {

@@ -323,6 +323,18 @@ class GetMyApiAverageSuccessfullyResponseTime(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/count")
+class GetTotalApisCount(Resource):
+    @api.doc("get the total apis count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_apis_count_response)
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_apis = ServicesInitializer.an_api_service().get_total_apis_count()
+        return {
+            "data": total_apis,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

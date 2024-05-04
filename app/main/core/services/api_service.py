@@ -454,3 +454,11 @@ class ApiService:
             average_time = 0
 
         return {"average_successfully_response_time": average_time}
+
+    def get_total_apis_count(self):
+
+        total_apis = db.session.query(func.count(ApiModel.id)).scalar()
+
+        return {
+            "total_apis_count": total_apis,
+        }
