@@ -542,6 +542,54 @@ class GetSubscriptionsNumberPerDay(Resource):
         return {"data": data}, HTTPStatus.OK
 
 
+@api_subscription.route("/subscriptions/revenue/month")
+class GetSubscriptionRevenuesByMonth(Resource):
+    @api_subscription.doc("get total subscription revenue by month")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_month_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = (
+            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_month()
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue/day")
+class GetSubscriptionRevenuesByDay(Resource):
+    @api_subscription.doc("get total subscription revenue by day")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_day_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = (
+            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_day()
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue/hour")
+class GetSubscriptionRevenuesByHour(Resource):
+    @api_subscription.doc("get total subscription revenue by hour")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_hour_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = (
+            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_hour()
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
 class CreateApiKey(Resource):
     @api_keys.doc("create api key")

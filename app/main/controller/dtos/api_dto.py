@@ -702,6 +702,63 @@ class ApiDto:
         },
     )
 
+    api_total_subscription_revenue_by_month_response = api.model(
+        "api_total_subscription_revenue_by_month_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "monthly_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_subscription_revenue_by_day_response = api.model(
+        "api_total_subscription_revenue_by_day_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "mdayly_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_subscription_revenue_by_hour_response = api.model(
+        "api_total_subscription_revenue_by_hour_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "by_hour_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "hour": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
     activate_api_key_request = api.model(
         "activate_api_key_request",
         {

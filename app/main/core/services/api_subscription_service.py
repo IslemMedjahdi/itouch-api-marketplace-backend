@@ -4,7 +4,7 @@ import math
 from typing import Dict
 
 from flask import Request
-from sqlalchemy import func
+from sqlalchemy import func, extract
 
 from app.main import db
 
@@ -255,3 +255,92 @@ class ApiSubscriptionService:
             subscriptions_per_day_list.append({"date": date, "count": count})
 
         return {"subscriptions_per_day_list": subscriptions_per_day_list}
+
+    def get_total_subscription_revenue_by_month(self):
+        # Query to calculate total subscription revenue by month
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+            )
+            .order_by("year", "month")
+            .all()
+        )
+        response_data = [
+            {
+                "year": year,
+                "month": month,
+                "total_revenues": revenues,
+            }
+            for year, month, revenues in total_revenue
+        ]
+
+        return {"data": response_data}
+
+    def get_total_subscription_revenue_by_day(self):
+        # Query to calculate total subscription revenue by day
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                extract("day", ApiSubscription.start_date).label("day"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+                extract("day", ApiSubscription.start_date),
+            )
+            .order_by("year", "month", "day")
+            .all()
+        )
+
+        response_data = [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "total_revenues": revenues,
+            }
+            for year, month, day, revenues in total_revenue
+        ]
+
+        return {"data": response_data}
+
+    def get_total_subscription_revenue_by_hour(self):
+        # Query to calculate total subscription revenue by hour
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                extract("day", ApiSubscription.start_date).label("day"),
+                extract("hour", ApiSubscription.start_date).label("hour"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+                extract("day", ApiSubscription.start_date),
+                extract("hour", ApiSubscription.start_date),
+            )
+            .order_by("year", "month", "day", "hour")
+            .all()
+        )
+
+        response_data = [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "hour": hour,
+                "total_revenues": revenues,
+            }
+            for year, month, day, hour, revenues in total_revenue
+        ]
+
+        return {"data": response_data}
