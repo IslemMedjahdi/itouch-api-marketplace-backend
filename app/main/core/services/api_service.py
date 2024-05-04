@@ -12,7 +12,7 @@ from app.main.core.lib.media_manager import MediaManager
 from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.utils.roles import Role
 from sqlalchemy import func
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class ApiService:
@@ -305,14 +305,41 @@ class ApiService:
         query = (
             db.session.query(ApiModel, ApiSubscription)
             .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
-            .filter(ApiModel.supplier_id == supplier_id)
-            .filter(ApiSubscription.status == "active")
-            .filter(ApiSubscription.end_date > current_date)
-            .filter(ApiSubscription.max_requests > 0)
+            .filter(
+                ApiModel.supplier_id == supplier_id,
+                ApiSubscription.status == "active",
+                ApiSubscription.end_date > current_date,
+                ApiSubscription.max_requests > 0,
+            )
         )
 
         num_users = query.count()
 
         return {
             "active_subscription_number": num_users,
+        }
+
+    def get_api_monthly_subscribers(self, query_params: Dict, api_id):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
+
+        subscribers = (
+            db.session.query(ApiSubscription.user_id)
+            .filter(
+                ApiSubscription.api_id == api_id,
+                ApiSubscription.start_date <= end_date,
+                ApiSubscription.end_date >= start_date,
+            )
+            .distinct()
+            .count()
+        )
+
+        return {
+            "monthly_subscribers": subscribers,
         }

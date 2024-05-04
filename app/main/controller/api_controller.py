@@ -235,6 +235,22 @@ class GetMyApisActiveSubscriptionsCount(Resource):
         }, HTTPStatus.OK
 
 
+@api.route("/mine/<int:id>/users/count")
+class GetMyApiMonthlySubscribers(Resource):
+    @api.doc("get my api monthly subscribers")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_users_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        users_count = ServicesInitializer.an_api_service().get_api_monthly_subscribers(
+            {**request.args}, api_id=id
+        )
+        return {
+            "data": users_count,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

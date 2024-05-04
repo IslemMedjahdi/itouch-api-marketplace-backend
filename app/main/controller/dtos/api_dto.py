@@ -303,6 +303,13 @@ class ApiDto:
         },
     )
 
+    api_per_month_count_response = api.model(
+        "apis_per_month_count_response",
+        {
+            "monthly_subscribers": fields.Integer(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
