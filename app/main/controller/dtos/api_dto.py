@@ -296,11 +296,9 @@ class ApiDto:
         },
     )
 
-    apis_active_subscriptions_count_response = api.model(
-        "apis_active_subscriptions_count_response",
-        {
-            "active_subscription_number": fields.Integer(),
-        },
+    apis_total_revenue_response = api.model(
+        "apis_total_revenue_response",
+        {"total_revenue": fields.Float()},
     )
 
     api_per_month_count_response = api.model(

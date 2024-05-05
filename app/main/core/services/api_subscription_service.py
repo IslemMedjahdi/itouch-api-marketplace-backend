@@ -344,3 +344,8 @@ class ApiSubscriptionService:
         ]
 
         return {"data": response_data}
+
+    # def calculate_total_subscription_revenue():
+    #     # Query to calculate total subscription revenue
+    #     total_revenue = db.session.query(func.sum(ApiSubscription.price)).scalar() or 0
+    #     return total_revenue

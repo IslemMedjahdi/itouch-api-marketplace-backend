@@ -301,23 +301,17 @@ class ApiService:
         }
 
     def get_active_subscriptions_count(self, supplier_id):
-        current_date = datetime.now()
 
-        query = (
-            db.session.query(ApiModel, ApiSubscription)
-            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
-            .filter(
-                ApiModel.supplier_id == supplier_id,
-                ApiSubscription.status == "active",
-                ApiSubscription.end_date > current_date,
-                ApiSubscription.max_requests > 0,
-            )
+        total_revenue = (
+            db.session.query(func.sum(ApiSubscription.price))
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .scalar()
+            or 0
         )
 
-        num_users = query.count()
-
         return {
-            "active_subscription_number": num_users,
+            "total_revenue": total_revenue,
         }
 
     def get_api_monthly_subscribers(self, query_params: Dict, api_id):

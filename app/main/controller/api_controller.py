@@ -217,21 +217,19 @@ class GetMyApisUsersCount(Resource):
         }, HTTPStatus.OK
 
 
-@api.route("/mine/subscriptions/count")
-class GetMyApisActiveSubscriptionsCount(Resource):
-    @api.doc("get my apis  users count")
-    @api.response(
-        HTTPStatus.OK, "Success", ApiDto.apis_active_subscriptions_count_response
-    )
+@api.route("/mine/revenue")
+class GetMyApisSubscriptionsRevenue(Resource):
+    @api.doc("get my apis  subscription revenue")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_total_revenue_response)
     @role_token_required([Role.SUPPLIER])
     def get(self):
-        subscription_count = (
+        total_revenue = (
             ServicesInitializer.an_api_service().get_active_subscriptions_count(
                 supplier_id=top_g.user.get("id")
             )
         )
         return {
-            "data": subscription_count,
+            "data": total_revenue,
         }, HTTPStatus.OK
 
 
@@ -309,7 +307,7 @@ class GetMyApiMonthlyRevenue(Resource):
 
 @api.route("/mine/<int:id>/avg-succ-response-time")
 class GetMyApiAverageSuccessfullyResponseTime(Resource):
-    @api.doc("get my api monthly revenue")
+    @api.doc("get my api avrage successfull response time")
     @api.response(
         HTTPStatus.OK, "Success", ApiDto.api_average_successfully_response_time_response
     )
