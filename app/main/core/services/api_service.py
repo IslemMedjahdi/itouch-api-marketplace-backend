@@ -2,7 +2,9 @@ import math
 from typing import Dict
 from app.main.model.api_category_model import ApiCategory
 from app.main.model.api_model import ApiModel
+from app.main.model.api_version_endpoint_model import ApiVersionEndpoint
 from app.main.model.api_request_model import ApiRequest
+from app.main.model.api_subscription_model import ApiSubscription
 from app.main.model.api_plan_model import ApiPlan
 from app.main.model.user_model import User
 from app.main import db
@@ -11,6 +13,7 @@ from app.main.core.lib.media_manager import MediaManager
 from app.main.core.lib.chargily_api import ChargilyApi
 from app.main.utils.roles import Role
 from sqlalchemy import func
+from datetime import datetime, timedelta
 
 
 class ApiService:
@@ -266,3 +269,188 @@ class ApiService:
         api.status = "inactive"
 
         db.session.commit()
+
+    def get_apis_count(self, supplier_id):
+
+        num_apis = (
+            db.session.query(func.count(ApiModel.id))
+            .filter(ApiModel.supplier_id == supplier_id)
+            .scalar()
+        )
+
+        return {
+            "apis_number": num_apis,
+        }
+
+    def get_users_count(self, supplier_id):
+        current_date = datetime.now()
+
+        query = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.end_date > current_date)
+            .filter(ApiSubscription.max_requests > 0)
+        )
+
+        num_users = query.distinct(ApiSubscription.user_id).count()
+
+        return {
+            "users_number": num_users,
+        }
+
+    def get_active_subscriptions_count(self, supplier_id):
+        current_date = datetime.now()
+
+        query = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(
+                ApiModel.supplier_id == supplier_id,
+                ApiSubscription.status == "active",
+                ApiSubscription.end_date > current_date,
+                ApiSubscription.max_requests > 0,
+            )
+        )
+
+        num_users = query.count()
+
+        return {
+            "active_subscription_number": num_users,
+        }
+
+    def get_api_monthly_subscribers(self, query_params: Dict, api_id):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
+
+        subscribers = (
+            db.session.query(ApiSubscription.user_id)
+            .filter(
+                ApiSubscription.api_id == api_id,
+                ApiSubscription.start_date <= end_date,
+                ApiSubscription.end_date >= start_date,
+            )
+            .distinct()
+            .count()
+        )
+
+        return {
+            "monthly_subscribers": subscribers,
+        }
+
+    def get_endpoints_count(self, api_id):
+
+        endpoints = (
+            db.session.query(ApiVersionEndpoint.id)
+            .filter(
+                ApiVersionEndpoint.api_id == api_id,
+            )
+            .count()
+        )
+
+        return {
+            "endpoints_number": endpoints,
+        }
+
+    def get_api_service_level(self, api_id):
+
+        query = db.session.query(ApiRequest.id).filter(
+            ApiRequest.api_id == api_id,
+        )
+        total_requests = query.count()
+        successful_requests = query.filter(
+            ApiRequest.http_status >= 200, ApiRequest.http_status < 300
+        ).count()
+
+        if total_requests > 0:
+            service_level = (successful_requests / total_requests) * 100
+        else:
+            service_level = 0
+
+        return {
+            "service_level": service_level,
+        }
+
+    def get_api_popularity(self, api_id):
+        current_date = datetime.now()
+
+        api_users = (
+            db.session.query(ApiModel, ApiSubscription)
+            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
+            .filter(ApiModel.id == api_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.end_date > current_date)
+            .filter(ApiSubscription.max_requests > 0)
+            .distinct()
+            .count()
+        )
+
+        total_users = (
+            db.session.query(func.count(User.id))
+            .filter(User.role == Role.USER)
+            .scalar()
+        )
+
+        if total_users > 0:
+            popularity = (api_users / total_users) * 9 + 1
+        else:
+            popularity = 0
+
+        return {
+            "popularity": popularity,
+        }
+
+    def get_api_monthly_revenue(self, query_params: Dict, api_id):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
+        # Query to sum up the prices of active subscriptions for the API within the specified period
+        total_revenue = (
+            db.session.query(func.sum(ApiSubscription.price))
+            .filter(ApiSubscription.api_id == api_id)
+            .filter(ApiSubscription.status == "active")
+            .filter(ApiSubscription.start_date <= end_date)
+            .filter(ApiSubscription.end_date >= start_date)
+            .scalar()
+            or 0  # Return 0 if there are no active subscriptions
+        )
+
+        return {"total_revenue": total_revenue}
+
+    def get_api_average_successfully_response_time(self, api_id):
+        # Query to get the total time responses and the number of requests passed successfully.
+        result = (
+            db.session.query(
+                func.sum(ApiRequest.response_time),  # Total time responses
+                func.count(ApiRequest.id),  # Number of requests
+            )
+            .filter(ApiRequest.api_id == api_id)
+            .filter(ApiRequest.http_status >= 200)
+            .filter(ApiRequest.http_status < 300)
+            .first()  # Retrieve the first result tuple
+        )
+
+        total_time_responses, num_requests = result or (
+            0,
+            0,
+        )  # Set default values 0 if result is None
+
+        # Calculate average time
+        if num_requests > 0:
+            average_time = total_time_responses / num_requests
+        else:
+            average_time = 0
+
+        return {"average_successfully_response_time": average_time}

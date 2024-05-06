@@ -189,6 +189,140 @@ class DeactivateApi(Resource):
         return Response(status=HTTPStatus.OK)
 
 
+@api.route("/mine/count")
+class GetMyApisCount(Resource):
+    @api.doc("get my apis count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        apis_count = ServicesInitializer.an_api_service().get_apis_count(
+            supplier_id=top_g.user.get("id")
+        )
+        return {
+            "data": apis_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/users/count")
+class GetMyApisUsersCount(Resource):
+    @api.doc("get my apis  users count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_users_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        users_count = ServicesInitializer.an_api_service().get_users_count(
+            supplier_id=top_g.user.get("id")
+        )
+        return {
+            "data": users_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/subscriptions/count")
+class GetMyApisActiveSubscriptionsCount(Resource):
+    @api.doc("get my apis  users count")
+    @api.response(
+        HTTPStatus.OK, "Success", ApiDto.apis_active_subscriptions_count_response
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        subscription_count = (
+            ServicesInitializer.an_api_service().get_active_subscriptions_count(
+                supplier_id=top_g.user.get("id")
+            )
+        )
+        return {
+            "data": subscription_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/users/count")
+class GetMyApiMonthlySubscribers(Resource):
+    @api.doc("get my api monthly subscribers")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_users_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        users_count = ServicesInitializer.an_api_service().get_api_monthly_subscribers(
+            {**request.args}, api_id=id
+        )
+        return {
+            "data": users_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/endpoints/count")
+class GetMyApiEndpointsCount(Resource):
+    @api.doc("get my api endpoints count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_endpoints_count_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        endpoints_count = ServicesInitializer.an_api_service().get_endpoints_count(
+            api_id=id
+        )
+        return {
+            "data": endpoints_count,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/service-level")
+class GetMyApiServiceLevel(Resource):
+    @api.doc("get my api service level")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_service_level_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        service_level = ServicesInitializer.an_api_service().get_api_service_level(
+            api_id=id
+        )
+        return {
+            "data": service_level,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/popularity")
+class GetMyApiPopularity(Resource):
+    @api.doc("get my api popularity")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_popularity_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        popularity = ServicesInitializer.an_api_service().get_api_popularity(api_id=id)
+        return {
+            "data": popularity,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/revenue")
+class GetMyApiMonthlyRevenue(Resource):
+    @api.doc("get my api monthly revenue")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_revenue_response)
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        revenue = ServicesInitializer.an_api_service().get_api_monthly_revenue(
+            {**request.args}, api_id=id
+        )
+        return {
+            "data": revenue,
+        }, HTTPStatus.OK
+
+
+@api.route("/mine/<int:id>/avg-succ-response-time")
+class GetMyApiAverageSuccessfullyResponseTime(Resource):
+    @api.doc("get my api monthly revenue")
+    @api.response(
+        HTTPStatus.OK, "Success", ApiDto.api_average_successfully_response_time_response
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self, id):
+        average_time = ServicesInitializer.an_api_service().get_api_average_successfully_response_time(
+            api_id=id
+        )
+        return {
+            "data": average_time,
+        }, HTTPStatus.OK
+
+
 @api_version.route("/<int:id>/versions/create")
 class CreateVersion(Resource):
     @api_version.doc("create version")

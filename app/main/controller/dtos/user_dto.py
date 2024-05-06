@@ -97,6 +97,6 @@ class UserDto:
         {
             "users_number": fields.Integer(),
             "suppliers_number": fields.Integer(),
-            "admins_number": fields.Integer,
+            "admins_number": fields.Integer(),
         },
     )

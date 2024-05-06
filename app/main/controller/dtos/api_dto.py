@@ -282,6 +282,69 @@ class ApiDto:
         },
     )
 
+    apis_count_response = api.model(
+        "api_count_response",
+        {
+            "apis_number": fields.Integer(),
+        },
+    )
+
+    apis_users_count_response = api.model(
+        "apis_users_count_response",
+        {
+            "users_number": fields.Integer(),
+        },
+    )
+
+    apis_active_subscriptions_count_response = api.model(
+        "apis_active_subscriptions_count_response",
+        {
+            "active_subscription_number": fields.Integer(),
+        },
+    )
+
+    api_per_month_count_response = api.model(
+        "apis_per_month_count_response",
+        {
+            "monthly_subscribers": fields.Integer(),
+        },
+    )
+
+    api_endpoints_count_response = api.model(
+        "api_endpoints_count_response",
+        {
+            "endpoints_number": fields.Integer(),
+        },
+    )
+
+    api_service_level_response = api.model(
+        "api_service_level_response",
+        {
+            "service_level": fields.Integer(),
+        },
+    )
+
+    api_popularity_response = api.model(
+        "api_popularity_response",
+        {
+            "popularity": fields.Integer(),
+        },
+    )
+
+    api_total_revenue_response = api.model(
+        "api_total_revenue_response",
+        {
+            "total_revenue": fields.Float(),
+        },
+    )
+
+    api_average_successfully_response_time_response = api.model(
+        "api_average_successfully_response_time_response",
+        {
+            "average_successfully_response_time": fields.Float(),
+        },
+    )
+
     create_api_version_request = api.model(
         "create_api_version",
         {
