@@ -220,7 +220,7 @@ class GetMyApisUsersCount(Resource):
 @api.route("/mine/revenue")
 class GetMyApisSubscriptionsRevenue(Resource):
     @api.doc("get my apis  subscription revenue")
-    @api.response(HTTPStatus.OK, "Success", ApiDto.apis_total_revenue_response)
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_revenue_response)
     @role_token_required([Role.SUPPLIER])
     def get(self):
         total_revenue = (
@@ -543,6 +543,7 @@ class GetSubscriptionsNumberPerDay(Resource):
 @api_subscription.route("/subscriptions/revenue/month")
 class GetSubscriptionRevenuesByMonth(Resource):
     @api_subscription.doc("get total subscription revenue by month")
+    @api.param("year", "The year of the subscription")
     @api_subscription.response(
         HTTPStatus.OK,
         "Success",
@@ -550,8 +551,8 @@ class GetSubscriptionRevenuesByMonth(Resource):
     )
     @role_token_required([Role.ADMIN])
     def get(self):
-        total_revenues = (
-            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_month()
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_month(
+            {**request.args}
         )
         return {"data": total_revenues}, HTTPStatus.OK
 
@@ -559,6 +560,8 @@ class GetSubscriptionRevenuesByMonth(Resource):
 @api_subscription.route("/subscriptions/revenue/day")
 class GetSubscriptionRevenuesByDay(Resource):
     @api_subscription.doc("get total subscription revenue by day")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
     @api_subscription.response(
         HTTPStatus.OK,
         "Success",
@@ -566,8 +569,8 @@ class GetSubscriptionRevenuesByDay(Resource):
     )
     @role_token_required([Role.ADMIN])
     def get(self):
-        total_revenues = (
-            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_day()
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_day(
+            {**request.args}
         )
         return {"data": total_revenues}, HTTPStatus.OK
 
@@ -575,6 +578,9 @@ class GetSubscriptionRevenuesByDay(Resource):
 @api_subscription.route("/subscriptions/revenue/hour")
 class GetSubscriptionRevenuesByHour(Resource):
     @api_subscription.doc("get total subscription revenue by hour")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.param("day", "The day of the subscription")
     @api_subscription.response(
         HTTPStatus.OK,
         "Success",
@@ -582,8 +588,24 @@ class GetSubscriptionRevenuesByHour(Resource):
     )
     @role_token_required([Role.ADMIN])
     def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_hour(
+            {**request.args}
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue")
+class GetSubscriptionTotalRevenues(Resource):
+    @api_subscription.doc("get total subscription revenue")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.apis_total_revenue_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
         total_revenues = (
-            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_hour()
+            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue()
         )
         return {"data": total_revenues}, HTTPStatus.OK
 

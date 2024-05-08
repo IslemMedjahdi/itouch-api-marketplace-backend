@@ -256,7 +256,12 @@ class ApiSubscriptionService:
 
         return {"subscriptions_per_day_list": subscriptions_per_day_list}
 
-    def get_total_subscription_revenue_by_month(self):
+    def get_total_subscription_revenue_by_month(self, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        start_date = datetime(year, 1, 1)
+        end_date = datetime(year, 12, 31, 23, 59, 59)
+
         # Query to calculate total subscription revenue by month
         total_revenue = (
             db.session.query(
@@ -264,6 +269,8 @@ class ApiSubscriptionService:
                 extract("month", ApiSubscription.start_date).label("month"),
                 func.sum(ApiSubscription.price).label("total_revenue"),
             )
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
             .group_by(
                 extract("year", ApiSubscription.start_date),
                 extract("month", ApiSubscription.start_date),
@@ -271,7 +278,7 @@ class ApiSubscriptionService:
             .order_by("year", "month")
             .all()
         )
-        response_data = [
+        return [
             {
                 "year": year,
                 "month": month,
@@ -280,9 +287,15 @@ class ApiSubscriptionService:
             for year, month, revenues in total_revenue
         ]
 
-        return {"data": response_data}
-
-    def get_total_subscription_revenue_by_day(self):
+    def get_total_subscription_revenue_by_day(self, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
         # Query to calculate total subscription revenue by day
         total_revenue = (
             db.session.query(
@@ -291,6 +304,8 @@ class ApiSubscriptionService:
                 extract("day", ApiSubscription.start_date).label("day"),
                 func.sum(ApiSubscription.price).label("total_revenue"),
             )
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
             .group_by(
                 extract("year", ApiSubscription.start_date),
                 extract("month", ApiSubscription.start_date),
@@ -300,7 +315,7 @@ class ApiSubscriptionService:
             .all()
         )
 
-        response_data = [
+        return [
             {
                 "year": year,
                 "month": month,
@@ -310,9 +325,13 @@ class ApiSubscriptionService:
             for year, month, day, revenues in total_revenue
         ]
 
-        return {"data": response_data}
-
-    def get_total_subscription_revenue_by_hour(self):
+    def get_total_subscription_revenue_by_hour(self, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        day = int(query_params.get("day", current_date.day))
+        start_date = datetime(year, month, day)
+        end_date = start_date.replace(hour=23, minute=59, second=59)
         # Query to calculate total subscription revenue by hour
         total_revenue = (
             db.session.query(
@@ -322,6 +341,8 @@ class ApiSubscriptionService:
                 extract("hour", ApiSubscription.start_date).label("hour"),
                 func.sum(ApiSubscription.price).label("total_revenue"),
             )
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
             .group_by(
                 extract("year", ApiSubscription.start_date),
                 extract("month", ApiSubscription.start_date),
@@ -332,7 +353,7 @@ class ApiSubscriptionService:
             .all()
         )
 
-        response_data = [
+        return [
             {
                 "year": year,
                 "month": month,
@@ -343,9 +364,7 @@ class ApiSubscriptionService:
             for year, month, day, hour, revenues in total_revenue
         ]
 
-        return {"data": response_data}
-
-    # def calculate_total_subscription_revenue():
-    #     # Query to calculate total subscription revenue
-    #     total_revenue = db.session.query(func.sum(ApiSubscription.price)).scalar() or 0
-    #     return total_revenue
+    def get_total_subscription_revenue(self):
+        # Query to calculate total subscription revenue
+        total_revenue = db.session.query(func.sum(ApiSubscription.price)).scalar() or 0
+        return {"total_revenue": total_revenue}

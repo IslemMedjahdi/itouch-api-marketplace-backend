@@ -296,8 +296,8 @@ class ApiDto:
         },
     )
 
-    apis_total_revenue_response = api.model(
-        "apis_total_revenue_response",
+    api_total_revenue_response = api.model(
+        "api_total_revenue_response",
         {"total_revenue": fields.Float()},
     )
 
@@ -360,7 +360,7 @@ class ApiDto:
                         {
                             "year": fields.Integer(),
                             "month": fields.Integer(),
-                            "total_transactions": fields.Integer(),
+                            "total_transactions": fields.Float(),
                         },
                     )
                 )
@@ -379,7 +379,7 @@ class ApiDto:
                             "year": fields.Integer(),
                             "month": fields.Integer(),
                             "day": fields.Integer(),
-                            "total_transactions": fields.Integer(),
+                            "total_transactions": fields.Float(),
                         },
                     )
                 )
@@ -399,11 +399,18 @@ class ApiDto:
                             "month": fields.Integer(),
                             "day": fields.Integer(),
                             "hour": fields.Integer(),
-                            "total_transactions": fields.Integer(),
+                            "total_transactions": fields.Float(),
                         },
                     )
                 )
             )
+        },
+    )
+
+    apis_total_revenue_response = api.model(
+        "apis_total_revenue_response",
+        {
+            "total_revenue": fields.Integer(),
         },
     )
 
