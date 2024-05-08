@@ -267,7 +267,6 @@ class GetMyApiEndpointsCount(Resource):
 class GetMyApiServiceLevel(Resource):
     @api.doc("get my api service level")
     @api.response(HTTPStatus.OK, "Success", ApiDto.api_service_level_response)
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         service_level = ServicesInitializer.an_api_service().get_api_service_level(
             api_id=id
@@ -281,7 +280,6 @@ class GetMyApiServiceLevel(Resource):
 class GetMyApiPopularity(Resource):
     @api.doc("get my api popularity")
     @api.response(HTTPStatus.OK, "Success", ApiDto.api_popularity_response)
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         popularity = ServicesInitializer.an_api_service().get_api_popularity(api_id=id)
         return {
@@ -311,7 +309,6 @@ class GetMyApiAverageSuccessfullyResponseTime(Resource):
     @api.response(
         HTTPStatus.OK, "Success", ApiDto.api_average_successfully_response_time_response
     )
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         average_time = ServicesInitializer.an_api_service().get_api_average_successfully_response_time(
             api_id=id
