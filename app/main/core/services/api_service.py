@@ -393,7 +393,9 @@ class ApiService:
         )
 
         if total_users > 0:
-            popularity = (api_users / total_users) * 9 + 1
+            ratio = api_users / total_users
+            # Scale the ratio to a value between 1 and 10
+            popularity = min(max(ratio * 10, 1), 10)
         else:
             popularity = 0
 
