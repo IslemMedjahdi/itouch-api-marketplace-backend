@@ -522,8 +522,8 @@ class ChargilyWebhook(Resource):
         return Response(status=HTTPStatus.OK)
 
 
-@api_subscription.route("/<int:id>/subscriptions/statistics")
-class GetSubscriptionsNumberPerDay(Resource):
+@api_subscription.route("/<int:id>/subscriptions/statistics", doc=False)
+class GetSubscriptionsRevenuePerDay(Resource):
     @api_subscription.doc("get subscriptions per day")
     @api_subscription.response(
         HTTPStatus.OK, "Success", ApiDto.subscriptions_per_day_list_response
@@ -873,7 +873,7 @@ class Votes(Resource):
             )
             return {"data": data, "pagination": pagination}, HTTPStatus.OK
 
-    @api_resquests.route("/requests/count/month")
+    @api_resquests.route("/requests/count/month", doc=False)
     class GetRequestsByMonth(Resource):
         @api_resquests.doc("get total requests by month")
         @api_resquests.response(
@@ -886,7 +886,7 @@ class Votes(Resource):
             )
             return {"data": total_transaction}, HTTPStatus.OK
 
-    @api_resquests.route("/requests/count/day")
+    @api_resquests.route("/requests/count/day", doc=False)
     class GetRequestsByDay(Resource):
         @api_resquests.doc("get total requests by day")
         @api_resquests.response(
@@ -899,7 +899,7 @@ class Votes(Resource):
             )
             return {"data": total_transaction}, HTTPStatus.OK
 
-    @api_resquests.route("/requests/count/hour")
+    @api_resquests.route("/requests/count/hour", doc=False)
     class GetRequestsByHour(Resource):
         @api_resquests.doc("get total requests by hour")
         @api_resquests.response(
