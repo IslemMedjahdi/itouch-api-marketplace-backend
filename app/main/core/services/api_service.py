@@ -301,23 +301,17 @@ class ApiService:
         }
 
     def get_active_subscriptions_count(self, supplier_id):
-        current_date = datetime.now()
 
-        query = (
-            db.session.query(ApiModel, ApiSubscription)
-            .join(ApiSubscription, ApiModel.id == ApiSubscription.api_id)
-            .filter(
-                ApiModel.supplier_id == supplier_id,
-                ApiSubscription.status == "active",
-                ApiSubscription.end_date > current_date,
-                ApiSubscription.max_requests > 0,
-            )
+        total_revenue = (
+            db.session.query(func.sum(ApiSubscription.price))
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .scalar()
+            or 0
         )
 
-        num_users = query.count()
-
         return {
-            "active_subscription_number": num_users,
+            "total_revenue": total_revenue,
         }
 
     def get_api_monthly_subscribers(self, query_params: Dict, api_id):
@@ -399,7 +393,9 @@ class ApiService:
         )
 
         if total_users > 0:
-            popularity = (api_users / total_users) * 9 + 1
+            ratio = api_users / total_users
+            # Scale the ratio to a value between 1 and 10
+            popularity = min(max(ratio * 10, 1), 10)
         else:
             popularity = 0
 
@@ -454,3 +450,11 @@ class ApiService:
             average_time = 0
 
         return {"average_successfully_response_time": average_time}
+
+    def get_total_apis_count(self):
+
+        total_apis = db.session.query(func.count(ApiModel.id)).scalar()
+
+        return {
+            "total_apis_count": total_apis,
+        }

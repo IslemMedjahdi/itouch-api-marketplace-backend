@@ -296,11 +296,9 @@ class ApiDto:
         },
     )
 
-    apis_active_subscriptions_count_response = api.model(
-        "apis_active_subscriptions_count_response",
-        {
-            "active_subscription_number": fields.Integer(),
-        },
+    api_total_revenue_response = api.model(
+        "api_total_revenue_response",
+        {"total_revenue": fields.Float()},
     )
 
     api_per_month_count_response = api.model(
@@ -342,6 +340,77 @@ class ApiDto:
         "api_average_successfully_response_time_response",
         {
             "average_successfully_response_time": fields.Float(),
+        },
+    )
+
+    api_total_apis_count_response = api.model(
+        "api_total_apis_count_response",
+        {
+            "total_apis_count": fields.Integer(),
+        },
+    )
+
+    api_total_transactions_by_month_response = api.model(
+        "api_total_transactions_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "monthly_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "total_transactions": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_transactions_by_day_response = api.model(
+        "api_total_transactions_by_day_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "dayly_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "total_transactions": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_transactions_by_hour_response = api.model(
+        "api_total_transactions_by_hour_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "by_hour_transaction_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "hour": fields.Integer(),
+                            "total_transactions": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    apis_total_revenue_response = api.model(
+        "apis_total_revenue_response",
+        {
+            "total_revenue": fields.Integer(),
         },
     )
 
@@ -635,6 +704,63 @@ class ApiDto:
                     )
                 )
             ),
+        },
+    )
+
+    api_total_subscription_revenue_by_month_response = api.model(
+        "api_total_subscription_revenue_by_month_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "monthly_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_subscription_revenue_by_day_response = api.model(
+        "api_total_subscription_revenue_by_day_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "mdayly_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
+        },
+    )
+
+    api_total_subscription_revenue_by_hour_response = api.model(
+        "api_total_subscription_revenue_by_hour_response",
+        {
+            "data": fields.List(
+                fields.Nested(
+                    api.model(
+                        "by_hour_subscription_revenue_response",
+                        {
+                            "year": fields.Integer(),
+                            "month": fields.Integer(),
+                            "day": fields.Integer(),
+                            "hour": fields.Integer(),
+                            "total_revenues": fields.Float(),
+                        },
+                    )
+                )
+            )
         },
     )
 

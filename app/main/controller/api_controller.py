@@ -217,21 +217,19 @@ class GetMyApisUsersCount(Resource):
         }, HTTPStatus.OK
 
 
-@api.route("/mine/subscriptions/count")
-class GetMyApisActiveSubscriptionsCount(Resource):
-    @api.doc("get my apis  users count")
-    @api.response(
-        HTTPStatus.OK, "Success", ApiDto.apis_active_subscriptions_count_response
-    )
+@api.route("/mine/revenue")
+class GetMyApisSubscriptionsRevenue(Resource):
+    @api.doc("get my apis  subscription revenue")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_revenue_response)
     @role_token_required([Role.SUPPLIER])
     def get(self):
-        subscription_count = (
+        total_revenue = (
             ServicesInitializer.an_api_service().get_active_subscriptions_count(
                 supplier_id=top_g.user.get("id")
             )
         )
         return {
-            "data": subscription_count,
+            "data": total_revenue,
         }, HTTPStatus.OK
 
 
@@ -269,7 +267,6 @@ class GetMyApiEndpointsCount(Resource):
 class GetMyApiServiceLevel(Resource):
     @api.doc("get my api service level")
     @api.response(HTTPStatus.OK, "Success", ApiDto.api_service_level_response)
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         service_level = ServicesInitializer.an_api_service().get_api_service_level(
             api_id=id
@@ -283,7 +280,6 @@ class GetMyApiServiceLevel(Resource):
 class GetMyApiPopularity(Resource):
     @api.doc("get my api popularity")
     @api.response(HTTPStatus.OK, "Success", ApiDto.api_popularity_response)
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         popularity = ServicesInitializer.an_api_service().get_api_popularity(api_id=id)
         return {
@@ -309,17 +305,28 @@ class GetMyApiMonthlyRevenue(Resource):
 
 @api.route("/mine/<int:id>/avg-succ-response-time")
 class GetMyApiAverageSuccessfullyResponseTime(Resource):
-    @api.doc("get my api monthly revenue")
+    @api.doc("get my api avrage successfull response time")
     @api.response(
         HTTPStatus.OK, "Success", ApiDto.api_average_successfully_response_time_response
     )
-    @role_token_required([Role.SUPPLIER])
     def get(self, id):
         average_time = ServicesInitializer.an_api_service().get_api_average_successfully_response_time(
             api_id=id
         )
         return {
             "data": average_time,
+        }, HTTPStatus.OK
+
+
+@api.route("/count")
+class GetTotalApisCount(Resource):
+    @api.doc("get the total apis count")
+    @api.response(HTTPStatus.OK, "Success", ApiDto.api_total_apis_count_response)
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_apis = ServicesInitializer.an_api_service().get_total_apis_count()
+        return {
+            "data": total_apis,
         }, HTTPStatus.OK
 
 
@@ -512,8 +519,8 @@ class ChargilyWebhook(Resource):
         return Response(status=HTTPStatus.OK)
 
 
-@api_subscription.route("/<int:id>/subscriptions/statistics")
-class GetSubscriptionsNumberPerDay(Resource):
+@api_subscription.route("/<int:id>/subscriptions/statistics", doc=False)
+class GetSubscriptionsRevenuePerDay(Resource):
     @api_subscription.doc("get subscriptions per day")
     @api_subscription.response(
         HTTPStatus.OK, "Success", ApiDto.subscriptions_per_day_list_response
@@ -528,6 +535,76 @@ class GetSubscriptionsNumberPerDay(Resource):
             )
         )
         return {"data": data}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue/month")
+class GetSubscriptionRevenuesByMonth(Resource):
+    @api_subscription.doc("get total subscription revenue by month")
+    @api.param("year", "The year of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_month_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_month(
+            {**request.args}
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue/day")
+class GetSubscriptionRevenuesByDay(Resource):
+    @api_subscription.doc("get total subscription revenue by day")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_day_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_day(
+            {**request.args}
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue/hour")
+class GetSubscriptionRevenuesByHour(Resource):
+    @api_subscription.doc("get total subscription revenue by hour")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.param("day", "The day of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_hour_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue_by_hour(
+            {**request.args}
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/revenue")
+class GetSubscriptionTotalRevenues(Resource):
+    @api_subscription.doc("get total subscription revenue")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.apis_total_revenue_response,
+    )
+    @role_token_required([Role.ADMIN])
+    def get(self):
+        total_revenues = (
+            ServicesInitializer.an_api_subscription_service().get_total_subscription_revenue()
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
 
 
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
@@ -791,4 +868,43 @@ class Votes(Resource):
             ) = ServicesInitializer.an_api_request_service().get_api_requests(
                 query_params=request.args, user_id=top_g.user.get("id"), api_id=id
             )
-            return {"data": data, "pagination": pagination}
+            return {"data": data, "pagination": pagination}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/month", doc=False)
+    class GetRequestsByMonth(Resource):
+        @api_resquests.doc("get total requests by month")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_month_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_month()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/day", doc=False)
+    class GetRequestsByDay(Resource):
+        @api_resquests.doc("get total requests by day")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_day_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_day()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK
+
+    @api_resquests.route("/requests/count/hour", doc=False)
+    class GetRequestsByHour(Resource):
+        @api_resquests.doc("get total requests by hour")
+        @api_resquests.response(
+            HTTPStatus.OK, "Success", ApiDto.api_total_transactions_by_hour_response
+        )
+        @role_token_required([Role.ADMIN])
+        def get(self):
+            total_transaction = (
+                ServicesInitializer.an_api_request_service().get_total_transactions_by_hour()
+            )
+            return {"data": total_transaction}, HTTPStatus.OK

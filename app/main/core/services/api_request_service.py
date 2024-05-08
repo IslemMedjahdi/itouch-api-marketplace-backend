@@ -5,6 +5,7 @@ from app.main.model.api_request_model import ApiRequest
 from app.main.model.user_model import User
 from app.main import db
 from app.main.utils.exceptions import NotFoundError, BadRequestError
+from sqlalchemy import extract, func
 
 
 class ApiRequestService:
@@ -89,3 +90,101 @@ class ApiRequestService:
             result.append(request_dict)
 
         return result, pagination
+
+    def get_total_transactions_by_month(self):
+        # Query to calculate total transactions by month
+        total_transactions = (
+            db.session.query(
+                extract("year", ApiRequest.request_at).label("year"),
+                extract("month", ApiRequest.request_at).label("month"),
+                func.count(ApiRequest.id).label("total_transactions"),
+            )
+            .group_by(
+                extract("year", ApiRequest.request_at),
+                extract("month", ApiRequest.request_at),
+            )
+            .order_by("year", "month")
+            .all()
+        )
+        response_data = [
+            {"year": year, "month": month, "total_transactions": transactions}
+            for year, month, transactions in total_transactions
+        ]
+
+        return {"data": response_data}
+
+    def get_total_transactions_by_day(self):
+        # Query to calculate total transactions by day
+        total_transactions = (
+            db.session.query(
+                extract("year", ApiRequest.request_at).label("year"),
+                extract("month", ApiRequest.request_at).label("month"),
+                extract("day", ApiRequest.request_at).label("day"),
+                func.count(ApiRequest.id).label("total_transactions"),
+            )
+            .group_by(
+                extract("year", ApiRequest.request_at),
+                extract("month", ApiRequest.request_at),
+                extract("day", ApiRequest.request_at),
+            )
+            .order_by("year", "month", "day")
+            .all()
+        )
+        response_data = [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "total_transactions": transactions,
+            }
+            for year, month, day, transactions in total_transactions
+        ]
+
+        return {"data": response_data}
+
+    def get_total_transactions_by_hour(self):
+        # Query to calculate total transactions by hour
+        total_transactions = (
+            db.session.query(
+                extract("year", ApiRequest.request_at).label("year"),
+                extract("month", ApiRequest.request_at).label("month"),
+                extract("day", ApiRequest.request_at).label("day"),
+                extract("hour", ApiRequest.request_at).label("hour"),
+                func.count(ApiRequest.id).label("total_transactions"),
+            )
+            .group_by(
+                extract("year", ApiRequest.request_at),
+                extract("month", ApiRequest.request_at),
+                extract("day", ApiRequest.request_at),
+                extract("hour", ApiRequest.request_at),
+            )
+            .order_by("year", "month", "day", "hour")
+            .all()
+        )
+        response_data = [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "hour": hour,
+                "total_transactions": transactions,
+            }
+            for year, month, day, hour, transactions in total_transactions
+        ]
+
+        return {"data": response_data}
+
+    # def get_total_transactions(self):
+    #     # Query to calculate total transactions
+    #     total_transactions = db.session.query(func.count(ApiRequest.id)).scalar()
+    #     return {"total_transactions": total_transactions}
+
+    # def calculate_total_transactions_for_supplier(self, supplier_id):
+    #     # Query to calculate total transactions for the supplier's APIs
+    #     total_transactions = (
+    #         db.session.query(func.count(ApiRequest.id))
+    #         .join(ApiModel, ApiRequest.api_id == ApiModel.id)
+    #         .filter(ApiModel.supplier_id == supplier_id)
+    #         .scalar()
+    #     )
+    #     return {"total_transactions": total_transactions}
