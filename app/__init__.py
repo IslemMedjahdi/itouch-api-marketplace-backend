@@ -16,6 +16,7 @@ from app.main.controller.api_controller import api_subscription as api_subscript
 from app.main.controller.api_controller import api_keys as api_keys_ns
 from app.main.controller.api_controller import api_calls as api_calls_ns
 from app.main.controller.api_controller import api_resquests as api_requests_ns
+from app.main.controller.api_controller import api_tickets as api_tickets_ns
 
 
 from app.main.utils.error_handlers import register_error_handlers
@@ -33,6 +34,7 @@ from app.main.model.api_version_endpoint_model import ApiVersionEndpoint  # noqa
 from app.main.model.api_key_model import ApiKey  # noqa: F401
 from app.main.model.api_subscription_model import ApiSubscription  # noqa: F401
 from app.main.model.api_request_model import ApiRequest  # noqa: F401
+from app.main.model.api_ticket_model import ApiTicket  # noqa: F401
 from logtail import LogtailHandler
 import logging
 
@@ -60,6 +62,7 @@ api.add_namespace(api_subscription_ns, path="/apis")
 api.add_namespace(api_keys_ns, path="/apis")
 api.add_namespace(api_calls_ns, path="/apis")
 api.add_namespace(api_requests_ns, path="/apis")
+api.add_namespace(api_tickets_ns, path="/apis")
 
 app = create_app(os.getenv("FLASK_ENV", "dev"))
 CORS(app)

@@ -28,6 +28,29 @@ class ApiDto:
         "Api Requests", description="api requests related operations"
     )
 
+    api_tickets = Namespace("Api Tickets", description="api tickets related operations")
+
+    create_ticket_request = api_tickets.model(
+        "create_ticket_request",
+        {
+            "subject": fields.String(
+                required=True,
+            ),
+            "description": fields.String(
+                required=True,
+            ),
+        },
+    )
+
+    respond_to_ticket_request = api_tickets.model(
+        "respond_to_ticket_request",
+        {
+            "response": fields.String(
+                required=True,
+            ),
+        },
+    )
+
     api_keys_list_response = api_keys.model(
         "api_keys_list_response",
         {
