@@ -74,3 +74,9 @@ class ServicesInitializer:
         from app.main.core.services.api_request_service import ApiRequestService
 
         return ApiRequestService()
+
+    @staticmethod
+    def an_api_tickets_service():
+        from app.main.core.services.api_tickets_service import ApiTicketsService
+
+        return ApiTicketsService()

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ae3dca7f0c8e
+Revision ID: ab0013adc788
 Revises: 
-Create Date: 2024-04-24 15:17:21.694380
+Create Date: 2024-05-14 22:15:22.507034
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ae3dca7f0c8e'
+revision = 'ab0013adc788'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -67,6 +67,19 @@ def upgrade():
     sa.Column('chargily_price_id', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['api_id'], ['api.id'], ),
     sa.PrimaryKeyConstraint('api_id', 'name')
+    )
+    op.create_table('api_ticket',
+    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('api_id', sa.Integer(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('subject', sa.String(), nullable=False),
+    sa.Column('description', sa.String(), nullable=False),
+    sa.Column('created_at', sa.DateTime(), nullable=False),
+    sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.Column('response', sa.String(), nullable=True),
+    sa.ForeignKeyConstraint(['api_id'], ['api.id'], ),
+    sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('api_version',
     sa.Column('version', sa.String(), nullable=False),
@@ -194,6 +207,7 @@ def downgrade():
     op.drop_table('api_subscription')
     op.drop_table('discussion')
     op.drop_table('api_version')
+    op.drop_table('api_ticket')
     op.drop_table('api_plan')
     op.drop_table('api')
     op.drop_table('api_category')

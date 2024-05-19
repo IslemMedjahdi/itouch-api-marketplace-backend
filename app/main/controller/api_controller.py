@@ -24,6 +24,7 @@ api_subscription = ApiDto.api_subscription
 api_keys = ApiDto.api_keys
 api_calls = ApiDto.api_calls
 api_resquests = ApiDto.api_resquests
+api_tickets = ApiDto.api_tickets
 
 
 @api_category.route("/categories/create")
@@ -962,3 +963,38 @@ class Votes(Resource):
                 ServicesInitializer.an_api_request_service().get_total_transactions_by_hour()
             )
             return {"data": total_transaction}, HTTPStatus.OK
+
+
+@api_tickets.route("/<int:api_id>/tickets/create")
+class CreateTicket(Resource):
+    @api_tickets.doc("create ticket")
+    @api_tickets.expect(ApiDto.create_ticket_request, validate=True)
+    @api_tickets.response(HTTPStatus.CREATED, "success")
+    @role_token_required([Role.USER])
+    def post(self, api_id):
+        ServicesInitializer.an_api_tickets_service().create_ticket(
+            api_id, request.json, top_g.user.get("id")
+        )
+        return Response(status=HTTPStatus.CREATED)
+
+
+@api_tickets.route("/<int:api_id>/tickets")
+class GetTickets(Resource):
+    @api_tickets.doc("get tickets")
+    def get(self, api_id):
+        tickets = ServicesInitializer.an_api_tickets_service().get_tickets(api_id)
+        return {
+            "data": tickets,
+        }, HTTPStatus.OK
+
+
+@api_tickets.route("/<int:api_id>/tickets/<int:id>")
+class RespondToTicket(Resource):
+    @api_tickets.doc("respond to ticket")
+    @api_tickets.expect(ApiDto.respond_to_ticket_request, validate=True)
+    @role_token_required([Role.SUPPLIER])
+    def patch(self, api_id, id):
+        ServicesInitializer.an_api_tickets_service().respond_to_ticket(
+            top_g.user.get("id"), api_id, id, request.json
+        )
+        return Response(status=HTTPStatus.OK)
