@@ -608,6 +608,60 @@ class GetSubscriptionTotalRevenues(Resource):
         return {"data": total_revenues}, HTTPStatus.OK
 
 
+@api_subscription.route("/subscriptions/mine/revenue/month")
+class GetSupplierRevenuesByMonth(Resource):
+    @api_subscription.doc("get total supplier revenue by month")
+    @api.param("year", "The year of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_month_response,
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_supplier_revenue_by_month(
+            supplier_id=top_g.user.get("id"), query_params=request.args
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/mine/revenue/day")
+class GetSupplierRevenuesByDay(Resource):
+    @api_subscription.doc("get total supplier revenue by day")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_day_response,
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_supplier_revenue_by_day(
+            supplier_id=top_g.user.get("id"), query_params=request.args
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
+@api_subscription.route("/subscriptions/mine/revenue/hour")
+class GetSupplierRevenuesByHour(Resource):
+    @api_subscription.doc("get total supplier revenue by hour")
+    @api.param("year", "The year of the subscription")
+    @api.param("month", "The month of the subscription")
+    @api.param("day", "The day of the subscription")
+    @api_subscription.response(
+        HTTPStatus.OK,
+        "Success",
+        ApiDto.api_total_subscription_revenue_by_hour_response,
+    )
+    @role_token_required([Role.SUPPLIER])
+    def get(self):
+        total_revenues = ServicesInitializer.an_api_subscription_service().get_total_supplier_revenue_by_hour(
+            supplier_id=top_g.user.get("id"), query_params=request.args
+        )
+        return {"data": total_revenues}, HTTPStatus.OK
+
+
 @api_keys.route("/subscriptions/<int:id>/api-keys/create")
 class CreateApiKey(Resource):
     @api_keys.doc("create api key")
