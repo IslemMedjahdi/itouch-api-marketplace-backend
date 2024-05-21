@@ -368,3 +368,117 @@ class ApiSubscriptionService:
         # Query to calculate total subscription revenue
         total_revenue = db.session.query(func.sum(ApiSubscription.price)).scalar() or 0
         return {"total_revenue": total_revenue}
+
+    def get_total_supplier_revenue_by_month(self, supplier_id, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        start_date = datetime(year, 1, 1)
+        end_date = datetime(year, 12, 31, 23, 59, 59)
+
+        # Query to calculate total subscription revenue by month
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+            )
+            .order_by("year", "month")
+            .all()
+        )
+        return [
+            {
+                "year": year,
+                "month": month,
+                "total_revenues": revenues,
+            }
+            for year, month, revenues in total_revenue
+        ]
+
+    def get_total_supplier_revenue_by_day(self, supplier_id, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        start_date = datetime(year, month, 1)
+        # Calculate the first day of the next month
+        next_month = month % 12 + 1
+        next_year = year + (month // 12)
+        end_date = datetime(next_year, next_month, 1) - timedelta(days=1)
+        # Query to calculate total subscription revenue by day
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                extract("day", ApiSubscription.start_date).label("day"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+                extract("day", ApiSubscription.start_date),
+            )
+            .order_by("year", "month", "day")
+            .all()
+        )
+
+        return [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "total_revenues": revenues,
+            }
+            for year, month, day, revenues in total_revenue
+        ]
+
+    def get_total_supplier_revenue_by_hour(self, supplier_id, query_params: Dict):
+        current_date = datetime.now()
+        year = int(query_params.get("year", current_date.year))
+        month = int(query_params.get("month", current_date.month))
+        day = int(query_params.get("day", current_date.day))
+        start_date = datetime(year, month, day)
+        end_date = start_date.replace(hour=23, minute=59, second=59)
+        # Query to calculate total subscription revenue by hour
+        total_revenue = (
+            db.session.query(
+                extract("year", ApiSubscription.start_date).label("year"),
+                extract("month", ApiSubscription.start_date).label("month"),
+                extract("day", ApiSubscription.start_date).label("day"),
+                extract("hour", ApiSubscription.start_date).label("hour"),
+                func.sum(ApiSubscription.price).label("total_revenue"),
+            )
+            .join(ApiModel, ApiSubscription.api_id == ApiModel.id)
+            .filter(ApiSubscription.start_date >= start_date)
+            .filter(ApiSubscription.start_date <= end_date)
+            .filter(ApiModel.supplier_id == supplier_id)
+            .group_by(
+                extract("year", ApiSubscription.start_date),
+                extract("month", ApiSubscription.start_date),
+                extract("day", ApiSubscription.start_date),
+                extract("hour", ApiSubscription.start_date),
+            )
+            .order_by("year", "month", "day", "hour")
+            .all()
+        )
+
+        return [
+            {
+                "year": year,
+                "month": month,
+                "day": day,
+                "hour": hour,
+                "total_revenues": revenues,
+            }
+            for year, month, day, hour, revenues in total_revenue
+        ]
