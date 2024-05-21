@@ -11,7 +11,11 @@ class ApiTicketsService:
         if ApiModel.query.filter_by(id=api_id).first() is None:
             raise NotFoundError("API not found")
 
-        if ticket.get("subject") is None or ticket.get("description") is None:
+        if (
+            ticket.get("subject") is None
+            or ticket.get("description") is None
+            or ticket.get("type") is None
+        ):
             raise BadRequestError("Subject and description are required")
 
         new_ticket = ApiTicket(
@@ -26,6 +30,8 @@ class ApiTicketsService:
 
         db.session.add(new_ticket)
         db.session.commit()
+
+        return new_ticket
 
     def get_tickets(self, api_id: str):
         tickets = ApiTicket.query.filter_by(api_id=api_id).all()
