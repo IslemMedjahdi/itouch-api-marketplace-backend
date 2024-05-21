@@ -2,6 +2,7 @@ from app.main.model.api_ticket_model import ApiTicket
 from app.main.model.api_model import ApiModel
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from datetime import datetime
+from app.main import db
 
 
 class ApiTicketsService:
@@ -23,7 +24,8 @@ class ApiTicketsService:
             updated_at=datetime.now(),
         )
 
-        new_ticket.save()
+        db.session.add(new_ticket)
+        db.session.commit()
 
     def get_tickets(self, api_id: str):
         tickets = ApiTicket.query.filter_by(api_id=api_id).all()
