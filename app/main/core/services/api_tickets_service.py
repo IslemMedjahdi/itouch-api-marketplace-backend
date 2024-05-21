@@ -1,5 +1,6 @@
 from app.main.model.api_ticket_model import ApiTicket
 from app.main.model.api_model import ApiModel
+from app.main.model.user_model import User
 from app.main.utils.exceptions import NotFoundError, BadRequestError
 from datetime import datetime
 from app.main import db
@@ -34,7 +35,12 @@ class ApiTicketsService:
         return new_ticket
 
     def get_tickets(self, api_id: str):
-        tickets = ApiTicket.query.filter_by(api_id=api_id).all()
+        tickets = (
+            db.session.query(ApiTicket, User)
+            .join(User, ApiTicket.user_id == User.id)
+            .filter(ApiTicket.api_id == api_id)
+            .all()
+        )
         return [
             {
                 "id": ticket.id,
@@ -46,8 +52,13 @@ class ApiTicketsService:
                 "type": ticket.ticket_type,
                 "status": "closed" if ticket.response else "open",
                 "api_id": ticket.api_id,
+                "user": {
+                    "id": user.id,
+                    "firstname": user.firstname,
+                    "lastname": user.lastname,
+                },
             }
-            for ticket in tickets
+            for ticket, user in tickets
         ]
 
     def respond_to_ticket(
