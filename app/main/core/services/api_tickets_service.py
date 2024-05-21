@@ -45,6 +45,7 @@ class ApiTicketsService:
                 "updated_at": ticket.updated_at.isoformat(),
                 "type": ticket.ticket_type,
                 "status": "closed" if ticket.response else "open",
+                "api_id": ticket.api_id,
             }
             for ticket in tickets
         ]
