@@ -11,4 +11,5 @@ class ApiTicket(db.Model):  # type: ignore
     description = db.Column(db.String, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False)
     updated_at = db.Column(db.DateTime, nullable=False)
+    ticket_type = db.Column(db.String, nullable=True)
     response = db.Column(db.String, nullable=True)

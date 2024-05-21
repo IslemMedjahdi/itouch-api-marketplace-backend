@@ -18,6 +18,7 @@ class ApiTicketsService:
             user_id=user_id,
             subject=ticket.get("subject"),
             description=ticket.get("description"),
+            ticket_type=ticket.get("type"),
             created_at=datetime.now(),
             updated_at=datetime.now(),
         )
@@ -34,7 +35,8 @@ class ApiTicketsService:
                 "response": ticket.response,
                 "created_at": ticket.created_at.isoformat(),
                 "updated_at": ticket.updated_at.isoformat(),
-                "status": "done" if ticket.response else "pending",
+                "type": ticket.ticket_type,
+                "status": "closed" if ticket.response else "open",
             }
             for ticket in tickets
         ]

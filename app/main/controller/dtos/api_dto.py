@@ -39,6 +39,9 @@ class ApiDto:
             "description": fields.String(
                 required=True,
             ),
+            "type": fields.String(
+                required=True,
+            ),
         },
     )
 
