@@ -74,6 +74,12 @@ class ApiTicketsService:
         if ticket is None:
             raise NotFoundError("Ticket not found")
 
+        if ticket.response:
+            raise BadRequestError("Ticket already closed")
+
+        if response.get("response") is None:
+            raise BadRequestError("Response is required")
+
         ticket.response = response.get("response")
 
-        ticket.save()
+        db.session.commit()
